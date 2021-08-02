@@ -5,11 +5,13 @@ import io.ktor.features.*
 import io.ktor.request.*
 import io.ktor.util.pipeline.*
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import network.warzone.api.http.ApiException
 import network.warzone.api.http.ValidationException
 import org.valiktor.Constraint
 import org.valiktor.ConstraintViolationException
@@ -26,27 +28,24 @@ suspend inline fun <reified T : Any> validate(context: PipelineContext<Unit, App
     } catch (ex: ConstraintViolationException) {
         val violation = ex.constraintViolations.first()
         throw ValidationException("Validation failed for '${violation.property}' (value: ${violation.value})")
+    } catch (ex: ApiException) {
+        println(ex)
+        throw ex
     } catch (ex: Exception) {
-        throw ValidationException("Validation failed! Ensure there are no extra properties in the JSON body")
+        throw ValidationException("Validation failed. Ensure the JSON body only contains relevant keys.")
     }
 }
 
 object PlayerName : Constraint
 
 fun <E> Validator<E>.Property<String?>.isPlayerName() = this.validate(PlayerName) {
-    if (it == null) return@validate false
+    if (it == null) return@validate true
     return@validate it.matches(PLAYER_NAME_REGEX)
 }
 
 object IPv4 : Constraint
 
 fun <E> Validator<E>.Property<String?>.isIPv4() = this.validate(IPv4) {
-    if (it == null) return@validate false
+    if (it == null) return@validate true
     return@validate it.matches(IP_V4_REGEX)
-}
-
-object UUIDSerializer : KSerializer<UUID> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
-    override fun serialize(encoder: Encoder, value: UUID) = encoder.encodeString(value.toString())
-    override fun deserialize(decoder: Decoder): UUID = UUID.fromString(decoder.decodeString())
 }

@@ -15,6 +15,12 @@ import network.warzone.api.socket.initSocketHandler
 
 fun main() {
     embeddedServer(Netty, host = "0.0.0.0", port = 3000) {
+        Server().apply { main() }
+    }.start(wait = true)
+}
+
+class Server {
+    fun Application.main() {
         install(ContentNegotiation) {
             json()
         }
@@ -23,6 +29,7 @@ fun main() {
             exception<ApiException> { ex ->
                 call.respond(ex.statusCode, ApiExceptionResponse(ex.type.code, ex.message))
             }
+
             exception<Throwable> { cause ->
                 call.respond(HttpStatusCode.InternalServerError, "Internal Server Error")
                 throw cause
@@ -34,5 +41,6 @@ fun main() {
         initSocketHandler()
 
         playerRoutes()
-    }.start(wait = true)
+    }
+
 }
