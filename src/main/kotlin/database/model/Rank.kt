@@ -10,6 +10,7 @@ import org.litote.kmongo.or
 data class Rank(
     val _id: String,
     var name: String,
+    var nameLower: String,
     var displayName: String?,
     var prefix: String?,
     var priority: Int,
@@ -24,15 +25,15 @@ data class Rank(
         }
 
         suspend fun findByIdOrName(id: String): Rank? {
-            return Database.ranks.findOne(or(Rank::_id eq id, Rank::name eq id.toLowerCase()))
+            return Database.ranks.findOne(or(Rank::_id eq id, Rank::nameLower eq id.toLowerCase()))
         }
 
         suspend fun findByName(id: String): Rank? {
-            return Database.ranks.findOne(Rank::name eq id.toLowerCase())
+            return Database.ranks.findOne(Rank::nameLower eq id.toLowerCase())
         }
 
         suspend fun deleteByIdOrName(id: String): DeleteResult {
-            return Database.ranks.deleteOne(or(Rank::_id eq id, Rank::name eq id.toLowerCase()))
+            return Database.ranks.deleteOne(or(Rank::_id eq id, Rank::nameLower eq id.toLowerCase()))
         }
     }
 }
