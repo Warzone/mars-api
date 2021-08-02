@@ -27,10 +27,22 @@ class RankConflictException :
 class RankMissingException :
     ApiException(HttpStatusCode.Conflict, ApiExceptionType.RANK_MISSING, "The rank does not exist")
 
+class RankAlreadyPresentException :
+    ApiException(
+        HttpStatusCode.Conflict,
+        ApiExceptionType.RANK_ALREADY_PRESENT,
+        "The rank is already present in the list"
+    )
+
+class RankNotPresentException :
+    ApiException(HttpStatusCode.NotFound, ApiExceptionType.RANK_NOT_PRESENT, "The rank is not present in the list")
+
 enum class ApiExceptionType(val code: String) {
     VALIDATION_ERROR("VALIDATION_ERROR"),
     SESSION_INACTIVE("SESSION_INACTIVE"),
     PLAYER_MISSING("PLAYER_MISSING"),
     RANK_CONFLICT("RANK_CONFLICT"),
-    RANK_MISSING("RANK_MISSING");
+    RANK_MISSING("RANK_MISSING"),
+    RANK_ALREADY_PRESENT("RANK_ALREADY_PRESENT"),
+    RANK_NOT_PRESENT("RANK_NOT_PRESENT");
 }

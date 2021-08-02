@@ -1,8 +1,10 @@
 package network.warzone.api.database.model
 
+import com.mongodb.client.result.DeleteResult
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.Database
 import org.litote.kmongo.eq
+import org.litote.kmongo.or
 
 @Serializable
 data class Rank(
@@ -19,6 +21,18 @@ data class Rank(
     companion object {
         suspend fun findDefault(): List<Rank> {
             return Database.ranks.find(Rank::applyOnJoin eq true).toList()
+        }
+
+        suspend fun findByIdOrName(id: String): Rank? {
+            return Database.ranks.findOne(or(Rank::_id eq id, Rank::name eq id.toLowerCase()))
+        }
+
+        suspend fun findByName(id: String): Rank? {
+            return Database.ranks.findOne(Rank::name eq id.toLowerCase())
+        }
+
+        suspend fun deleteByIdOrName(id: String): DeleteResult {
+            return Database.ranks.deleteOne(or(Rank::_id eq id, Rank::name eq id.toLowerCase()))
         }
     }
 }

@@ -7,11 +7,8 @@ import network.warzone.api.database.Database
 import network.warzone.api.database.model.Player
 import network.warzone.api.database.model.Rank
 import network.warzone.api.database.model.Session
-import network.warzone.api.http.PlayerMissingException
-import network.warzone.api.http.SessionInactiveException
-import network.warzone.api.http.player.PlayerLoginRequest
-import network.warzone.api.http.player.PlayerLoginResponse
-import network.warzone.api.http.player.PlayerLogoutRequest
+import network.warzone.api.http.*
+import network.warzone.api.http.player.*
 import network.warzone.api.util.validate
 import org.litote.kmongo.*
 import java.security.MessageDigest
@@ -25,7 +22,7 @@ fun Route.loginPlayer() {
             val activeSession =
                 Session(playerId = data.playerId, createdAt = now, endedAt = null, _id = UUID.randomUUID().toString())
 
-            val returningPlayer = Database.players.findOne(Player::_id eq data.playerId)
+            val returningPlayer = Player.findById(data.playerId)
 
             // todo: ensure username uniqueness
 
@@ -71,7 +68,7 @@ fun Route.loginPlayer() {
 
     post("/logout") {
         validate<PlayerLogoutRequest>(this) { data ->
-            val player = Database.players.findOne(Player::_id eq data.playerId) ?: throw PlayerMissingException()
+            val player = Player.findById(data.playerId) ?: throw PlayerMissingException()
             val activeSession = player.getActiveSession() ?: throw SessionInactiveException()
 
             activeSession.endedAt = System.currentTimeMillis()
@@ -85,11 +82,44 @@ fun Route.loginPlayer() {
     }
 }
 
+fun Route.playerRanks() {
+    post("/{id}/ranks") {
+        val id = call.parameters["id"] ?: throw ValidationException()
+        val player = Player.findByIdOrName(id) ?: throw PlayerMissingException()
+
+        validate<PlayerRanksModifyRequest>(this) { data ->
+            val rank = Rank.findByIdOrName(data.rankId) ?: throw RankMissingException()
+
+            if (rank._id in player.rankIds) throw RankAlreadyPresentException()
+            player.rankIds = player.rankIds + rank._id
+
+            Database.players.save(player)
+            call.respond(PlayerProfileResponse(player))
+        }
+    }
+
+    delete("/{id}/ranks") {
+        val id = call.parameters["id"] ?: throw ValidationException()
+        val player = Player.findByIdOrName(id) ?: throw PlayerMissingException()
+
+        validate<PlayerRanksModifyRequest>(this) { data ->
+            val rank = Rank.findByIdOrName(data.rankId) ?: throw RankMissingException()
+
+            if (rank._id !in player.rankIds) throw RankNotPresentException()
+            player.rankIds = player.rankIds.filterNot { it == rank._id }
+
+            Database.players.save(player)
+            call.respond(PlayerProfileResponse(player))
+        }
+    }
+}
+
 
 fun Application.playerRoutes() {
     routing {
         route("/mc/players") {
             loginPlayer()
+            playerRanks()
         }
     }
 }

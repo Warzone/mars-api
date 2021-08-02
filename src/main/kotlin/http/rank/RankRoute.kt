@@ -10,13 +10,12 @@ import network.warzone.api.http.RankMissingException
 import network.warzone.api.http.ValidationException
 import network.warzone.api.util.validate
 import org.litote.kmongo.eq
-import org.litote.kmongo.or
 import java.util.*
 
 fun Route.manageRanks() {
     post {
         validate<RankCreateRequest>(this) { data ->
-            val conflict = Database.ranks.findOne(Rank::name eq data.name.toLowerCase())
+            val conflict = Rank.findByName(data.name)
             if (conflict !== null) throw RankConflictException()
 
             val rank = Rank(
@@ -31,8 +30,6 @@ fun Route.manageRanks() {
                 createdAt = System.currentTimeMillis()
             )
 
-            println(rank)
-
             Database.ranks.save(rank)
 
             call.respond(RankCreateResponse(rank))
@@ -46,23 +43,21 @@ fun Route.manageRanks() {
 
     get("/{id}") {
         val id = call.parameters["id"] ?: throw ValidationException()
-        val rank = Database.ranks.findOne(or(Rank::_id eq id, Rank::name eq id.toLowerCase()))
-            ?: throw RankMissingException()
+        val rank = Rank.findByIdOrName(id) ?: throw RankMissingException()
         call.respond(RankCreateResponse(rank))
     }
 
     delete("/{id}") {
         val id = call.parameters["id"] ?: throw ValidationException()
-        val result = Database.ranks.deleteOne(or(Rank::_id eq id, Rank::name eq id.toLowerCase()))
+        val result = Rank.deleteByIdOrName(id)
         if (result.deletedCount == 0L) throw RankMissingException()
         call.respond(Unit)
     }
 
     put("/{id}") {
-        val id = call.parameters["id"]?.toLowerCase() ?: throw ValidationException()
+        val id = call.parameters["id"] ?: throw ValidationException()
         validate<RankUpdateRequest>(this) { data ->
-            val existingRank = Database.ranks.findOne(or(Rank::_id eq id, Rank::name eq id))
-                ?: throw RankMissingException()
+            val existingRank = Rank.findByIdOrName(id) ?: throw RankMissingException()
 
             val updatedRank = Rank(
                 _id = existingRank._id,
