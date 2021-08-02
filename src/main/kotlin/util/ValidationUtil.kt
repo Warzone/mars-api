@@ -4,13 +4,6 @@ import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.request.*
 import io.ktor.util.pipeline.*
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializer
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import network.warzone.api.http.ApiException
 import network.warzone.api.http.ValidationException
 import org.valiktor.Constraint
@@ -32,6 +25,7 @@ suspend inline fun <reified T : Any> validate(context: PipelineContext<Unit, App
         println(ex)
         throw ex
     } catch (ex: Exception) {
+        println(ex)
         throw ValidationException("Validation failed. Ensure the JSON body only contains relevant keys.")
     }
 }

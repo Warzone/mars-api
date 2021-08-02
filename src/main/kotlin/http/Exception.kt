@@ -21,8 +21,16 @@ class SessionInactiveException :
 class PlayerMissingException :
     ApiException(HttpStatusCode.NotFound, ApiExceptionType.PLAYER_MISSING, "The player does not exist")
 
+class RankConflictException :
+    ApiException(HttpStatusCode.Conflict, ApiExceptionType.RANK_CONFLICT, "A rank already exists with that name")
+
+class RankMissingException :
+    ApiException(HttpStatusCode.Conflict, ApiExceptionType.RANK_MISSING, "The rank does not exist")
+
 enum class ApiExceptionType(val code: String) {
     VALIDATION_ERROR("VALIDATION_ERROR"),
     SESSION_INACTIVE("SESSION_INACTIVE"),
-    PLAYER_MISSING("PLAYER_MISSING");
+    PLAYER_MISSING("PLAYER_MISSING"),
+    RANK_CONFLICT("RANK_CONFLICT"),
+    RANK_MISSING("RANK_MISSING");
 }
