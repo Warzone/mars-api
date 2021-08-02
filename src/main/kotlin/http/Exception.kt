@@ -37,6 +37,22 @@ class RankAlreadyPresentException :
 class RankNotPresentException :
     ApiException(HttpStatusCode.NotFound, ApiExceptionType.RANK_NOT_PRESENT, "The rank is not present in the list")
 
+class TagConflictException :
+    ApiException(HttpStatusCode.Conflict, ApiExceptionType.TAG_CONFLICT, "A tag already exists with that name")
+
+class TagMissingException :
+    ApiException(HttpStatusCode.Conflict, ApiExceptionType.TAG_MISSING, "The tag does not exist")
+
+class TagAlreadyPresentException :
+    ApiException(
+        HttpStatusCode.Conflict,
+        ApiExceptionType.TAG_ALREADY_PRESENT,
+        "The tag is already present in the list"
+    )
+
+class TagNotPresentException :
+    ApiException(HttpStatusCode.NotFound, ApiExceptionType.TAG_NOT_PRESENT, "The tag is not present in the list")
+
 enum class ApiExceptionType(val code: String) {
     VALIDATION_ERROR("VALIDATION_ERROR"),
     SESSION_INACTIVE("SESSION_INACTIVE"),
@@ -44,5 +60,9 @@ enum class ApiExceptionType(val code: String) {
     RANK_CONFLICT("RANK_CONFLICT"),
     RANK_MISSING("RANK_MISSING"),
     RANK_ALREADY_PRESENT("RANK_ALREADY_PRESENT"),
-    RANK_NOT_PRESENT("RANK_NOT_PRESENT");
+    RANK_NOT_PRESENT("RANK_NOT_PRESENT"),
+    TAG_CONFLICT("TAG_CONFLICT"),
+    TAG_MISSING("TAG_MISSING"),
+    TAG_ALREADY_PRESENT("TAG_ALREADY_PRESENT"),
+    TAG_NOT_PRESENT("TAG_NOT_PRESENT");
 }

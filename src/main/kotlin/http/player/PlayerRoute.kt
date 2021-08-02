@@ -14,7 +14,7 @@ import org.litote.kmongo.*
 import java.security.MessageDigest
 import java.util.*
 
-fun Route.loginPlayer() {
+fun Route.playerSessions() {
     post("/login") {
         validate<PlayerLoginRequest>(this) { data ->
             val now = System.currentTimeMillis()
@@ -118,7 +118,7 @@ fun Route.playerRanks() {
 fun Application.playerRoutes() {
     routing {
         route("/mc/players") {
-            loginPlayer()
+            playerSessions()
             playerRanks()
         }
     }
