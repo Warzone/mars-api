@@ -24,4 +24,7 @@ data class PlayerLogoutRequest(val playerId: String, val playtime: Long)
 data class PlayerRanksModifyRequest(val rankId: String)
 
 @Serializable
+data class PlayerTagsModifyRequest(val tagId: String)
+
+@Serializable
 data class PlayerProfileResponse(val player: Player)

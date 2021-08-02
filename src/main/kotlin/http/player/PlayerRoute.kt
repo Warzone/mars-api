@@ -7,6 +7,7 @@ import network.warzone.api.database.Database
 import network.warzone.api.database.model.Player
 import network.warzone.api.database.model.Rank
 import network.warzone.api.database.model.Session
+import network.warzone.api.database.model.Tag
 import network.warzone.api.http.*
 import network.warzone.api.http.player.*
 import network.warzone.api.util.validate
@@ -54,7 +55,8 @@ fun Route.playerSessions() {
                     firstJoinedAt = now,
                     lastJoinedAt = now,
                     playtime = 0,
-                    rankIds = Rank.findDefault().map { it._id }
+                    rankIds = Rank.findDefault().map { it._id },
+                    tagIds = emptyList()
                 )
 
                 Database.players.insertOne(player)
@@ -114,12 +116,46 @@ fun Route.playerRanks() {
     }
 }
 
+fun Route.playerTags() {
+    post("/{id}/tags") {
+        val id = call.parameters["id"] ?: throw ValidationException()
+        val player = Player.findByIdOrName(id) ?: throw PlayerMissingException()
+
+        validate<PlayerTagsModifyRequest>(this) { data ->
+            val tag = Tag.findByIdOrName(data.tagId) ?: throw TagMissingException()
+
+            if (tag._id in player.tagIds) throw TagAlreadyPresentException()
+            player.tagIds = player.tagIds + tag._id
+
+            Database.players.save(player)
+            call.respond(PlayerProfileResponse(player))
+        }
+    }
+
+    delete("/{id}/tags") {
+        val id = call.parameters["id"] ?: throw ValidationException()
+        val player = Player.findByIdOrName(id) ?: throw PlayerMissingException()
+
+        validate<PlayerTagsModifyRequest>(this) { data ->
+            val tag = Tag.findByIdOrName(data.tagId) ?: throw TagMissingException()
+
+            if (tag._id !in player.tagIds) throw TagNotPresentException()
+            player.tagIds = player.tagIds.filterNot { it == tag._id }
+
+            Database.players.save(player)
+            call.respond(PlayerProfileResponse(player))
+        }
+    }
+}
+
+
 
 fun Application.playerRoutes() {
     routing {
         route("/mc/players") {
             playerSessions()
             playerRanks()
+            playerTags()
         }
     }
 }
