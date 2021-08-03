@@ -32,8 +32,8 @@ data class Rank(
             return Database.ranks.findOne(Rank::nameLower eq id.toLowerCase())
         }
 
-        suspend fun deleteByIdOrName(id: String): DeleteResult {
-            return Database.ranks.deleteOne(or(Rank::_id eq id, Rank::nameLower eq id.toLowerCase()))
+        suspend fun deleteById(id: String): DeleteResult {
+            return Database.ranks.deleteOne(Rank::_id eq id)
         }
     }
 }

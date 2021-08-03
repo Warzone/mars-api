@@ -4,11 +4,13 @@ import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import network.warzone.api.database.Database
+import network.warzone.api.database.model.Player
 import network.warzone.api.database.model.Rank
 import network.warzone.api.http.RankConflictException
 import network.warzone.api.http.RankMissingException
 import network.warzone.api.http.ValidationException
 import network.warzone.api.util.validate
+import org.litote.kmongo.contains
 import org.litote.kmongo.eq
 import java.util.*
 
@@ -50,9 +52,15 @@ fun Route.manageRanks() {
 
     delete("/{id}") {
         val id = call.parameters["id"] ?: throw ValidationException()
-        val result = Rank.deleteByIdOrName(id)
+        val result = Rank.deleteById(id)
         if (result.deletedCount == 0L) throw RankMissingException()
         call.respond(Unit)
+
+        val playersWithRank = Database.players.find(Player::rankIds contains id).toList()
+        playersWithRank.forEach {
+            it.rankIds = it.rankIds.filterNot { rankId -> rankId == id }
+            Database.players.save(it)
+        }
     }
 
     put("/{id}") {

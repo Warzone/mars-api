@@ -17,8 +17,8 @@ data class Tag(val _id: String, var name: String, var nameLower: String, var dis
             return Database.tags.findOne(Tag::nameLower eq id.toLowerCase())
         }
 
-        suspend fun deleteByIdOrName(id: String): DeleteResult {
-            return Database.tags.deleteOne(or(Tag::_id eq id, Tag::nameLower eq id.toLowerCase()))
+        suspend fun deleteById(id: String): DeleteResult {
+            return Database.tags.deleteOne(Tag::_id eq id)
         }
     }
 }
