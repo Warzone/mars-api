@@ -7,7 +7,7 @@ import org.litote.kmongo.or
 
 @Serializable
 data class Player(
-    var _id: String,
+    val _id: String,
     var name: String,
     var nameLower: String,
     var firstJoinedAt: Long,

@@ -35,19 +35,19 @@ fun Route.manageRanks() {
 
             Database.ranks.save(rank)
 
-            call.respond(RankCreateResponse(rank))
+            call.respond(rank)
         }
     }
 
     get {
         val ranks = Database.ranks.find().toList()
-        call.respond(RankListResponse(ranks))
+        call.respond(ranks)
     }
 
     get("/{id}") {
         val id = call.parameters["id"] ?: throw ValidationException()
         val rank = Database.ranks.findByIdOrName(id) ?: throw RankMissingException()
-        call.respond(RankCreateResponse(rank))
+        call.respond(rank)
     }
 
     delete("/{id}") {
@@ -67,12 +67,14 @@ fun Route.manageRanks() {
         val id = call.parameters["id"] ?: throw ValidationException()
         validate<RankUpdateRequest>(this) { data ->
             val existingRank = Database.ranks.findById(id) ?: throw RankMissingException()
+            val conflict = Database.ranks.findByName(data.name)?._id !== existingRank._id
+            if (conflict) throw RankConflictException()
 
             val updatedRank = Rank(
                 _id = existingRank._id,
                 createdAt = existingRank.createdAt,
                 name = data.name,
-                nameLower = data.name.toLowerCase(),
+                nameLower = data.name.lowercase(),
                 displayName = data.displayName,
                 prefix = data.prefix,
                 priority = data.priority,
@@ -83,7 +85,7 @@ fun Route.manageRanks() {
 
             Database.ranks.updateOne(Rank::_id eq existingRank._id, updatedRank)
 
-            call.respond(RankCreateResponse(updatedRank))
+            call.respond(updatedRank)
         }
     }
 }

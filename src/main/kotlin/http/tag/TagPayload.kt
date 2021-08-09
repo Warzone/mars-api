@@ -8,9 +8,3 @@ data class TagCreateRequest(
     val name: String,
     val display: String,
 )
-
-@Serializable
-data class TagCreateResponse(val tag: Tag)
-
-@Serializable
-data class TagListResponse(val tags: List<Tag>)

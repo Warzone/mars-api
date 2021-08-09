@@ -15,17 +15,11 @@ data class RankCreateRequest(
 )
 
 @Serializable
-data class RankCreateResponse(val rank: Rank)
-
-@Serializable
-data class RankListResponse(val ranks: List<Rank>)
-
-@Serializable
 data class RankUpdateRequest(
     val name: String,
-    val displayName: String?,
+    val displayName: String? = null,
     val priority: Int,
-    val prefix: String?,
+    val prefix: String? = null,
     val permissions: List<String>,
     val staff: Boolean,
     val applyOnJoin: Boolean

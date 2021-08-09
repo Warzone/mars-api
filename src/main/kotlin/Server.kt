@@ -11,6 +11,7 @@ import io.ktor.server.netty.*
 import io.ktor.websocket.*
 import network.warzone.api.http.ApiException
 import network.warzone.api.http.ApiExceptionResponse
+import network.warzone.api.http.map.mapRoutes
 import network.warzone.api.http.rank.rankRoutes
 import network.warzone.api.http.tag.tagRoutes
 import network.warzone.api.socket.initSocketHandler
@@ -45,6 +46,7 @@ class Server {
         playerRoutes()
         rankRoutes()
         tagRoutes()
+        mapRoutes()
     }
 
 }

@@ -90,7 +90,7 @@ fun Route.playerSessions() {
         val playerId = call.parameters["playerId"] ?: throw ValidationException()
         val player = Database.players.findByIdOrName(playerId) ?: throw PlayerMissingException()
 
-        call.respond(PlayerProfileResponse(player))
+        call.respond(player)
     }
 }
 
@@ -106,7 +106,7 @@ fun Route.playerTags() {
         player.tagIds = player.tagIds + tag._id
 
         Database.players.save(player)
-        call.respond(PlayerProfileResponse(player))
+        call.respond(player)
     }
 
     delete("/{playerId}/tags/{tagId}") {
@@ -120,7 +120,7 @@ fun Route.playerTags() {
         player.tagIds = player.tagIds.filterNot { it == tag._id }
 
         Database.players.save(player)
-        call.respond(PlayerProfileResponse(player))
+        call.respond(player)
     }
 }
 
@@ -136,7 +136,7 @@ fun Route.playerRanks() {
         player.rankIds = player.rankIds + rank._id
 
         Database.players.save(player)
-        call.respond(PlayerProfileResponse(player))
+        call.respond(player)
     }
 
     delete("/{playerId}/ranks/{rankId}") {
@@ -150,7 +150,7 @@ fun Route.playerRanks() {
         player.rankIds = player.rankIds.filterNot { it == rank._id }
 
         Database.players.save(player)
-        call.respond(PlayerProfileResponse(player))
+        call.respond(player)
     }
 }
 

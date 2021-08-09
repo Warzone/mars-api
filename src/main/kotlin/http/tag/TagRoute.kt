@@ -28,19 +28,19 @@ fun Route.manageTags() {
 
             Database.tags.save(tag)
 
-            call.respond(TagCreateResponse(tag))
+            call.respond(tag)
         }
     }
 
     get {
         val tags = Database.tags.find().toList()
-        call.respond(TagListResponse(tags))
+        call.respond(tags)
     }
 
     get("/{id}") {
         val id = call.parameters["id"] ?: throw ValidationException()
         val tag = Database.tags.findByIdOrName(id) ?: throw TagMissingException()
-        call.respond(TagCreateResponse(tag))
+        call.respond(tag)
     }
 
     delete("/{id}") {
@@ -71,7 +71,7 @@ fun Route.manageTags() {
 
             Database.tags.updateOne(Tag::_id eq existingTag._id, updatedTag)
 
-            call.respond(TagCreateResponse(updatedTag))
+            call.respond(updatedTag)
         }
     }
 }
