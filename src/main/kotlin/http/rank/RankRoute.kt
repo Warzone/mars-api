@@ -12,6 +12,7 @@ import network.warzone.api.http.ValidationException
 import network.warzone.api.util.validate
 import org.litote.kmongo.contains
 import org.litote.kmongo.eq
+import org.litote.kmongo.not
 import java.util.*
 
 fun Route.manageRanks() {
@@ -67,8 +68,9 @@ fun Route.manageRanks() {
         val id = call.parameters["id"] ?: throw ValidationException()
         validate<RankUpdateRequest>(this) { data ->
             val existingRank = Database.ranks.findById(id) ?: throw RankMissingException()
-            val conflict = Database.ranks.findByName(data.name)?._id !== existingRank._id
-            if (conflict) throw RankConflictException()
+            val conflictRank =
+                Database.ranks.findOne(not(Rank::_id eq existingRank._id), Rank::nameLower eq data.name.lowercase())
+            if (conflictRank != null) throw RankConflictException()
 
             val updatedRank = Rank(
                 _id = existingRank._id,
