@@ -3,7 +3,7 @@ package network.warzone.api.http.tag
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import network.warzone.api.database.Database
+import network.warzone.api.database.*
 import network.warzone.api.database.model.Player
 import network.warzone.api.database.model.Tag
 import network.warzone.api.http.*
@@ -15,13 +15,13 @@ import java.util.*
 fun Route.manageTags() {
     post {
         validate<TagCreateRequest>(this) { data ->
-            val conflict = Tag.findByName(data.name)
+            val conflict = Database.tags.findByName(data.name)
             if (conflict !== null) throw TagConflictException()
 
             val tag = Tag(
                 _id = UUID.randomUUID().toString(),
                 name = data.name,
-                nameLower = data.name.toLowerCase(),
+                nameLower = data.name.lowercase(),
                 display = data.display,
                 createdAt = System.currentTimeMillis()
             )
@@ -39,13 +39,13 @@ fun Route.manageTags() {
 
     get("/{id}") {
         val id = call.parameters["id"] ?: throw ValidationException()
-        val tag = Tag.findByIdOrName(id) ?: throw TagMissingException()
+        val tag = Database.tags.findByIdOrName(id) ?: throw TagMissingException()
         call.respond(TagCreateResponse(tag))
     }
 
     delete("/{id}") {
         val id = call.parameters["id"] ?: throw ValidationException()
-        val result = Tag.deleteById(id)
+        val result = Database.ranks.deleteById(id)
         if (result.deletedCount == 0L) throw TagMissingException()
         call.respond(Unit)
 
@@ -59,13 +59,13 @@ fun Route.manageTags() {
     put("/{id}") {
         val id = call.parameters["id"] ?: throw ValidationException()
         validate<TagCreateRequest>(this) { data ->
-            val existingTag = Tag.findByIdOrName(id) ?: throw TagMissingException()
+            val existingTag = Database.tags.findByIdOrName(id) ?: throw TagMissingException()
 
             val updatedTag = Tag(
                 _id = existingTag._id,
                 createdAt = existingTag.createdAt,
                 name = data.name,
-                nameLower = data.name.toLowerCase(),
+                nameLower = data.name.lowercase(),
                 display = data.display,
             )
 

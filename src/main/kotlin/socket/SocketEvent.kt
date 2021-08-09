@@ -12,6 +12,6 @@ enum class SocketEventType(val rawName: String) {
     IDENTIFY("IDENTIFY");
 
     companion object {
-        fun fromRawName(value: String): SocketEventType? = values().find { it.rawName  == value }
+        fun fromRawName(value: String): SocketEventType? = values().find { it.rawName == value }
     }
 }

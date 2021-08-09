@@ -5,6 +5,8 @@ import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import network.warzone.api.database.Database
+import network.warzone.api.database.findById
+import network.warzone.api.database.findByIdOrName
 import network.warzone.api.database.model.Player
 import network.warzone.api.database.model.Rank
 import network.warzone.api.database.model.Session
@@ -24,7 +26,7 @@ fun Route.playerSessions() {
             val activeSession =
                 Session(playerId = data.playerId, createdAt = now, endedAt = null, _id = UUID.randomUUID().toString())
 
-            val returningPlayer = Player.findById(data.playerId)
+            val returningPlayer = Database.players.findById(data.playerId)
 
             // todo: ensure username uniqueness
 
@@ -71,7 +73,7 @@ fun Route.playerSessions() {
 
     post("/logout") {
         validate<PlayerLogoutRequest>(this) { data ->
-            val player = Player.findById(data.playerId) ?: throw PlayerMissingException()
+            val player = Database.players.findById(data.playerId) ?: throw PlayerMissingException()
             val activeSession = player.getActiveSession() ?: throw SessionInactiveException()
 
             activeSession.endedAt = System.currentTimeMillis()
@@ -83,6 +85,13 @@ fun Route.playerSessions() {
             call.respond(Unit)
         }
     }
+
+    get("/{playerId}") {
+        val playerId = call.parameters["playerId"] ?: throw ValidationException()
+        val player = Database.players.findByIdOrName(playerId) ?: throw PlayerMissingException()
+
+        call.respond(PlayerProfileResponse(player))
+    }
 }
 
 fun Route.playerTags() {
@@ -90,8 +99,8 @@ fun Route.playerTags() {
         val playerId = call.parameters["playerId"] ?: throw ValidationException()
         val tagId = call.parameters["tagId"] ?: throw ValidationException()
 
-        val player = Player.findByIdOrName(playerId) ?: throw PlayerMissingException()
-        val tag = Tag.findByIdOrName(tagId) ?: throw TagMissingException()
+        val player = Database.players.findById(playerId) ?: throw PlayerMissingException()
+        val tag = Database.tags.findByIdOrName(tagId) ?: throw TagMissingException()
 
         if (tag._id in player.tagIds) throw TagAlreadyPresentException()
         player.tagIds = player.tagIds + tag._id
@@ -104,8 +113,8 @@ fun Route.playerTags() {
         val playerId = call.parameters["playerId"] ?: throw ValidationException()
         val tagId = call.parameters["tagId"] ?: throw ValidationException()
 
-        val player = Player.findByIdOrName(playerId) ?: throw PlayerMissingException()
-        val tag = Tag.findByIdOrName(tagId) ?: throw TagMissingException()
+        val player = Database.players.findById(playerId) ?: throw PlayerMissingException()
+        val tag = Database.tags.findByIdOrName(tagId) ?: throw TagMissingException()
 
         if (tag._id !in player.tagIds) throw TagNotPresentException()
         player.tagIds = player.tagIds.filterNot { it == tag._id }
@@ -120,8 +129,8 @@ fun Route.playerRanks() {
         val playerId = call.parameters["playerId"] ?: throw ValidationException()
         val rankId = call.parameters["rankId"] ?: throw ValidationException()
 
-        val player = Player.findByIdOrName(playerId) ?: throw PlayerMissingException()
-        val rank = Rank.findByIdOrName(rankId) ?: throw RankMissingException()
+        val player = Database.players.findById(playerId) ?: throw PlayerMissingException()
+        val rank = Database.ranks.findById(rankId) ?: throw RankMissingException()
 
         if (rank._id in player.rankIds) throw RankAlreadyPresentException()
         player.rankIds = player.rankIds + rank._id
@@ -134,8 +143,8 @@ fun Route.playerRanks() {
         val playerId = call.parameters["playerId"] ?: throw ValidationException()
         val rankId = call.parameters["rankId"] ?: throw ValidationException()
 
-        val player = Player.findByIdOrName(playerId) ?: throw PlayerMissingException()
-        val rank = Rank.findByIdOrName(rankId) ?: throw RankMissingException()
+        val player = Database.players.findById(playerId) ?: throw PlayerMissingException()
+        val rank = Database.ranks.findById(rankId) ?: throw RankMissingException()
 
         if (rank._id !in player.rankIds) throw RankNotPresentException()
         player.rankIds = player.rankIds.filterNot { it == rank._id }

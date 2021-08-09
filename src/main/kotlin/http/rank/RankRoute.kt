@@ -3,7 +3,7 @@ package network.warzone.api.http.rank
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import network.warzone.api.database.Database
+import network.warzone.api.database.*
 import network.warzone.api.database.model.Player
 import network.warzone.api.database.model.Rank
 import network.warzone.api.http.RankConflictException
@@ -17,7 +17,7 @@ import java.util.*
 fun Route.manageRanks() {
     post {
         validate<RankCreateRequest>(this) { data ->
-            val conflict = Rank.findByName(data.name)
+            val conflict = Database.ranks.findByName(data.name)
             if (conflict !== null) throw RankConflictException()
 
             val rank = Rank(
@@ -46,13 +46,13 @@ fun Route.manageRanks() {
 
     get("/{id}") {
         val id = call.parameters["id"] ?: throw ValidationException()
-        val rank = Rank.findByIdOrName(id) ?: throw RankMissingException()
+        val rank = Database.ranks.findByIdOrName(id) ?: throw RankMissingException()
         call.respond(RankCreateResponse(rank))
     }
 
     delete("/{id}") {
         val id = call.parameters["id"] ?: throw ValidationException()
-        val result = Rank.deleteById(id)
+        val result = Database.ranks.deleteById(id)
         if (result.deletedCount == 0L) throw RankMissingException()
         call.respond(Unit)
 
@@ -66,7 +66,7 @@ fun Route.manageRanks() {
     put("/{id}") {
         val id = call.parameters["id"] ?: throw ValidationException()
         validate<RankUpdateRequest>(this) { data ->
-            val existingRank = Rank.findByIdOrName(id) ?: throw RankMissingException()
+            val existingRank = Database.ranks.findById(id) ?: throw RankMissingException()
 
             val updatedRank = Rank(
                 _id = existingRank._id,

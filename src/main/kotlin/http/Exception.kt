@@ -25,7 +25,7 @@ class RankConflictException :
     ApiException(HttpStatusCode.Conflict, ApiExceptionType.RANK_CONFLICT, "A rank already exists with that name")
 
 class RankMissingException :
-    ApiException(HttpStatusCode.Conflict, ApiExceptionType.RANK_MISSING, "The rank does not exist")
+    ApiException(HttpStatusCode.NotFound, ApiExceptionType.RANK_MISSING, "The rank does not exist")
 
 class RankAlreadyPresentException :
     ApiException(

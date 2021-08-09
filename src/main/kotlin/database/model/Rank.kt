@@ -23,17 +23,5 @@ data class Rank(
         suspend fun findDefault(): List<Rank> {
             return Database.ranks.find(Rank::applyOnJoin eq true).toList()
         }
-
-        suspend fun findByIdOrName(id: String): Rank? {
-            return Database.ranks.findOne(or(Rank::_id eq id, Rank::nameLower eq id.toLowerCase()))
-        }
-
-        suspend fun findByName(id: String): Rank? {
-            return Database.ranks.findOne(Rank::nameLower eq id.toLowerCase())
-        }
-
-        suspend fun deleteById(id: String): DeleteResult {
-            return Database.ranks.deleteOne(Rank::_id eq id)
-        }
     }
 }

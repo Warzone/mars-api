@@ -20,14 +20,4 @@ data class Player(
     suspend fun getActiveSession(): Session? {
         return Database.sessions.findOne(Session::endedAt eq null, Session::playerId eq _id)
     }
-
-    companion object {
-        suspend fun findByIdOrName(id: String): Player? {
-            return Database.players.findOne(or(Player::_id eq id, Player::nameLower eq id.toLowerCase()))
-        }
-
-        suspend fun findById(id: String): Player? {
-            return Database.players.findOne(Player::_id eq id)
-        }
-    }
 }
