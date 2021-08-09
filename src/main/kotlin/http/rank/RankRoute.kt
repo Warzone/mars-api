@@ -24,7 +24,7 @@ fun Route.manageRanks() {
             val rank = Rank(
                 _id = UUID.randomUUID().toString(),
                 name = data.name,
-                nameLower = data.name.toLowerCase(),
+                nameLower = data.name.lowercase(),
                 displayName = data.displayName,
                 priority = data.priority,
                 prefix = data.prefix,
