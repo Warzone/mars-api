@@ -1,6 +1,7 @@
 package http.player
 
 import io.ktor.application.*
+import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import network.warzone.api.database.Database
@@ -62,7 +63,7 @@ fun Route.playerSessions() {
                 Database.players.insertOne(player)
                 Database.sessions.save(activeSession)
 
-                return@post call.respond(PlayerLoginResponse(player = player, activeSession))
+                return@post call.respond(HttpStatusCode.Created, PlayerLoginResponse(player = player, activeSession))
             }
 
         }
@@ -84,71 +85,65 @@ fun Route.playerSessions() {
     }
 }
 
-fun Route.playerRanks() {
-    post("/{id}/ranks") {
-        val id = call.parameters["id"] ?: throw ValidationException()
-        val player = Player.findByIdOrName(id) ?: throw PlayerMissingException()
-
-        validate<PlayerRanksModifyRequest>(this) { data ->
-            val rank = Rank.findByIdOrName(data.rankId) ?: throw RankMissingException()
-
-            if (rank._id in player.rankIds) throw RankAlreadyPresentException()
-            player.rankIds = player.rankIds + rank._id
-
-            Database.players.save(player)
-            call.respond(PlayerProfileResponse(player))
-        }
-    }
-
-    delete("/{id}/ranks") {
-        val id = call.parameters["id"] ?: throw ValidationException()
-        val player = Player.findByIdOrName(id) ?: throw PlayerMissingException()
-
-        validate<PlayerRanksModifyRequest>(this) { data ->
-            val rank = Rank.findByIdOrName(data.rankId) ?: throw RankMissingException()
-
-            if (rank._id !in player.rankIds) throw RankNotPresentException()
-            player.rankIds = player.rankIds.filterNot { it == rank._id }
-
-            Database.players.save(player)
-            call.respond(PlayerProfileResponse(player))
-        }
-    }
-}
-
 fun Route.playerTags() {
-    post("/{id}/tags") {
-        val id = call.parameters["id"] ?: throw ValidationException()
-        val player = Player.findByIdOrName(id) ?: throw PlayerMissingException()
+    put("/{playerId}/tags/{tagId}") {
+        val playerId = call.parameters["playerId"] ?: throw ValidationException()
+        val tagId = call.parameters["tagId"] ?: throw ValidationException()
 
-        validate<PlayerTagsModifyRequest>(this) { data ->
-            val tag = Tag.findByIdOrName(data.tagId) ?: throw TagMissingException()
+        val player = Player.findByIdOrName(playerId) ?: throw PlayerMissingException()
+        val tag = Tag.findByIdOrName(tagId) ?: throw TagMissingException()
 
-            if (tag._id in player.tagIds) throw TagAlreadyPresentException()
-            player.tagIds = player.tagIds + tag._id
+        if (tag._id in player.tagIds) throw TagAlreadyPresentException()
+        player.tagIds = player.tagIds + tag._id
 
-            Database.players.save(player)
-            call.respond(PlayerProfileResponse(player))
-        }
+        Database.players.save(player)
+        call.respond(PlayerProfileResponse(player))
     }
 
-    delete("/{id}/tags") {
-        val id = call.parameters["id"] ?: throw ValidationException()
-        val player = Player.findByIdOrName(id) ?: throw PlayerMissingException()
+    delete("/{playerId}/tags/{tagId}") {
+        val playerId = call.parameters["playerId"] ?: throw ValidationException()
+        val tagId = call.parameters["tagId"] ?: throw ValidationException()
 
-        validate<PlayerTagsModifyRequest>(this) { data ->
-            val tag = Tag.findByIdOrName(data.tagId) ?: throw TagMissingException()
+        val player = Player.findByIdOrName(playerId) ?: throw PlayerMissingException()
+        val tag = Tag.findByIdOrName(tagId) ?: throw TagMissingException()
 
-            if (tag._id !in player.tagIds) throw TagNotPresentException()
-            player.tagIds = player.tagIds.filterNot { it == tag._id }
+        if (tag._id !in player.tagIds) throw TagNotPresentException()
+        player.tagIds = player.tagIds.filterNot { it == tag._id }
 
-            Database.players.save(player)
-            call.respond(PlayerProfileResponse(player))
-        }
+        Database.players.save(player)
+        call.respond(PlayerProfileResponse(player))
     }
 }
 
+fun Route.playerRanks() {
+    put("/{playerId}/ranks/{rankId}") {
+        val playerId = call.parameters["playerId"] ?: throw ValidationException()
+        val rankId = call.parameters["rankId"] ?: throw ValidationException()
 
+        val player = Player.findByIdOrName(playerId) ?: throw PlayerMissingException()
+        val rank = Rank.findByIdOrName(rankId) ?: throw RankMissingException()
+
+        if (rank._id in player.rankIds) throw RankAlreadyPresentException()
+        player.rankIds = player.rankIds + rank._id
+
+        Database.players.save(player)
+        call.respond(PlayerProfileResponse(player))
+    }
+
+    delete("/{playerId}/ranks/{rankId}") {
+        val playerId = call.parameters["playerId"] ?: throw ValidationException()
+        val rankId = call.parameters["rankId"] ?: throw ValidationException()
+
+        val player = Player.findByIdOrName(playerId) ?: throw PlayerMissingException()
+        val rank = Rank.findByIdOrName(rankId) ?: throw RankMissingException()
+
+        if (rank._id !in player.rankIds) throw RankNotPresentException()
+        player.rankIds = player.rankIds.filterNot { it == rank._id }
+
+        Database.players.save(player)
+        call.respond(PlayerProfileResponse(player))
+    }
+}
 
 fun Application.playerRoutes() {
     routing {
@@ -161,4 +156,4 @@ fun Application.playerRoutes() {
 }
 
 fun hashSHA256(ip: String) =
-    MessageDigest.getInstance("SHA-256").digest(ip.toByteArray()).fold("", { str, it -> str + "%02x".format(it) })
+    MessageDigest.getInstance("SHA-256").digest(ip.toByteArray()).fold("") { str, it -> str + "%02x".format(it) }

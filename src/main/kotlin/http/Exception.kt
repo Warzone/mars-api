@@ -41,7 +41,7 @@ class TagConflictException :
     ApiException(HttpStatusCode.Conflict, ApiExceptionType.TAG_CONFLICT, "A tag already exists with that name")
 
 class TagMissingException :
-    ApiException(HttpStatusCode.Conflict, ApiExceptionType.TAG_MISSING, "The tag does not exist")
+    ApiException(HttpStatusCode.NotFound, ApiExceptionType.TAG_MISSING, "The tag does not exist")
 
 class TagAlreadyPresentException :
     ApiException(
