@@ -59,13 +59,14 @@ fun Route.playerSessions() {
                     lastJoinedAt = now,
                     playtime = 0,
                     rankIds = Rank.findDefault().map { it._id },
-                    tagIds = emptyList()
+                    tagIds = emptyList(),
+                    activeTagId = null
                 )
 
                 Database.players.insertOne(player)
                 Database.sessions.save(activeSession)
 
-                return@post call.respond(HttpStatusCode.Created, PlayerLoginResponse(player = player, activeSession))
+                return@post call.respond(HttpStatusCode.Created, PlayerLoginResponse(player, activeSession))
             }
 
         }
@@ -95,6 +96,27 @@ fun Route.playerSessions() {
 }
 
 fun Route.playerTags() {
+    put("/{playerId}/active_tag") {
+        validate<PlayerSetActiveTagRequest>(this) { data ->
+            val playerId = call.parameters["playerId"] ?: throw ValidationException()
+            val tagId = data.activeTagId;
+
+            val player = Database.players.findByIdOrName(playerId) ?: throw PlayerMissingException()
+
+            if (tagId == player.activeTagId) return@put call.respond(player)
+
+            if (tagId == null) {
+                player.activeTagId = null;
+            } else {
+                if (tagId !in player.tagIds) throw TagNotPresentException()
+                player.activeTagId = tagId
+            }
+
+            Database.players.save(player)
+            call.respond(player)
+        }
+    }
+
     put("/{playerId}/tags/{tagId}") {
         val playerId = call.parameters["playerId"] ?: throw ValidationException()
         val tagId = call.parameters["tagId"] ?: throw ValidationException()

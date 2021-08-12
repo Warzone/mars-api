@@ -15,7 +15,8 @@ data class Player(
     var playtime: Long,
     var ips: List<String>,
     var rankIds: List<String>,
-    var tagIds: List<String>
+    var tagIds: List<String>,
+    var activeTagId: String?
 ) {
     suspend fun getActiveSession(): Session? {
         return Database.sessions.findOne(Session::endedAt eq null, Session::playerId eq _id)
