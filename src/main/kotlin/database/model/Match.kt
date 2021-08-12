@@ -9,8 +9,8 @@ data class TeamMapping(val playerId: String, val playerName: String, val teamNam
 data class Match(
     val _id: String,
     val loadedAt: Long,
-    val startedAt: Long?,
-    val endedAt: Long?,
+    var startedAt: Long?,
+    var endedAt: Long?,
     val mapId: String,
-    val teamMappings: List<TeamMapping>
+    var teamMappings: List<TeamMapping>
 )

@@ -28,7 +28,7 @@ fun Route.manageRanks() {
                 displayName = data.displayName,
                 priority = data.priority,
                 prefix = data.prefix,
-                permissions = data.permissions,
+                permissions = data.permissions.distinct(),
                 staff = data.staff,
                 applyOnJoin = data.applyOnJoin,
                 createdAt = System.currentTimeMillis()
@@ -80,7 +80,7 @@ fun Route.manageRanks() {
                 displayName = data.displayName,
                 prefix = data.prefix,
                 priority = data.priority,
-                permissions = data.permissions,
+                permissions = data.permissions.distinct(),
                 staff = data.staff,
                 applyOnJoin = data.applyOnJoin
             )

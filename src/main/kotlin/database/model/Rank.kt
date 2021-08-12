@@ -1,10 +1,8 @@
 package network.warzone.api.database.model
 
-import com.mongodb.client.result.DeleteResult
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.Database
 import org.litote.kmongo.eq
-import org.litote.kmongo.or
 
 @Serializable
 data class Rank(
