@@ -8,6 +8,7 @@ import io.ktor.response.*
 import io.ktor.serialization.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.util.*
 import io.ktor.websocket.*
 import network.warzone.api.http.ApiException
 import network.warzone.api.http.ApiExceptionResponse
@@ -34,9 +35,16 @@ class Server {
             }
 
             exception<Throwable> { cause ->
-                call.respond(HttpStatusCode.InternalServerError, "Internal Server Error")
-                throw cause
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    ApiExceptionResponse(
+                        "INTERNAL_SERVER_ERROR",
+                        "An internal server error occurred. This should not happen."
+                    )
+                )
+                log.error(cause)
             }
+
         }
 
         install(WebSockets)
@@ -48,5 +56,4 @@ class Server {
         tagRoutes()
         mapRoutes()
     }
-
 }
