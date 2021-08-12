@@ -9,7 +9,6 @@ group = 'network.warzone'
 version = '1.0-SNAPSHOT'
 
 repositories {
-    jcenter()
     mavenCentral()
 //    maven { url = uri('https://dl.bintray.com/kotlin/kotlinx') }
 //    maven { url = uri('https://dl.bintray.com/kotlin/ktor') }
@@ -18,7 +17,6 @@ repositories {
 dependencies {
     implementation 'io.ktor:ktor-server-netty:1.6.2'
     implementation 'io.ktor:ktor-websockets:1.6.2'
-//    implementation 'io.ktor:ktor-locations:1.4.0'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2'
     implementation 'io.ktor:ktor-serialization:1.6.2'
