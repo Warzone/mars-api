@@ -5,20 +5,27 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import network.warzone.api.database.Database
 import network.warzone.api.database.findById
-import network.warzone.api.database.model.Map
+import network.warzone.api.database.models.Map
+import network.warzone.api.http.MapMissingException
+import network.warzone.api.http.ValidationException
 import network.warzone.api.util.validate
 
 fun Route.manageMaps() {
     post {
         validate<List<MapLoadOneRequest>>(this) { mapList ->
+            val now = System.currentTimeMillis()
             val mapsToSave = mutableListOf<Map>()
             mapList.forEach { map ->
+                println(map)
                 val existingMap = Database.maps.findById(map._id)
                 if (existingMap !== null) { // Updating existing map (e.g. new version)
                     existingMap.name = map.name
                     existingMap.nameLower = existingMap.name.lowercase()
                     existingMap.version = map.version
-                    existingMap.gamemode = map.gamemode
+                    existingMap.gamemodes = map.gamemodes
+                    existingMap.authors = map.authors
+                    existingMap.updatedAt = now
+                    existingMap.contributors = map.contributors
                     mapsToSave.add(existingMap)
                 } else { // Map is new
                     mapsToSave.add(
@@ -27,8 +34,11 @@ fun Route.manageMaps() {
                             name = map.name,
                             nameLower = map.name.lowercase(),
                             version = map.version,
-                            gamemode = map.gamemode,
-                            loadedAt = System.currentTimeMillis()
+                            gamemodes = map.gamemodes,
+                            loadedAt = now,
+                            updatedAt = now,
+                            authors = map.authors,
+                            contributors = map.contributors
                         )
                     )
                 }
@@ -43,6 +53,12 @@ fun Route.manageMaps() {
     get {
         val maps = Database.maps.find().toList()
         call.respond(maps)
+    }
+
+    get("/{mapId}") {
+        val mapId = call.parameters["mapId"] ?: throw ValidationException()
+        val map = Database.maps.findById(mapId) ?: throw MapMissingException()
+        call.respond(map)
     }
 }
 

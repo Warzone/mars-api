@@ -3,16 +3,13 @@ package network.warzone.api.socket
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
 import io.ktor.routing.*
+import io.ktor.util.*
 import io.ktor.websocket.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import network.warzone.api.socket.connection.ConnectionStore
-import network.warzone.api.socket.connection.MinecraftConnection
-import network.warzone.api.socket.connection.MinecraftServerInfo
-import network.warzone.api.socket.event.inbound.match.MatchLoadEvent
-import network.warzone.api.socket.event.inbound.match.MatchStartEvent
+import network.warzone.api.socket.listeners.LogListener
+import network.warzone.api.socket.listeners.MatchListener
 import network.warzone.api.util.zlibDecompress
 
 fun Application.initSocketHandler() {
@@ -34,29 +31,21 @@ fun Application.initSocketHandler() {
             try {
                 for (frame in incoming) {
                     frame as? Frame.Binary ?: continue
-
                     val body = frame.data.zlibDecompress()
 
                     val json = Json.parseToJsonElement(body).jsonObject
-                    val eventName = json["e"]?.jsonPrimitive!!.content
-                    val eventData = json["d"]?.jsonObject!!
-                    val eventType = SocketEventType.fromRawName(eventName)
+                    val eventName = json["e"]?.jsonPrimitive?.content ?: throw RuntimeException("Invalid event name")
+                    val eventData = json["d"]?.jsonObject ?: throw RuntimeException("Invalid event data")
+                    val eventType = SocketEvent.fromRawName(eventName) ?: throw RuntimeException("Invalid event type")
 
-                    log.info("Minecraft socket event! | Server: ${connection.serverInfo.id} | Type: $eventName | Data: $eventData")
-
-                    when (eventType) {
-                        SocketEventType.MATCH_LOAD -> MatchLoadEvent(Json.decodeFromJsonElement(eventData)).fire(connection)
-                        SocketEventType.MATCH_START -> MatchStartEvent().fire(connection)
-                        else -> println("Fallback - received event $eventType")
-                    }
-
+                    LogListener.handle(connection, eventType, eventData)
+                    MatchListener.handle(connection, eventType, eventData)
                 }
             } catch (err: Exception) {
-                println(err)
+                log.error(err)
             } finally {
                 ConnectionStore.minecraftConnections -= connection
             }
-
         }
     }
 }

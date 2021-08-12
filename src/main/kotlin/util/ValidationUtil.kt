@@ -1,7 +1,6 @@
 package network.warzone.api.util
 
 import io.ktor.application.*
-import io.ktor.features.*
 import io.ktor.request.*
 import io.ktor.util.pipeline.*
 import network.warzone.api.http.ApiException
@@ -9,7 +8,6 @@ import network.warzone.api.http.ValidationException
 import org.valiktor.Constraint
 import org.valiktor.ConstraintViolationException
 import org.valiktor.Validator
-import java.util.*
 
 val PLAYER_NAME_REGEX = Regex("^[a-zA-Z0-9_]{1,16}\$")
 val IP_V4_REGEX = Regex("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)")
@@ -17,6 +15,7 @@ val IP_V4_REGEX = Regex("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]
 suspend inline fun <reified T : Any> validate(context: PipelineContext<Unit, ApplicationCall>, fn: (data: T) -> Unit) {
     try {
         val data = context.call.receive<T>()
+        println(data)
         fn(data)
     } catch (ex: ConstraintViolationException) {
         val violation = ex.constraintViolations.first()

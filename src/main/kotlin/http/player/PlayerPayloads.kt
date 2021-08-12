@@ -1,8 +1,8 @@
 package network.warzone.api.http.player
 
 import kotlinx.serialization.Serializable
-import network.warzone.api.database.model.Player
-import network.warzone.api.database.model.Session
+import network.warzone.api.database.models.Player
+import network.warzone.api.database.models.Session
 
 @Serializable
 data class PlayerLoginRequest(

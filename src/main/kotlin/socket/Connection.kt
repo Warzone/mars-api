@@ -1,4 +1,4 @@
-package network.warzone.api.socket.connection
+package network.warzone.api.socket
 
 import io.ktor.websocket.*
 import java.util.*

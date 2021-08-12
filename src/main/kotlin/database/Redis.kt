@@ -3,7 +3,7 @@ package network.warzone.api.database
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import network.warzone.api.database.model.Match
+import network.warzone.api.database.models.Match
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
 

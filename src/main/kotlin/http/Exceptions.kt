@@ -53,6 +53,9 @@ class TagAlreadyPresentException :
 class TagNotPresentException :
     ApiException(HttpStatusCode.NotFound, ApiExceptionType.TAG_NOT_PRESENT, "The tag is not present in the list")
 
+class MapMissingException :
+    ApiException(HttpStatusCode.NotFound, ApiExceptionType.MAP_MISSING, "The map does not exist")
+
 enum class ApiExceptionType(val code: String) {
     VALIDATION_ERROR("VALIDATION_ERROR"),
     SESSION_INACTIVE("SESSION_INACTIVE"),
@@ -64,5 +67,6 @@ enum class ApiExceptionType(val code: String) {
     TAG_CONFLICT("TAG_CONFLICT"),
     TAG_MISSING("TAG_MISSING"),
     TAG_ALREADY_PRESENT("TAG_ALREADY_PRESENT"),
-    TAG_NOT_PRESENT("TAG_NOT_PRESENT");
+    TAG_NOT_PRESENT("TAG_NOT_PRESENT"),
+    MAP_MISSING("MAP_MISSING");
 }

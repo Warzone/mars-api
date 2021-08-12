@@ -1,7 +1,6 @@
 package network.warzone.api.http.rank
 
 import kotlinx.serialization.Serializable
-import network.warzone.api.database.model.Rank
 
 @Serializable
 data class RankCreateRequest(

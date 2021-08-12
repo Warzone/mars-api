@@ -1,9 +1,8 @@
-package network.warzone.api.database.model
+package network.warzone.api.database.models
 
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.Database
 import org.litote.kmongo.eq
-import org.litote.kmongo.or
 
 @Serializable
 data class Player(

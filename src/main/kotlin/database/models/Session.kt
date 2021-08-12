@@ -1,7 +1,6 @@
-package network.warzone.api.database.model
+package network.warzone.api.database.models
 
 import kotlinx.serialization.Serializable
-import java.util.*
 
 @Serializable
 data class Session(

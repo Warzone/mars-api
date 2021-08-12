@@ -4,8 +4,8 @@ import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import network.warzone.api.database.*
-import network.warzone.api.database.model.Player
-import network.warzone.api.database.model.Tag
+import network.warzone.api.database.models.Player
+import network.warzone.api.database.models.Tag
 import network.warzone.api.http.*
 import network.warzone.api.util.validate
 import org.litote.kmongo.contains
@@ -50,9 +50,10 @@ fun Route.manageTags() {
         call.respond(Unit)
 
         val playersWithTag = Database.players.find(Player::tagIds contains id).toList()
-        playersWithTag.forEach {
-            it.tagIds = it.tagIds.filterNot { tagId -> tagId == id }
-            Database.players.save(it)
+        playersWithTag.forEach { player ->
+            player.tagIds = player.tagIds.filterNot { tagId -> tagId == id }
+            if (player.activeTagId == id) player.activeTagId = null
+            Database.players.save(player)
         }
     }
 

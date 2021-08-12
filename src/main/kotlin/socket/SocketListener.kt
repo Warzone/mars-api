@@ -1,14 +1,14 @@
 package network.warzone.api.socket
 
 import kotlinx.serialization.Serializable
-import network.warzone.api.socket.connection.MinecraftConnection
+import kotlinx.serialization.json.JsonObject
 
-interface MinecraftSocketEvent {
-    suspend fun fire(conn: MinecraftConnection)
+abstract class SocketListener {
+    abstract suspend fun handle(conn: MinecraftConnection, event: SocketEvent, json: JsonObject)
 }
 
 @Serializable
-enum class SocketEventType(val rawName: String) {
+enum class SocketEvent(val rawName: String) {
     MATCH_LOAD("MATCH_LOAD"),
     MATCH_START("MATCH_START"),
     MATCH_END("MATCH_END"),
@@ -18,8 +18,9 @@ enum class SocketEventType(val rawName: String) {
     PLAYER_RECORD_BREAK("PLAYER_RECORD_BREAK"),
     PLAYER_DEATH("PLAYER_DEATH"),
     PLAYER_CHAT("PLAYER_CHAT");
+    // todo: join match/team event
 
     companion object {
-        fun fromRawName(value: String): SocketEventType? = values().find { it.rawName == value }
+        fun fromRawName(value: String): SocketEvent? = values().find { it.rawName == value }
     }
 }

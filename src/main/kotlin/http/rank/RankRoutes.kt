@@ -4,8 +4,8 @@ import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import network.warzone.api.database.*
-import network.warzone.api.database.model.Player
-import network.warzone.api.database.model.Rank
+import network.warzone.api.database.models.Player
+import network.warzone.api.database.models.Rank
 import network.warzone.api.http.RankConflictException
 import network.warzone.api.http.RankMissingException
 import network.warzone.api.http.ValidationException

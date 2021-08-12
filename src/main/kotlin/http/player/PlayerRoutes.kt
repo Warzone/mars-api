@@ -4,13 +4,13 @@ import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import io.ktor.util.*
 import network.warzone.api.database.Database
 import network.warzone.api.database.findById
 import network.warzone.api.database.findByIdOrName
-import network.warzone.api.database.model.Player
-import network.warzone.api.database.model.Rank
-import network.warzone.api.database.model.Session
-import network.warzone.api.database.model.Tag
+import network.warzone.api.database.models.Player
+import network.warzone.api.database.models.Rank
+import network.warzone.api.database.models.Session
 import network.warzone.api.http.*
 import network.warzone.api.http.player.*
 import network.warzone.api.util.validate
@@ -32,12 +32,13 @@ fun Route.playerSessions() {
 
             // Player has joined before
             if (returningPlayer !== null) {
+                // todo: account for multi-server. kick player from server if they're joining a diff server.
                 // Delete any active sessions the player may have. Sessions should always be ended when the player leaves.
                 Database.sessions.deleteMany(Session::endedAt eq null, Session::playerId eq data.playerId)
 
                 returningPlayer.lastJoinedAt = now
                 returningPlayer.name = data.playerName
-                returningPlayer.nameLower = returningPlayer.name.toLowerCase()
+                returningPlayer.nameLower = returningPlayer.name.lowercase()
                 returningPlayer.ips =
                     if (ip in returningPlayer.ips) returningPlayer.ips else returningPlayer.ips + ip
 
@@ -53,7 +54,7 @@ fun Route.playerSessions() {
                 val player = Player(
                     _id = data.playerId,
                     name,
-                    nameLower = name.toLowerCase(),
+                    nameLower = name.lowercase(),
                     ips = listOf(ip),
                     firstJoinedAt = now,
                     lastJoinedAt = now,
@@ -99,14 +100,14 @@ fun Route.playerTags() {
     put("/{playerId}/active_tag") {
         validate<PlayerSetActiveTagRequest>(this) { data ->
             val playerId = call.parameters["playerId"] ?: throw ValidationException()
-            val tagId = data.activeTagId;
+            val tagId = data.activeTagId
 
             val player = Database.players.findByIdOrName(playerId) ?: throw PlayerMissingException()
 
             if (tagId == player.activeTagId) return@put call.respond(player)
 
             if (tagId == null) {
-                player.activeTagId = null;
+                player.activeTagId = null
             } else {
                 if (tagId !in player.tagIds) throw TagNotPresentException()
                 player.activeTagId = tagId
@@ -118,6 +119,8 @@ fun Route.playerTags() {
     }
 
     put("/{playerId}/tags/{tagId}") {
+        println("request ${call.parameters.toMap()}")
+
         val playerId = call.parameters["playerId"] ?: throw ValidationException()
         val tagId = call.parameters["tagId"] ?: throw ValidationException()
 
@@ -129,6 +132,8 @@ fun Route.playerTags() {
 
         Database.players.save(player)
         call.respond(player)
+
+        println(player)
     }
 
     delete("/{playerId}/tags/{tagId}") {
@@ -140,6 +145,7 @@ fun Route.playerTags() {
 
         if (tag._id !in player.tagIds) throw TagNotPresentException()
         player.tagIds = player.tagIds.filterNot { it == tag._id }
+        if (player.activeTagId == tag._id) player.activeTagId = null
 
         Database.players.save(player)
         call.respond(player)
