@@ -5,10 +5,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import network.warzone.api.database.models.*
-import network.warzone.api.database.realtime.LiveMatch
-import network.warzone.api.database.realtime.LiveMatchPlayer
-import network.warzone.api.database.realtime.LiveMinecraftServer
-import network.warzone.api.database.realtime.LiveParty
+import network.warzone.api.database.realtime.*
 import network.warzone.api.socket.SocketEvent
 import network.warzone.api.socket.SocketListener
 import java.util.*
@@ -21,6 +18,7 @@ object MatchListener : SocketListener() {
             SocketEvent.MATCH_END -> onEnd(server)
             SocketEvent.PARTY_JOIN -> onPartyJoin(server, Json.decodeFromJsonElement(json))
             SocketEvent.PARTY_LEAVE -> onPartyLeave(server, Json.decodeFromJsonElement(json))
+            SocketEvent.PLAYER_DEATH -> onPlayerDeath(server, Json.decodeFromJsonElement(json))
             else -> Unit
         }
     }
@@ -54,8 +52,8 @@ object MatchListener : SocketListener() {
     }
 
     private fun onStart(server: LiveMinecraftServer, data: MatchStartData) {
-        val current = server.currentMatch ?: throw RuntimeException("Starting non-existent match? ${server.id}")
-        if (current.startedAt !== null) throw RuntimeException("Starting match that already started?")
+        val current = server.currentMatch ?: return println("Can't find current match")
+        if (current.startedAt !== null) return println("Starting match that already started?")
         current.startedAt = System.currentTimeMillis()
         data.participants.forEachIndexed { index, player ->
             current.participants[player.id] = data.participants.elementAt(index)
@@ -67,7 +65,7 @@ object MatchListener : SocketListener() {
     // todo: process "match metadata" — known participants, team mappings,
     // todo: save to DB and all --- this is unfinished
     private fun onEnd(server: LiveMinecraftServer) {
-        val current = server.currentMatch ?: throw RuntimeException("Ending non-existent match? ${server.id}")
+        val current = server.currentMatch ?: return println("Ending non-existent match? ${server.id}")
         if (current.startedAt == null) return println("Trying to end match before it's started")
         if (current.endedAt != null) return println("Trying to end match that's already ended somehow")
         current.endedAt = System.currentTimeMillis()
@@ -76,9 +74,9 @@ object MatchListener : SocketListener() {
 
     private fun onPartyJoin(server: LiveMinecraftServer, data: PartyJoinData) {
         val current =
-            server.currentMatch ?: throw RuntimeException("Joining party in non-existent match? ${data.playerName}")
+            server.currentMatch ?: return println("Joining party in non-existent match? ${data.playerName}")
         val party = current.parties.find { it.name == data.partyName }
-            ?: throw RuntimeException("Party not found ${data.partyName}")
+            ?: return println("Party not found ${data.partyName}")
         val player = current.participants[data.playerId]
         if (player == null) { // Player is new to the match
             current.participants[data.playerId] = LiveMatchPlayer(data.playerName, data.playerId, party.name)
@@ -92,12 +90,20 @@ object MatchListener : SocketListener() {
 
     private fun onPartyLeave(server: LiveMinecraftServer, data: PartyLeaveData) {
         val current =
-            server.currentMatch ?: throw RuntimeException("Leaving party in non-existent match? ${data.playerName}")
+            server.currentMatch ?: return println("Leaving party in non-existent match? ${data.playerName}")
         val player = current.participants[data.playerId]
-            ?: throw RuntimeException("Player leaving party when they were never in one: ${data.playerName}")
+            ?: return println("Player leaving party when they were never in one: ${data.playerName}")
         player.partyName = null
         current.participants[data.playerId] = player
         current.events.add(PartyLeaveEvent(data))
+        current.save()
+    }
+
+    private fun onPlayerDeath(server: LiveMinecraftServer, data: PlayerDeathData) {
+        val current =
+            server.currentMatch ?: return println("Player died in non-existent match? ${data.victimName}")
+//        val victim = current.participants[data.victimId] ?: return println("Victim not found")
+        current.events.add(PlayerDeathEvent(data))
         current.save()
     }
 }
@@ -116,3 +122,35 @@ data class PartyJoinData(val playerId: String, val playerName: String, val party
 
 @Serializable
 data class PartyLeaveData(val playerId: String, val playerName: String)
+
+@Serializable
+data class PlayerDeathData(
+    val victimId: String,
+    val victimName: String,
+    val attackerId: String? = null,
+    val attackerName: String? = null,
+    val weapon: String? = null,
+    val entity: String? = null,
+    val distance: Int? = null,
+    val key: String,
+    val cause: DamageCause
+)
+
+@Serializable
+enum class DamageCause {
+    MELEE,
+    PROJECTILE,
+    EXPLOSION,
+    FIRE,
+    LAVA,
+    POTION,
+    FLATTEN,
+    FALL,
+    PRICK,
+    DROWN,
+    STARVE,
+    SUFFOCATE,
+    SHOCK,
+    VOID,
+    UNKNOWN
+}

@@ -2,7 +2,10 @@ package network.warzone.api.database.models
 
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.Database
+import org.litote.kmongo.SetTo
+import org.litote.kmongo.and
 import org.litote.kmongo.eq
+import org.litote.kmongo.not
 
 @Serializable
 data class Player(
@@ -19,5 +22,12 @@ data class Player(
 ) {
     suspend fun getActiveSession(): Session? {
         return Database.sessions.findOne(Session::endedAt eq null, Session::playerId eq _id)
+    }
+
+    companion object {
+        suspend fun ensureNameUniqueness(name: String, keepId: String) {
+            val tempName = ">>awarzoneplayer${(0..1000).random()}"
+            Database.players.updateMany(and(Player::nameLower eq name.lowercase(), not(Player::_id eq keepId)), SetTo(Player::name, tempName), SetTo(Player::nameLower, tempName))
+        }
     }
 }

@@ -7,5 +7,7 @@ data class LiveMinecraftServer(val id: String, val token: String, val session: D
     val currentMatch: LiveMatch?
         get() = Redis.get("match:$currentMatchId")
 
-    var currentMatchId: String? = null
+    var currentMatchId: String?
+        get() = Redis.get("server:$id:current_match_id")
+        set(matchId) = Redis.set("server:$id:current_match_id", matchId)
 }

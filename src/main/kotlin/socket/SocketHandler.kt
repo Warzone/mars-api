@@ -25,6 +25,7 @@ fun Application.initSocketHandler() {
 
             val server = LiveMinecraftServer(serverID, serverToken, this)
             ConnectionStore.minecraftServers += server
+            println("Server ${server.id} connected to socket server")
 
             try {
                 for (frame in incoming) {
@@ -43,6 +44,7 @@ fun Application.initSocketHandler() {
                 log.error(err)
             } finally {
                 ConnectionStore.minecraftServers -= server
+                println("Server ${server.id} disconnected from socket server")
             }
         }
     }

@@ -28,8 +28,6 @@ fun Route.playerSessions() {
 
             val returningPlayer = Database.players.findById(data.playerId)
 
-            // todo: ensure username uniqueness
-
             // Player has joined before
             if (returningPlayer !== null) {
                 // todo: account for multi-server. kick player from server if they're joining a diff server.
@@ -48,13 +46,14 @@ fun Route.playerSessions() {
                 Database.players.save(returningPlayer)
                 Database.sessions.save(activeSession)
 
-                return@post call.respond(PlayerLoginResponse(player = returningPlayer, activeSession))
+                call.respond(PlayerLoginResponse(player = returningPlayer, activeSession))
+
+                Player.ensureNameUniqueness(data.playerName, data.playerId)
             } else { // Player is new!
-                val name = data.playerName
                 val player = Player(
                     _id = data.playerId,
-                    name,
-                    nameLower = name.lowercase(),
+                    name = data.playerName,
+                    nameLower = data.playerName.lowercase(),
                     ips = listOf(ip),
                     firstJoinedAt = now,
                     lastJoinedAt = now,
@@ -67,9 +66,10 @@ fun Route.playerSessions() {
                 Database.players.insertOne(player)
                 Database.sessions.save(activeSession)
 
-                return@post call.respond(HttpStatusCode.Created, PlayerLoginResponse(player, activeSession))
-            }
+                call.respond(HttpStatusCode.Created, PlayerLoginResponse(player, activeSession))
 
+                Player.ensureNameUniqueness(data.playerName, data.playerId)
+            }
         }
     }
 

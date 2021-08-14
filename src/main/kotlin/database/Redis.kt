@@ -5,6 +5,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
+import redis.clients.jedis.params.SetParams
 
 object Redis {
     val pool: JedisPool = JedisPool(JedisPoolConfig(), "localhost")
@@ -16,10 +17,9 @@ object Redis {
         }
     }
 
-    inline fun <reified T> set(key: String, value: T): T {
+    inline fun <reified T> set(key: String, value: T, setParams: SetParams? = SetParams()) {
         pool.resource.use {
-            it.set(key, Json.encodeToString(value))
-            return value
+            it.set(key, Json.encodeToString(value), setParams)
         }
     }
 }
