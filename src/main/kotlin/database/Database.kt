@@ -16,6 +16,7 @@ object Database {
     val ranks: CoroutineCollection<Rank>
     val tags: CoroutineCollection<Tag>
     val maps: CoroutineCollection<Map>
+    val matches: CoroutineCollection<Match>
 
     init {
         val client = KMongo.createClient().coroutine
@@ -25,6 +26,7 @@ object Database {
         ranks = database.getCollection()
         tags = database.getCollection()
         maps = database.getCollection()
+        matches = database.getCollection()
     }
 }
 

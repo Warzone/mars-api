@@ -1,12 +1,11 @@
 package network.warzone.api.socket
 
-import io.ktor.websocket.*
+import network.warzone.api.database.realtime.LiveMinecraftServer
 import java.util.*
 import kotlin.collections.LinkedHashSet
 
 data class MinecraftServerInfo(val id: String, val token: String)
-class MinecraftConnection(val serverInfo: MinecraftServerInfo, val session: DefaultWebSocketServerSession)
 
 object ConnectionStore {
-    val minecraftConnections: MutableSet<MinecraftConnection> = Collections.synchronizedSet(LinkedHashSet())
+    val minecraftServers: MutableSet<LiveMinecraftServer> = Collections.synchronizedSet(LinkedHashSet())
 }
