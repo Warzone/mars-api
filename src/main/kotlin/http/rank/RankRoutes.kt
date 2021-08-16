@@ -45,14 +45,14 @@ fun Route.manageRanks() {
         call.respond(ranks)
     }
 
-    get("/{id}") {
-        val id = call.parameters["id"] ?: throw ValidationException()
+    get("/{rankId}") {
+        val id = call.parameters["rankId"] ?: throw ValidationException()
         val rank = Database.ranks.findByIdOrName(id) ?: throw RankMissingException()
         call.respond(rank)
     }
 
-    delete("/{id}") {
-        val id = call.parameters["id"] ?: throw ValidationException()
+    delete("/{rankId}") {
+        val id = call.parameters["rankId"] ?: throw ValidationException()
         val result = Database.ranks.deleteById(id)
         if (result.deletedCount == 0L) throw RankMissingException()
         call.respond(Unit)
@@ -64,8 +64,8 @@ fun Route.manageRanks() {
         }
     }
 
-    put("/{id}") {
-        val id = call.parameters["id"] ?: throw ValidationException()
+    put("/{rankId}") {
+        val id = call.parameters["rankId"] ?: throw ValidationException()
         validate<RankUpdateRequest>(this) { data ->
             val existingRank = Database.ranks.findById(id) ?: throw RankMissingException()
             val conflictRank =

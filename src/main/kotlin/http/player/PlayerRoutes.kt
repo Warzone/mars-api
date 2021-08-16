@@ -119,8 +119,6 @@ fun Route.playerTags() {
     }
 
     put("/{playerId}/tags/{tagId}") {
-        println("request ${call.parameters.toMap()}")
-
         val playerId = call.parameters["playerId"] ?: throw ValidationException()
         val tagId = call.parameters["tagId"] ?: throw ValidationException()
 
@@ -132,8 +130,6 @@ fun Route.playerTags() {
 
         Database.players.save(player)
         call.respond(player)
-
-        println(player)
     }
 
     delete("/{playerId}/tags/{tagId}") {

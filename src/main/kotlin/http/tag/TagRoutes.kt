@@ -37,14 +37,14 @@ fun Route.manageTags() {
         call.respond(tags)
     }
 
-    get("/{id}") {
-        val id = call.parameters["id"] ?: throw ValidationException()
+    get("/{tagId}") {
+        val id = call.parameters["tagId"] ?: throw ValidationException()
         val tag = Database.tags.findByIdOrName(id) ?: throw TagMissingException()
         call.respond(tag)
     }
 
-    delete("/{id}") {
-        val id = call.parameters["id"] ?: throw ValidationException()
+    delete("/{tagId}") {
+        val id = call.parameters["tagId"] ?: throw ValidationException()
         val result = Database.ranks.deleteById(id)
         if (result.deletedCount == 0L) throw TagMissingException()
         call.respond(Unit)
@@ -57,8 +57,8 @@ fun Route.manageTags() {
         }
     }
 
-    put("/{id}") {
-        val id = call.parameters["id"] ?: throw ValidationException()
+    put("/{tagId}") {
+        val id = call.parameters["tagId"] ?: throw ValidationException()
         validate<TagCreateRequest>(this) { data ->
             val existingTag = Database.tags.findByIdOrName(id) ?: throw TagMissingException()
 
