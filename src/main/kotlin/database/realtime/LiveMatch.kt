@@ -6,6 +6,8 @@ import network.warzone.api.database.Redis
 import network.warzone.api.socket.ConnectionStore
 import network.warzone.api.socket.SocketEvent
 import network.warzone.api.socket.listeners.*
+import network.warzone.api.socket.listeners.objective.PartyMemberAddData
+import network.warzone.api.socket.listeners.objective.PartyMemberRemoveData
 import redis.clients.jedis.params.SetParams
 
 // Cached match expires after one day
@@ -19,6 +21,7 @@ data class LiveMatch(
     var endedAt: Long?,
     val mapId: String,
     var parties: List<LiveParty>,
+    val goals: GoalCollection,
     val events: MutableList<MatchEvent>,
     val serverId: String,
     val participants: HashMap<String, LiveMatchPlayer>
@@ -35,24 +38,42 @@ data class LiveMatch(
 }
 
 @Serializable
-sealed class MatchEvent(val kind: SocketEvent, val time: Long)
+open class MatchEvent(val kind: SocketEvent, val time: Long)
 
 @Serializable
-@SerialName("MATCH_LOAD")
-data class MatchLoadEvent(val data: MatchLoadData) : MatchEvent(SocketEvent.MATCH_LOAD, System.currentTimeMillis())
+data class GoalCollection(
+    val cores: List<CoreGoal>,
+    val destroyables: List<DestroyableGoal>,
+    val flags: List<FlagGoal>,
+    val wools: List<WoolGoal>,
+    val controlPoints: List<ControlPointGoal>
+)
 
 @Serializable
-@SerialName("MATCH_START")
-data class MatchStartEvent(val data: MatchStartData) : MatchEvent(SocketEvent.MATCH_START, System.currentTimeMillis())
+data class CoreGoal(val id: String, val name: String, val ownerName: String, val material: String)
+
+@Serializable
+data class DestroyableGoal(
+    val id: String,
+    val name: String,
+    val ownerName: String,
+    val material: String,
+    val blockCount: Int
+)
+
+@Serializable
+data class FlagGoal(val id: String, val name: String, val ownerName: String?, val colour: String)
+
+@Serializable
+data class WoolGoal(val id: String, val name: String, val ownerName: String, val colour: String)
+
+@Serializable
+data class ControlPointGoal(val id: String, val name: String)
 
 @Serializable
 @SerialName("PARTY_JOIN")
-data class PartyJoinEvent(val data: PartyJoinData) : MatchEvent(SocketEvent.PARTY_JOIN, System.currentTimeMillis())
+data class PartyMemberAddEvent(val data: PartyMemberAddData) : MatchEvent(SocketEvent.PARTY_JOIN, System.currentTimeMillis())
 
 @Serializable
 @SerialName("PARTY_LEAVE")
-data class PartyLeaveEvent(val data: PartyLeaveData) : MatchEvent(SocketEvent.PARTY_LEAVE, System.currentTimeMillis())
-
-@Serializable
-@SerialName("PLAYER_DEATH")
-data class PlayerDeathEvent(val data: PlayerDeathData) : MatchEvent(SocketEvent.PLAYER_DEATH, System.currentTimeMillis())
+data class PartyMemberRemoveEvent(val data: PartyMemberRemoveData) : MatchEvent(SocketEvent.PARTY_LEAVE, System.currentTimeMillis())

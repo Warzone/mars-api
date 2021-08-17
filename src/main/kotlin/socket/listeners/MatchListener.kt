@@ -1,24 +1,21 @@
 package network.warzone.api.socket.listeners
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
-import network.warzone.api.database.models.*
 import network.warzone.api.database.realtime.*
 import network.warzone.api.socket.SocketEvent
 import network.warzone.api.socket.SocketListener
+import network.warzone.api.socket.format
 import java.util.*
 
 object MatchListener : SocketListener() {
     override suspend fun handle(server: LiveMinecraftServer, event: SocketEvent, json: JsonObject) {
         when (event) {
-            SocketEvent.MATCH_LOAD -> onLoad(server, Json.decodeFromJsonElement(json))
-            SocketEvent.MATCH_START -> onStart(server, Json.decodeFromJsonElement(json))
+            SocketEvent.MATCH_LOAD -> onLoad(server, format.decodeFromJsonElement(json))
+            SocketEvent.MATCH_START -> onStart(server, format.decodeFromJsonElement(json))
             SocketEvent.MATCH_END -> onEnd(server)
-            SocketEvent.PARTY_JOIN -> onPartyJoin(server, Json.decodeFromJsonElement(json))
-            SocketEvent.PARTY_LEAVE -> onPartyLeave(server, Json.decodeFromJsonElement(json))
-            SocketEvent.PLAYER_DEATH -> onPlayerDeath(server, Json.decodeFromJsonElement(json))
             else -> Unit
         }
     }
@@ -32,20 +29,19 @@ object MatchListener : SocketListener() {
             endedAt = null,
             mapId = data.mapId,
             events = mutableListOf(MatchLoadEvent(data)),
-            parties = emptyList(),
+            parties = data.parties.map {
+                LiveParty(
+                    it.name,
+                    it.alias,
+                    it.colour,
+                    it.min,
+                    it.max
+                )
+            },
             participants = hashMapOf(),
             serverId = server.id,
+            goals = data.goals
         )
-
-        match.parties = data.parties.map {
-            LiveParty(
-                it.name,
-                it.alias,
-                it.colour,
-                it.min,
-                it.max
-            )
-        }
 
         match.save()
         server.currentMatchId = match._id
@@ -71,70 +67,27 @@ object MatchListener : SocketListener() {
         current.endedAt = System.currentTimeMillis()
         current.save()
     }
-
-    private fun onPartyJoin(server: LiveMinecraftServer, data: PartyJoinData) {
-        val current =
-            server.currentMatch ?: return println("Joining party in non-existent match? ${data.playerName}")
-        val party = current.parties.find { it.name == data.partyName }
-            ?: return println("Party not found ${data.partyName}")
-        val player = current.participants[data.playerId]
-        if (player == null) { // Player is new to the match
-            current.participants[data.playerId] = LiveMatchPlayer(data.playerName, data.playerId, party.name)
-        } else {
-            player.partyName = party.name
-            current.participants[player.id] = player
-        }
-        current.events.add(PartyJoinEvent(data))
-        current.save()
-    }
-
-    private fun onPartyLeave(server: LiveMinecraftServer, data: PartyLeaveData) {
-        val current =
-            server.currentMatch ?: return println("Leaving party in non-existent match? ${data.playerName}")
-        val player = current.participants[data.playerId]
-            ?: return println("Player leaving party when they were never in one: ${data.playerName}")
-        player.partyName = null
-        current.participants[data.playerId] = player
-        current.events.add(PartyLeaveEvent(data))
-        current.save()
-    }
-
-    private fun onPlayerDeath(server: LiveMinecraftServer, data: PlayerDeathData) {
-        val current =
-            server.currentMatch ?: return println("Player died in non-existent match? ${data.victimName}")
-//        val victim = current.participants[data.victimId] ?: return println("Victim not found")
-        current.events.add(PlayerDeathEvent(data))
-        current.save()
-    }
 }
 
 @Serializable
-data class MatchLoadData(val mapId: String, val parties: List<PartyData>)
-
-@Serializable
-data class MatchStartData(val participants: Set<LiveMatchPlayer>)
+data class MatchLoadData(val mapId: String, val parties: List<PartyData>, val goals: GoalCollection)
 
 @Serializable
 data class PartyData(val name: String, val alias: String, val colour: String, val min: Int, val max: Int)
 
 @Serializable
-data class PartyJoinData(val playerId: String, val playerName: String, val partyName: String)
+@SerialName("MATCH_LOAD")
+data class MatchLoadEvent(val data: MatchLoadData) : MatchEvent(SocketEvent.MATCH_LOAD, System.currentTimeMillis())
 
 @Serializable
-data class PartyLeaveData(val playerId: String, val playerName: String)
+data class MatchStartData(val participants: Set<LiveMatchPlayer>)
 
 @Serializable
-data class PlayerDeathData(
-    val victimId: String,
-    val victimName: String,
-    val attackerId: String? = null,
-    val attackerName: String? = null,
-    val weapon: String? = null,
-    val entity: String? = null,
-    val distance: Int? = null,
-    val key: String,
-    val cause: DamageCause
-)
+@SerialName("MATCH_START")
+data class MatchStartEvent(val data: MatchStartData) : MatchEvent(SocketEvent.MATCH_START, System.currentTimeMillis())
+
+@Serializable
+data class GoalContribution(val playerId: String, val percentage: Float, val blockCount: Int)
 
 @Serializable
 enum class DamageCause {
