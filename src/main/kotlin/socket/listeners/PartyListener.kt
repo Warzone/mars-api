@@ -1,4 +1,4 @@
-package network.warzone.api.socket.listeners.objective
+package network.warzone.api.socket.listeners
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject

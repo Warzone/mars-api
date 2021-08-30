@@ -31,3 +31,6 @@ data class Player(
         }
     }
 }
+
+@Serializable
+data class SimplePlayer(val name: String, val id: String)

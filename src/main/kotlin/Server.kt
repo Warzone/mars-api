@@ -15,7 +15,7 @@ import network.warzone.api.http.ApiExceptionResponse
 import network.warzone.api.http.map.mapRoutes
 import network.warzone.api.http.rank.rankRoutes
 import network.warzone.api.http.tag.tagRoutes
-import network.warzone.api.socket.initSocketHandler
+import network.warzone.api.socket2.initSocketHandler2
 
 fun main() {
     embeddedServer(Netty, host = "0.0.0.0", port = 3000) {
@@ -49,7 +49,7 @@ class Server {
 
         install(WebSockets)
 
-        initSocketHandler()
+        initSocketHandler2()
 
         playerRoutes()
         rankRoutes()

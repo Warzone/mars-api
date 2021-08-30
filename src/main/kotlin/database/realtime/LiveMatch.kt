@@ -6,8 +6,6 @@ import network.warzone.api.database.Redis
 import network.warzone.api.socket.ConnectionStore
 import network.warzone.api.socket.SocketEvent
 import network.warzone.api.socket.listeners.*
-import network.warzone.api.socket.listeners.objective.PartyMemberAddData
-import network.warzone.api.socket.listeners.objective.PartyMemberRemoveData
 import redis.clients.jedis.params.SetParams
 
 // Cached match expires after one day
@@ -26,7 +24,7 @@ data class LiveMatch(
     val serverId: String,
     val participants: HashMap<String, LiveMatchPlayer>
 ) {
-    private val server: LiveMinecraftServer
+    val server: LiveMinecraftServer
         get() {
             return ConnectionStore.minecraftServers.find { serverId == it.id }
                 ?: throw RuntimeException("Cannot fetch server associated with match")
