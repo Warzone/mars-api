@@ -9,6 +9,7 @@ import network.warzone.api.database.Database
 import network.warzone.api.database.findById
 import network.warzone.api.database.findByIdOrName
 import network.warzone.api.database.models.Player
+import network.warzone.api.database.models.PlayerStats
 import network.warzone.api.database.models.Rank
 import network.warzone.api.database.models.Session
 import network.warzone.api.http.*
@@ -57,10 +58,10 @@ fun Route.playerSessions() {
                     ips = listOf(ip),
                     firstJoinedAt = now,
                     lastJoinedAt = now,
-                    playtime = 0,
                     rankIds = Rank.findDefault().map { it._id },
                     tagIds = emptyList(),
-                    activeTagId = null
+                    activeTagId = null,
+                    stats = PlayerStats()
                 )
 
                 Database.players.insertOne(player)
@@ -79,7 +80,7 @@ fun Route.playerSessions() {
             val activeSession = player.getActiveSession() ?: throw SessionInactiveException()
 
             activeSession.endedAt = System.currentTimeMillis()
-            player.playtime += data.playtime
+            player.stats.serverPlaytime += data.playtime
 
             Database.sessions.save(activeSession)
             Database.players.save(player)

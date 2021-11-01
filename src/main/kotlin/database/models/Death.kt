@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Death(
+    val _id: String,
     val victim: SimplePlayer,
     val attacker: SimplePlayer?,
     val weapon: String?,

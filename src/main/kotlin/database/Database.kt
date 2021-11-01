@@ -17,8 +17,11 @@ object Database {
     val tags: CoroutineCollection<Tag>
     val maps: CoroutineCollection<Map>
     val matches: CoroutineCollection<Match>
+    val deaths: CoroutineCollection<Death>
 
     init {
+        // todo: index
+
         val client = KMongo.createClient().coroutine
         database = client.getDatabase("warzone-api")
         players = database.getCollection()
@@ -27,6 +30,7 @@ object Database {
         tags = database.getCollection()
         maps = database.getCollection()
         matches = database.getCollection()
+        deaths = database.getCollection()
     }
 }
 
