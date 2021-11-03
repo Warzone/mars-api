@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import network.warzone.api.database.Cache
+import network.warzone.api.database.Redis
 import network.warzone.api.socket.event.EventType
 import network.warzone.api.socket.listeners.match.LiveMatch
 import network.warzone.api.util.zlibCompress
@@ -15,11 +15,11 @@ object ConnectedServers : HashSet<LiveGameServer>()
 
 data class LiveGameServer(val id: String, val token: String, val session: DefaultWebSocketServerSession) {
     val currentMatch: LiveMatch?
-        get() = Cache.get("match:$currentMatchId")
+        get() = Redis.get("match:$currentMatchId")
 
     var currentMatchId: String?
-        get() = Cache.get("server:$id:current_match_id")
-        set(matchId) = Cache.set("server:$id:current_match_id", matchId)
+        get() = Redis.get("server:$id:current_match_id")
+        set(matchId) = Redis.set("server:$id:current_match_id", matchId)
 
     suspend inline fun <reified T> call(type: EventType, data: T) {
         val packet = Packet(type, data)

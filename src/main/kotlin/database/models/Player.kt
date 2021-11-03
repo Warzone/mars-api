@@ -54,8 +54,8 @@ data class PlayerStats(
     var objectives: PlayerObjectiveStatistics = PlayerObjectiveStatistics(),
     var bowShotsTaken: Int = 0,
     var bowShotsHit: Int = 0,
-    var blocksPlaced: Int = 0,
-    var blocksBroken: Int = 0,
+    var blocksPlaced: HashMap<String, Int> = hashMapOf(),
+    var blocksBroken: HashMap<String, Int> = hashMapOf(),
     var damageTaken: Int = 0,
     var damageGiven: Int = 0,
     var messages: Int = 0,
@@ -105,4 +105,4 @@ data class PlayerObjectiveStatistics(
 )
 
 @Serializable
-data class Duel(var kills: Int = 0, var deaths: Int = 0)
+data class PlayerMessages(var staff: Int = 0, var global: Int = 0, var team: Int = 0)

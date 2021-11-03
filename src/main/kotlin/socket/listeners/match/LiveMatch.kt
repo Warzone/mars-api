@@ -1,7 +1,7 @@
 package network.warzone.api.socket.listeners.match
 
 import kotlinx.serialization.Serializable
-import network.warzone.api.database.Cache
+import network.warzone.api.database.Redis
 import network.warzone.api.database.models.FirstBlood
 import network.warzone.api.database.models.Participant
 import network.warzone.api.socket.listeners.party.LiveParty
@@ -24,7 +24,7 @@ data class LiveMatch(
     var endedAt: Long?,
     val mapId: String,
     val goals: GoalCollection,
-    var parties: HashMap<String, LiveParty>,
+    var parties: Map<String, LiveParty>,
     val participants: HashMap<String, Participant>,
     val serverId: String,
     var firstBlood: FirstBlood?
@@ -36,7 +36,7 @@ data class LiveMatch(
         }
 
     fun save() {
-        Cache.set("match:$id", this, SetParams().px(MATCH_LIFETIME))
+        Redis.set("match:$id", this, SetParams().px(MATCH_LIFETIME))
     }
 
     val state: MatchState

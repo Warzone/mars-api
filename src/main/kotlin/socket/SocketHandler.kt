@@ -22,9 +22,10 @@ import network.warzone.api.socket.listeners.objective.*
 import network.warzone.api.socket.listeners.party.PartyJoinEvent
 import network.warzone.api.socket.listeners.party.PartyLeaveEvent
 import network.warzone.api.socket.listeners.party.PartyListener
-import network.warzone.api.socket.listeners.player.PlayerStatListener
 import network.warzone.api.socket.listeners.server.ConnectedServers
 import network.warzone.api.socket.listeners.server.LiveGameServer
+import network.warzone.api.socket.listeners.stats.ParticipantStatListener
+import network.warzone.api.socket.listeners.stats.PlayerStatListener
 import network.warzone.api.util.zlibDecompress
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -41,6 +42,7 @@ fun Application.initSocketHandler() {
     listeners += PartyListener()
     listeners += ChatListener()
     listeners += DeathListener()
+    listeners += ParticipantStatListener()
     listeners += PlayerStatListener()
 
     listeners.forEach { listener ->

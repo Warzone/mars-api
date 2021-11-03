@@ -2,6 +2,7 @@ package network.warzone.api.socket.listeners.match
 
 import PartyData
 import kotlinx.serialization.Serializable
+import network.warzone.api.database.models.PlayerMessages
 import network.warzone.api.database.models.SimpleParticipant
 import network.warzone.api.socket.event.ServerEvent
 import network.warzone.api.socket.listeners.chat.ChatChannel
@@ -30,7 +31,7 @@ class MatchEndEvent(match: LiveMatch, val data: MatchEndData) : MatchEvent(match
     @Serializable
     data class BigStats(
         var blocks: PlayerBlocksData?,
-        var messages: Map<ChatChannel, Int>?,
+        var messages: PlayerMessages,
         var bowShotsTaken: Int = 0,
         var bowShotsHit: Int = 0,
         var damageGiven: Double = 0.0,

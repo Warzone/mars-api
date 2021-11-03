@@ -1,6 +1,10 @@
 package network.warzone.api.database.models
 
 import kotlinx.serialization.Serializable
+import network.warzone.api.database.PlayerCache
+import network.warzone.api.socket.listeners.chat.ChatChannel
+import java.util.*
+import kotlin.collections.HashMap
 import kotlin.collections.Map
 
 @Serializable
@@ -15,6 +19,14 @@ data class Participant(
     val stats: ParticipantStats
 ) {
     val simplePlayer = SimplePlayer(name, id)
+
+    suspend fun getPlayer(): Player? {
+        return PlayerCache.get(name)
+    }
+
+    fun setPlayer(player: Player) {
+        return PlayerCache.set(name, player)
+    }
 
     constructor(simple: SimpleParticipant) : this(
         simple.name,
@@ -37,12 +49,16 @@ data class ParticipantStats(
     var objectives: PlayerObjectiveStatistics = PlayerObjectiveStatistics(),
     var bowShotsTaken: Int = 0,
     var bowShotsHit: Int = 0,
-    var blocksPlaced: Int = 0, // change data types
-    var blocksBroken: Int = 0, // ^^^
+    var blocksPlaced: HashMap<String, Int> = hashMapOf(),
+    var blocksBroken: HashMap<String, Int> = hashMapOf(),
     var damageTaken: Double = 0.0,
     var damageGiven: Double = 0.0,
-    var messages: Int = 0, // change data type
+    var damageGivenBow: Double = 0.0,
+    var messages: PlayerMessages = PlayerMessages(),
     var weapons: MutableMap<String, WeaponDamageData> = mutableMapOf(),
     var killstreaks: Map<Int, Int> = emptyMap(), // send at end
     var duels: MutableMap<String, Duel> = mutableMapOf()
 )
+
+@Serializable
+data class Duel(var kills: Int = 0, var deaths: Int = 0)
