@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import network.warzone.api.database.Database
 import network.warzone.api.database.models.DamageCause
 import network.warzone.api.database.models.Death
-import network.warzone.api.database.models.SimplePlayer
 import network.warzone.api.socket.event.EventPriority
 import network.warzone.api.socket.event.FireAt
 import network.warzone.api.socket.event.Listener

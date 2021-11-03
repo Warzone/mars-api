@@ -1,7 +1,6 @@
 package network.warzone.api.socket.listeners.objective
 
 import kotlinx.serialization.Serializable
-import network.warzone.api.database.models.SimplePlayer
 
 @Serializable
 data class GoalCollection(

@@ -1,13 +1,16 @@
 package network.warzone.api.socket.listeners.stats
 
 import network.warzone.api.database.PlayerCache
-import network.warzone.api.database.models.*
+import network.warzone.api.database.models.DamageCause
+import network.warzone.api.database.models.WeaponDamageData
 import network.warzone.api.socket.event.EventPriority
 import network.warzone.api.socket.event.FireAt
 import network.warzone.api.socket.event.Listener
 import network.warzone.api.socket.listeners.death.PlayerDeathEvent
 import network.warzone.api.socket.listeners.match.MatchEndEvent
 import network.warzone.api.socket.listeners.objective.*
+import kotlin.math.max
+import kotlin.math.min
 
 class PlayerStatListener : Listener() {
     override val handlers = mapOf(
@@ -166,8 +169,67 @@ class PlayerStatListener : Listener() {
         participant.setPlayer(player)
     }
 
-    @FireAt(EventPriority.EARLY)
+    @FireAt(EventPriority.LATE)
     suspend fun onMatchEnd(event: MatchEndEvent) {
-        println(event.data)
+        val tie =
+            event.data.winningParties.isEmpty() || event.data.winningParties.count() == event.match.parties.count()
+
+        event.match.participants.values.forEach {
+            val id = it.id
+            val player = it.getPlayer() ?: return
+
+            val bigStats = event.data.bigStats[id]
+
+            val isPlaying = it.partyName != null
+
+            // Make sure playtime is correct since it's only calculated on Party Leave (which isn't fired on Match End)
+            val joinedPartyAt = it.joinedPartyAt
+            if (isPlaying && joinedPartyAt != null) it.stats.gamePlaytime += (event.match.endedAt!! - joinedPartyAt)
+
+            if (bigStats !== null) {
+                val blocks = bigStats.blocks
+                blocks?.blocksBroken?.forEach { blockInteraction ->
+                    val block = blockInteraction.key
+                    var count = player.stats.blocksBroken[block] ?: 0
+                    count += blockInteraction.value
+                    player.stats.blocksBroken[block] = count
+                }
+                blocks?.blocksPlaced?.forEach { blockInteraction ->
+                    val block = blockInteraction.key
+                    var count = player.stats.blocksPlaced[block] ?: 0
+                    count += blockInteraction.value
+                    player.stats.blocksPlaced[block] = count
+                }
+
+                player.stats.messages.staff += bigStats.messages.staff
+                player.stats.messages.global += bigStats.messages.global
+                player.stats.messages.team += bigStats.messages.team
+                player.stats.bowShotsTaken += bigStats.bowShotsTaken
+                player.stats.bowShotsHit += bigStats.bowShotsHit
+                player.stats.damageGiven += bigStats.damageGiven
+                player.stats.damageTaken += bigStats.damageTaken
+                player.stats.damageGivenBow += bigStats.damageGivenBow
+            }
+
+            if (tie && isPlaying) player.stats.ties++
+            else if (!tie && event.data.winningParties.contains(it.partyName)) player.stats.wins++
+            else if (isPlaying && !event.data.winningParties.contains(it.partyName)) player.stats.losses++
+
+            // min ( 10% of match length | 1 minute )
+            val minimumPlaytime = min(0.10 * event.match.length, 60000.0)
+
+            // How much time between match start and player first joining match?
+            val firstJoinedMatchAt = max(it.firstJoinedMatchAt - event.match.startedAt!!, 0)
+            val presentAtStart = firstJoinedMatchAt < minimumPlaytime
+
+            if (it.stats.gamePlaytime > minimumPlaytime) player.stats.matches++
+            if (presentAtStart) player.stats.matchesPresentStart++
+            if (it.stats.timeAway < 20000 && isPlaying) player.stats.matchesPresentFull++
+            if (isPlaying) player.stats.matchesPresentEnd++
+
+            player.stats.gamePlaytime += it.stats.gamePlaytime
+
+            PlayerCache.set(player.nameLower, player, true)
+        }
     }
 }

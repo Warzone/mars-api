@@ -42,7 +42,7 @@ data class SimplePlayer(val name: String, val id: String)
 
 @Serializable
 data class PlayerStats(
-    var xp: Int = 0,
+    var xp: Int = 0, // todo
     var serverPlaytime: Long = 0,
     var gamePlaytime: Long = 0,
     var kills: Int = 0,
@@ -56,19 +56,21 @@ data class PlayerStats(
     var bowShotsHit: Int = 0,
     var blocksPlaced: HashMap<String, Int> = hashMapOf(),
     var blocksBroken: HashMap<String, Int> = hashMapOf(),
-    var damageTaken: Int = 0,
-    var damageGiven: Int = 0,
-    var messages: Int = 0,
+    var damageTaken: Double = 0.0,
+    var damageGiven: Double = 0.0,
+    var damageGivenBow: Double = 0.0,
+    var messages: PlayerMessages = PlayerMessages(),
     var wins: Int = 0,
     var losses: Int = 0,
     var ties: Int = 0,
     var matches: Int = 0,
     var matchesPresentStart: Int = 0,
     var matchesPresentFull: Int = 0,
-    var mvps: Int = 0,
-    var records: PlayerRecords = PlayerRecords(),
+    var matchesPresentEnd: Int = 0,
+    var mvps: Int = 0, // todo
+    var records: PlayerRecords = PlayerRecords(), // todo
     var weapons: MutableMap<String, WeaponDamageData> = mutableMapOf(),
-    var killstreaks: Map<Int, Int> = emptyMap(),
+    var killstreaks: Map<Int, Int> = emptyMap(), // todo
 )
 
 @Serializable

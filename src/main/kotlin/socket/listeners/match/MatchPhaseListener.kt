@@ -1,6 +1,5 @@
 package network.warzone.api.socket.listeners.match
 
-import network.warzone.api.database.models.FirstBlood
 import network.warzone.api.database.models.Participant
 import network.warzone.api.socket.event.EventPriority
 import network.warzone.api.socket.event.FireAt
@@ -62,7 +61,7 @@ class MatchPhaseListener : Listener() {
         current.save()
     }
 
-    @FireAt(EventPriority.EARLY)
+    @FireAt(EventPriority.EARLIEST)
     suspend fun onEnd(event: MatchEndEvent) {
         val current = event.match
         if (current.state != MatchState.IN_PROGRESS) {

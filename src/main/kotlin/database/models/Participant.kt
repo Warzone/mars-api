@@ -2,9 +2,6 @@ package network.warzone.api.database.models
 
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.PlayerCache
-import network.warzone.api.socket.listeners.chat.ChatChannel
-import java.util.*
-import kotlin.collections.HashMap
 import kotlin.collections.Map
 
 @Serializable
@@ -16,16 +13,24 @@ data class Participant(
     val id: String,
     var partyName: String?,
     var lastPartyName: String?,
+    var firstJoinedMatchAt: Long,
+    var joinedPartyAt: Long? = null,
+    var lastLeftPartyAt: Long? = null,
     val stats: ParticipantStats
 ) {
+    val nameLower: String
+    get() {
+        return name.lowercase()
+    }
+
     val simplePlayer = SimplePlayer(name, id)
 
     suspend fun getPlayer(): Player? {
-        return PlayerCache.get(name)
+        return PlayerCache.get(nameLower)
     }
 
-    fun setPlayer(player: Player) {
-        return PlayerCache.set(name, player)
+    suspend fun setPlayer(player: Player) {
+        return PlayerCache.set(nameLower, player)
     }
 
     constructor(simple: SimpleParticipant) : this(
@@ -33,15 +38,18 @@ data class Participant(
         simple.id,
         simple.partyName,
         simple.partyName,
+        System.currentTimeMillis(),
+        System.currentTimeMillis(),
+        null,
         ParticipantStats()
     )
 }
 
 @Serializable
 data class ParticipantStats(
-    var xp: Int = 0,
-    var serverPlaytime: Long = 0,
+    var xp: Int = 0, // todo
     var gamePlaytime: Long = 0,
+    var timeAway: Long = 0,
     var kills: Int = 0,
     var deaths: Int = 0,
     var voidKills: Int = 0,
@@ -56,7 +64,7 @@ data class ParticipantStats(
     var damageGivenBow: Double = 0.0,
     var messages: PlayerMessages = PlayerMessages(),
     var weapons: MutableMap<String, WeaponDamageData> = mutableMapOf(),
-    var killstreaks: Map<Int, Int> = emptyMap(), // send at end
+    var killstreaks: Map<Int, Int> = emptyMap(), // todo
     var duels: MutableMap<String, Duel> = mutableMapOf()
 )
 

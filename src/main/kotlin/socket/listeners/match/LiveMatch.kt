@@ -4,8 +4,8 @@ import kotlinx.serialization.Serializable
 import network.warzone.api.database.Redis
 import network.warzone.api.database.models.FirstBlood
 import network.warzone.api.database.models.Participant
-import network.warzone.api.socket.listeners.party.LiveParty
 import network.warzone.api.socket.listeners.objective.GoalCollection
+import network.warzone.api.socket.listeners.party.LiveParty
 import network.warzone.api.socket.listeners.server.ConnectedServers
 import network.warzone.api.socket.listeners.server.LiveGameServer
 import redis.clients.jedis.params.SetParams
@@ -44,6 +44,13 @@ data class LiveMatch(
         return if (this.startedAt == null) MatchState.PRE
         else if (this.endedAt == null) MatchState.IN_PROGRESS
         else MatchState.POST
+    }
+
+    val length: Long
+    get() {
+        val start = startedAt ?: 0
+        val end = endedAt ?: System.currentTimeMillis()
+        return end - start
     }
 
     fun saveParticipants(vararg participants: Participant) {

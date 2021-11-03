@@ -69,7 +69,6 @@ class ParticipantStatListener : Listener() {
         // If this is the first kill of the match, update first blood stats for player & match
         if (event.match.firstBlood == null) {
             event.match.firstBlood = FirstBlood(attacker.simplePlayer, victim.simplePlayer, System.currentTimeMillis())
-            // todo: update player objs
         }
 
         event.match.saveParticipants(attacker, victim)

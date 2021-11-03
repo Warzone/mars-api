@@ -25,6 +25,11 @@ class PartyListener : Listener() {
         } else { // Player has participated at some point (or is currently)
             participant.partyName = event.data.partyName
             participant.lastPartyName = event.data.partyName
+            participant.joinedPartyAt = System.currentTimeMillis()
+
+            val timeAway = System.currentTimeMillis() - participant.lastLeftPartyAt!!
+            participant.stats.timeAway += timeAway
+
             match.participants[participant.id] = participant
         }
         match.save()
@@ -39,8 +44,10 @@ class PartyListener : Listener() {
             return println("Non-participant is leaving party? ${event.data.playerName}")
         }
         participant.partyName = null
-        match.participants[participant.id] = participant
-        match.save()
+        participant.lastLeftPartyAt = System.currentTimeMillis()
+        participant.stats.gamePlaytime += (System.currentTimeMillis() - participant.joinedPartyAt!!)
+        participant.joinedPartyAt = null
+        match.saveParticipants(participant)
     }
 }
 

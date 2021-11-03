@@ -4,8 +4,8 @@ import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.util.*
 import network.warzone.api.database.Database
+import network.warzone.api.database.PlayerCache
 import network.warzone.api.database.findById
 import network.warzone.api.database.findByIdOrName
 import network.warzone.api.database.models.Player
@@ -13,9 +13,12 @@ import network.warzone.api.database.models.PlayerStats
 import network.warzone.api.database.models.Rank
 import network.warzone.api.database.models.Session
 import network.warzone.api.http.*
-import network.warzone.api.http.player.*
+import network.warzone.api.http.player.PlayerLoginRequest
+import network.warzone.api.http.player.PlayerLoginResponse
+import network.warzone.api.http.player.PlayerLogoutRequest
+import network.warzone.api.http.player.PlayerSetActiveTagRequest
 import network.warzone.api.util.validate
-import org.litote.kmongo.*
+import org.litote.kmongo.eq
 import java.security.MessageDigest
 import java.util.*
 
@@ -90,8 +93,8 @@ fun Route.playerSessions() {
     }
 
     get("/{playerId}") {
-        val playerId = call.parameters["playerId"] ?: throw ValidationException()
-        val player = Database.players.findByIdOrName(playerId) ?: throw PlayerMissingException()
+        val playerId = call.parameters["playerId"]?.lowercase() ?: throw ValidationException()
+        val player: Player = PlayerCache.get(playerId) ?: throw PlayerMissingException()
 
         call.respond(player)
     }
