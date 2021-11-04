@@ -1,1 +1,1 @@
-rootProject.name = "api-kt"
+rootProject.name = "mars-api"
