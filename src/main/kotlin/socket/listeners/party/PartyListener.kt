@@ -29,7 +29,8 @@ class PartyListener : Listener() {
             participant.lastPartyName = event.data.partyName
             participant.joinedPartyAt = Date().time
 
-            val timeAway = Date().time - participant.lastLeftPartyAt!!
+            val timeAway = Date().time - (participant.lastLeftPartyAt
+                ?: throw RuntimeException("Returning participant ${participant.id} has no lastLeftPartyAt time"))
             participant.stats.timeAway += timeAway
 
             match.participants[participant.id] = participant
@@ -47,7 +48,8 @@ class PartyListener : Listener() {
         }
         participant.partyName = null
         participant.lastLeftPartyAt = Date().time
-        participant.stats.gamePlaytime += (Date().time - participant.joinedPartyAt!!)
+        participant.stats.gamePlaytime += (Date().time - (participant.joinedPartyAt
+            ?: throw RuntimeException("Participant ${participant.id} is leaving party but is missing joinedPartyAt time")))
         participant.joinedPartyAt = null
         match.saveParticipants(participant)
         MatchCache.set(match._id, match)

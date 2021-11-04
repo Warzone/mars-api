@@ -48,7 +48,8 @@ fun Application.initSocketHandler() {
     listeners.forEach { listener ->
         listener.handlers.forEach {
             try {
-                val priority = it.key.javaMethod!!.getAnnotation(FireAt::class.java).priority
+                val method = it.key.javaMethod ?: throw RuntimeException("Listener handler key java method is null")
+                val priority = method.getAnnotation(FireAt::class.java).priority
                 handlers += Handler(it.key, it.value, priority)
             } catch (ex: Exception) {
                 throw RuntimeException("Missing @FireAt annotation on handler method ${it.key.name} in ${listener::class.simpleName}")

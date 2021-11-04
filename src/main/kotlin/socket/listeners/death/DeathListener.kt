@@ -33,7 +33,8 @@ class DeathListener : Listener() {
 }
 
 class PlayerDeathEvent(match: Match, val data: PlayerDeathData) : MatchEvent(match) {
-    val victim = match.participants[data.victimId]!!
+    val victim =
+        match.participants[data.victimId] ?: throw RuntimeException("Victim ${data.victimId} is not a participant")
     val attacker = match.participants[data.attackerId]
 
     @Serializable

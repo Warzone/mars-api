@@ -84,7 +84,10 @@ class ParticipantStatListener : Listener() {
 
     @FireAt(EventPriority.EARLY)
     suspend fun onCoreLeak(event: CoreLeakEvent) {
-        val contributors = event.data.contributions.map { event.match.participants[it.playerId]!! }.toTypedArray()
+        val contributors = event.data.contributions.map {
+            event.match.participants[it.playerId]
+                ?: throw RuntimeException("Core leak contributor is not a participant")
+        }.toTypedArray()
         contributors.forEach { it.stats.objectives.coreLeaks++ }
         event.match.saveParticipants(*contributors)
         MatchCache.set(event.match._id, event.match)
@@ -92,7 +95,10 @@ class ParticipantStatListener : Listener() {
 
     @FireAt(EventPriority.EARLY)
     suspend fun onControlPointCapture(event: ControlPointCaptureEvent) {
-        val contributors = event.data.playerIds.map { event.match.participants[it]!! }.toTypedArray()
+        val contributors = event.data.playerIds.map {
+            event.match.participants[it]
+                ?: throw RuntimeException("Control point capture contributor is not a participant")
+        }.toTypedArray()
         contributors.forEach { it.stats.objectives.controlPointCaptures++ }
         event.match.saveParticipants(*contributors)
         MatchCache.set(event.match._id, event.match)
@@ -102,7 +108,7 @@ class ParticipantStatListener : Listener() {
     suspend fun onDestroyableDestroy(event: DestroyableDestroyEvent) {
         val contributors = mutableListOf<Participant>()
         event.data.contributions.forEach {
-            val contributor = event.match.participants[it.playerId]!!
+            val contributor = event.match.participants[it.playerId] ?: throw RuntimeException("Destroyable contributor ${it.playerId} is not a participant")
             contributor.stats.objectives.destroyableDestroys++
             contributor.stats.objectives.destroyableBlockDestroys += it.blockCount
             contributors.add(contributor)
@@ -212,6 +218,11 @@ class ParticipantStatListener : Listener() {
             participants.add(participant)
         }
         event.match.saveParticipants(*participants.toTypedArray())
-        MatchCache.set(event.match._id, event.match, persist = true, SetParams().px(3600000L)) // expire one hour after match ends
+        MatchCache.set(
+            event.match._id,
+            event.match,
+            persist = true,
+            SetParams().px(3600000L)
+        ) // expire one hour after match ends
     }
 }

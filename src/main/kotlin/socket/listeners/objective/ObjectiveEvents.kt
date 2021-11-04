@@ -33,43 +33,51 @@ class DestroyableDamageEvent(match: Match, val data: DestroyableDamageData) : Ma
 }
 
 class FlagPickupEvent(match: Match, val data: FlagPickupData) : MatchEvent(match) {
-    val participant = match.participants[data.playerId]!!
+    val participant = match.participants[data.playerId]
+        ?: throw RuntimeException("Player ${data.playerId} is not a participant")
 
     @Serializable
     data class FlagPickupData(val flagId: String, val playerId: String)
 }
 
 class FlagDefendEvent(match: Match, val data: FlagPickupEvent.FlagPickupData) : MatchEvent(match) {
-    val participant = match.participants[data.playerId]!!
+    val participant = match.participants[data.playerId]
+        ?: throw RuntimeException("Player ${data.playerId} is not a participant")
 }
 
 class FlagDropEvent(match: Match, val data: FlagDropData) : MatchEvent(match) {
-    val participant = match.participants[data.playerId]!!
+    val participant = match.participants[data.playerId]
+        ?: throw RuntimeException("Player ${data.playerId} is not a participant")
 
     @Serializable
     data class FlagDropData(val flagId: String, val playerId: String, val heldTime: Long)
 }
 
 class FlagPlaceEvent(match: Match, val data: FlagDropEvent.FlagDropData) : MatchEvent(match) {
-    val participant = match.participants[data.playerId]!!
+    val participant = match.participants[data.playerId]
+        ?: throw RuntimeException("Player ${data.playerId} is not a participant")
 }
 
 class WoolPickupEvent(match: Match, val data: WoolPickupData) : MatchEvent(match) {
-    val participant = match.participants[data.playerId]!!
+    val participant = match.participants[data.playerId]
+        ?: throw RuntimeException("Player ${data.playerId} is not a participant")
 
     @Serializable
     data class WoolPickupData(val woolId: String, val playerId: String)
 }
 
 class WoolDefendEvent(match: Match, val data: WoolPickupEvent.WoolPickupData) : MatchEvent(match) {
-    val participant = match.participants[data.playerId]!!
+    val participant = match.participants[data.playerId]
+        ?: throw RuntimeException("Player ${data.playerId} is not a participant")
 }
 
 class WoolDropEvent(match: Match, val data: WoolPickupEvent.WoolPickupData) : MatchEvent(match) {
-    val participant = match.participants[data.playerId]!!
+    val participant = match.participants[data.playerId]
+        ?: throw RuntimeException("Player ${data.playerId} is not a participant")
 }
 
 class WoolPlaceEvent(match: Match, val data: WoolPickupEvent.WoolPickupData) : MatchEvent(match) {
-    val participant = match.participants[data.playerId]!!
+    val participant =
+        match.participants[data.playerId] ?: throw RuntimeException("Player ${data.playerId} is not a participant")
 }
 
