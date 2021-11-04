@@ -4,10 +4,10 @@ import kotlinx.serialization.Serializable
 import network.warzone.api.database.Database
 import network.warzone.api.database.models.DamageCause
 import network.warzone.api.database.models.Death
+import network.warzone.api.database.models.Match
 import network.warzone.api.socket.event.EventPriority
 import network.warzone.api.socket.event.FireAt
 import network.warzone.api.socket.event.Listener
-import network.warzone.api.socket.listeners.match.LiveMatch
 import network.warzone.api.socket.listeners.match.MatchEvent
 import java.util.*
 
@@ -32,7 +32,7 @@ class DeathListener : Listener() {
     }
 }
 
-class PlayerDeathEvent(match: LiveMatch, val data: PlayerDeathData) : MatchEvent(match) {
+class PlayerDeathEvent(match: Match, val data: PlayerDeathData) : MatchEvent(match) {
     val victim = match.participants[data.victimId]!!
     val attacker = match.participants[data.attackerId]
 

@@ -25,7 +25,7 @@ import java.util.*
 fun Route.playerSessions() {
     post("/login") {
         validate<PlayerLoginRequest>(this) { data ->
-            val now = System.currentTimeMillis()
+            val now = Date().time
             val ip = hashSHA256(data.ip)
             val activeSession =
                 Session(playerId = data.playerId, createdAt = now, endedAt = null, _id = UUID.randomUUID().toString())
@@ -82,7 +82,7 @@ fun Route.playerSessions() {
             val player = Database.players.findById(data.playerId) ?: throw PlayerMissingException()
             val activeSession = player.getActiveSession() ?: throw SessionInactiveException()
 
-            activeSession.endedAt = System.currentTimeMillis()
+            activeSession.endedAt = Date().time
             player.stats.serverPlaytime += data.playtime
 
             Database.sessions.save(activeSession)

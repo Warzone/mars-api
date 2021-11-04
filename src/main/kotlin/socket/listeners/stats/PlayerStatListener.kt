@@ -2,7 +2,6 @@ package network.warzone.api.socket.listeners.stats
 
 import network.warzone.api.database.PlayerCache
 import network.warzone.api.database.models.DamageCause
-import network.warzone.api.database.models.WeaponDamageData
 import network.warzone.api.socket.event.EventPriority
 import network.warzone.api.socket.event.FireAt
 import network.warzone.api.socket.event.Listener
@@ -43,7 +42,7 @@ class PlayerStatListener : Listener() {
         event.victim.setPlayer(victim)
     }
 
-    @FireAt(EventPriority.LATE)
+    @FireAt(EventPriority.EARLY)
     suspend fun onKill(event: PlayerDeathEvent) {
         val attacker = event.attacker?.getPlayer() ?: return
         val victim = event.victim.getPlayer() ?: return
@@ -54,9 +53,8 @@ class PlayerStatListener : Listener() {
 
         // Modify attacker's weapon damage stats
         val weaponName = event.data.weapon ?: "NONE"
-        val weaponDamageData = attacker.stats.weapons[weaponName] ?: WeaponDamageData(0)
-        weaponDamageData.kills++
-        attacker.stats.weapons[weaponName] = weaponDamageData
+        var weaponKills = attacker.stats.weaponKills[weaponName] ?: 0
+        attacker.stats.weaponKills[weaponName] = ++weaponKills
 
         // If void kill, increment attacker's void kill count
         if (event.data.cause == DamageCause.VOID)

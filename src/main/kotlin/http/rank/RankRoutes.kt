@@ -31,7 +31,7 @@ fun Route.manageRanks() {
                 permissions = data.permissions.distinct(),
                 staff = data.staff,
                 applyOnJoin = data.applyOnJoin,
-                createdAt = System.currentTimeMillis()
+                createdAt = Date().time
             )
 
             Database.ranks.save(rank)

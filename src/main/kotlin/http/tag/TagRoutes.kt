@@ -23,7 +23,7 @@ fun Route.manageTags() {
                 name = data.name,
                 nameLower = data.name.lowercase(),
                 display = data.display,
-                createdAt = System.currentTimeMillis()
+                createdAt = Date().time
             )
 
             Database.tags.save(tag)

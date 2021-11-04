@@ -2,6 +2,7 @@ package network.warzone.api.database.models
 
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.PlayerCache
+import java.util.*
 import kotlin.collections.Map
 
 @Serializable
@@ -38,8 +39,8 @@ data class Participant(
         simple.id,
         simple.partyName,
         simple.partyName,
-        System.currentTimeMillis(),
-        System.currentTimeMillis(),
+        Date().time,
+        Date().time,
         null,
         ParticipantStats()
     )
@@ -63,7 +64,7 @@ data class ParticipantStats(
     var damageGiven: Double = 0.0,
     var damageGivenBow: Double = 0.0,
     var messages: PlayerMessages = PlayerMessages(),
-    var weapons: MutableMap<String, WeaponDamageData> = mutableMapOf(),
+    var weaponKills: MutableMap<String, Int> = mutableMapOf(),
     var killstreaks: Map<Int, Int> = emptyMap(), // todo
     var duels: MutableMap<String, Duel> = mutableMapOf()
 )

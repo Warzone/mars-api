@@ -1,13 +1,14 @@
 package network.warzone.api.socket.listeners.match
 
 import kotlinx.serialization.Serializable
+import network.warzone.api.database.models.Match
 import network.warzone.api.database.models.PlayerMessages
 import network.warzone.api.database.models.SimpleParticipant
 import network.warzone.api.socket.event.ServerEvent
 import network.warzone.api.socket.listeners.objective.GoalCollection
 import network.warzone.api.socket.listeners.server.LiveGameServer
 
-open class MatchEvent(val match: LiveMatch) : ServerEvent(match.server)
+open class MatchEvent(val match: Match) : ServerEvent(match.server)
 
 class MatchLoadEvent(
     server: LiveGameServer, val data: MatchLoadData
@@ -19,12 +20,12 @@ class MatchLoadEvent(
     data class PartyData(val name: String, val alias: String, val colour: String, val min: Int, val max: Int)
 }
 
-class MatchStartEvent(match: LiveMatch, val data: MatchStartData) : MatchEvent(match) {
+class MatchStartEvent(match: Match, val data: MatchStartData) : MatchEvent(match) {
     @Serializable
     data class MatchStartData(val participants: Set<SimpleParticipant>)
 }
 
-class MatchEndEvent(match: LiveMatch, val data: MatchEndData) : MatchEvent(match) {
+class MatchEndEvent(match: Match, val data: MatchEndData) : MatchEvent(match) {
     @Serializable
     data class MatchEndData(val winningParties: List<String>, val bigStats: Map<String, BigStats>)
 

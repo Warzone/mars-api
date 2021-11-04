@@ -1,12 +1,17 @@
 package network.warzone.api.socket.listeners.stats
 
-import network.warzone.api.database.models.*
+import network.warzone.api.database.MatchCache
+import network.warzone.api.database.models.DamageCause
+import network.warzone.api.database.models.Duel
+import network.warzone.api.database.models.FirstBlood
+import network.warzone.api.database.models.Participant
 import network.warzone.api.socket.event.EventPriority
 import network.warzone.api.socket.event.FireAt
 import network.warzone.api.socket.event.Listener
 import network.warzone.api.socket.listeners.death.PlayerDeathEvent
 import network.warzone.api.socket.listeners.match.MatchEndEvent
 import network.warzone.api.socket.listeners.objective.*
+import java.util.*
 
 class ParticipantStatListener : Listener() {
     override val handlers = mapOf(
@@ -37,9 +42,10 @@ class ParticipantStatListener : Listener() {
         if (event.data.cause == DamageCause.VOID) victim.stats.voidDeaths++
 
         event.match.saveParticipants(event.victim)
+        MatchCache.set(event.match._id, event.match)
     }
 
-    @FireAt(EventPriority.LATE)
+    @FireAt(EventPriority.LATEST)
     suspend fun onKill(event: PlayerDeathEvent) {
         val attacker = event.attacker ?: return
         val victim = event.victim
@@ -50,9 +56,8 @@ class ParticipantStatListener : Listener() {
 
         // Modify attacker's weapon damage stats
         val weaponName = event.data.weapon ?: "NONE"
-        val weaponDamageData = attacker.stats.weapons[weaponName] ?: WeaponDamageData(0)
-        weaponDamageData.kills++
-        attacker.stats.weapons[weaponName] = weaponDamageData
+        var weaponKills = attacker.stats.weaponKills[weaponName] ?: 0
+        attacker.stats.weaponKills[weaponName] = ++weaponKills
 
         // Modify attacker and victim duel objects
         val attackerVictimDuel = attacker.stats.duels[victim.id] ?: Duel()
@@ -68,10 +73,12 @@ class ParticipantStatListener : Listener() {
 
         // If this is the first kill of the match, update first blood stats for player & match
         if (event.match.firstBlood == null) {
-            event.match.firstBlood = FirstBlood(attacker.simplePlayer, victim.simplePlayer, System.currentTimeMillis())
+            event.match.firstBlood = FirstBlood(attacker.simplePlayer, victim.simplePlayer, Date().time)
+            println(event.match.firstBlood)
         }
 
         event.match.saveParticipants(attacker, victim)
+        MatchCache.set(event.match._id, event.match)
     }
 
     @FireAt(EventPriority.EARLY)
@@ -79,6 +86,7 @@ class ParticipantStatListener : Listener() {
         val contributors = event.data.contributions.map { event.match.participants[it.playerId]!! }.toTypedArray()
         contributors.forEach { it.stats.objectives.coreLeaks++ }
         event.match.saveParticipants(*contributors)
+        MatchCache.set(event.match._id, event.match)
     }
 
     @FireAt(EventPriority.EARLY)
@@ -86,6 +94,7 @@ class ParticipantStatListener : Listener() {
         val contributors = event.data.playerIds.map { event.match.participants[it]!! }.toTypedArray()
         contributors.forEach { it.stats.objectives.controlPointCaptures++ }
         event.match.saveParticipants(*contributors)
+        MatchCache.set(event.match._id, event.match)
     }
 
     @FireAt(EventPriority.EARLY)
@@ -98,13 +107,16 @@ class ParticipantStatListener : Listener() {
             contributors.add(contributor)
         }
         event.match.saveParticipants(*contributors.toTypedArray())
+        MatchCache.set(event.match._id, event.match)
     }
 
     @FireAt(EventPriority.EARLY)
     suspend fun onFlagPlace(event: FlagPlaceEvent) {
-        event.participant.stats.objectives.flagCaptures++
-        event.participant.stats.objectives.totalFlagHoldTime += event.data.heldTime
-        event.match.saveParticipants(event.participant)
+        val participant = event.participant
+        participant.stats.objectives.flagCaptures++
+        participant.stats.objectives.totalFlagHoldTime += event.data.heldTime
+        event.match.saveParticipants(participant)
+        MatchCache.set(event.match._id, event.match)
     }
 
     @FireAt(EventPriority.EARLY)
@@ -112,6 +124,7 @@ class ParticipantStatListener : Listener() {
         val participant = event.participant
         participant.stats.objectives.flagPickups++
         event.match.saveParticipants(participant)
+        MatchCache.set(event.match._id, event.match)
     }
 
     @FireAt(EventPriority.EARLY)
@@ -120,6 +133,7 @@ class ParticipantStatListener : Listener() {
         participant.stats.objectives.flagDrops++
         participant.stats.objectives.totalFlagHoldTime += event.data.heldTime
         event.match.saveParticipants(participant)
+        MatchCache.set(event.match._id, event.match)
     }
 
     @FireAt(EventPriority.EARLY)
@@ -127,6 +141,7 @@ class ParticipantStatListener : Listener() {
         val participant = event.participant
         participant.stats.objectives.flagDefends++
         event.match.saveParticipants(participant)
+        MatchCache.set(event.match._id, event.match)
     }
 
     @FireAt(EventPriority.EARLY)
@@ -134,6 +149,7 @@ class ParticipantStatListener : Listener() {
         val participant = event.participant
         participant.stats.objectives.woolCaptures++
         event.match.saveParticipants(participant)
+        MatchCache.set(event.match._id, event.match)
     }
 
     @FireAt(EventPriority.EARLY)
@@ -141,6 +157,7 @@ class ParticipantStatListener : Listener() {
         val participant = event.participant
         participant.stats.objectives.woolPickups++
         event.match.saveParticipants(participant)
+        MatchCache.set(event.match._id, event.match)
     }
 
     @FireAt(EventPriority.EARLY)
@@ -148,6 +165,7 @@ class ParticipantStatListener : Listener() {
         val participant = event.participant
         participant.stats.objectives.woolDrops++
         event.match.saveParticipants(participant)
+        MatchCache.set(event.match._id, event.match)
     }
 
     @FireAt(EventPriority.EARLY)
@@ -155,6 +173,7 @@ class ParticipantStatListener : Listener() {
         val participant = event.participant
         participant.stats.objectives.woolDefends++
         event.match.saveParticipants(participant)
+        MatchCache.set(event.match._id, event.match)
     }
 
     @FireAt(EventPriority.EARLY)
@@ -192,5 +211,6 @@ class ParticipantStatListener : Listener() {
             participants.add(participant)
         }
         event.match.saveParticipants(*participants.toTypedArray())
+        MatchCache.set(event.match._id, event.match)
     }
 }

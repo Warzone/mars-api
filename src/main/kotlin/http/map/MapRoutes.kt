@@ -9,11 +9,12 @@ import network.warzone.api.database.models.Map
 import network.warzone.api.http.MapMissingException
 import network.warzone.api.http.ValidationException
 import network.warzone.api.util.validate
+import java.util.*
 
 fun Route.manageMaps() {
     post {
         validate<List<MapLoadOneRequest>>(this) { mapList ->
-            val now = System.currentTimeMillis()
+            val now = Date().time
             val mapsToSave = mutableListOf<Map>()
             mapList.forEach { map ->
                 println(map)

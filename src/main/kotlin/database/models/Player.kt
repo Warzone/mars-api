@@ -69,7 +69,7 @@ data class PlayerStats(
     var matchesPresentEnd: Int = 0,
     var mvps: Int = 0, // todo
     var records: PlayerRecords = PlayerRecords(), // todo
-    var weapons: MutableMap<String, WeaponDamageData> = mutableMapOf(),
+    var weaponKills: MutableMap<String, Int> = mutableMapOf(),
     var killstreaks: Map<Int, Int> = emptyMap(), // todo
 )
 
@@ -85,9 +85,6 @@ data class PlayerRecords(
     var deathsInMatch: Int = 0,
     var highestScore: Int = 0
 )
-
-@Serializable
-data class WeaponDamageData(var kills: Int)
 
 @Serializable
 data class PlayerObjectiveStatistics(

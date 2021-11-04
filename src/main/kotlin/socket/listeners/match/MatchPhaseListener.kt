@@ -1,10 +1,13 @@
 package network.warzone.api.socket.listeners.match
 
+import network.warzone.api.database.MatchCache
+import network.warzone.api.database.models.Match
+import network.warzone.api.database.models.MatchState
 import network.warzone.api.database.models.Participant
+import network.warzone.api.database.models.Party
 import network.warzone.api.socket.event.EventPriority
 import network.warzone.api.socket.event.FireAt
 import network.warzone.api.socket.event.Listener
-import network.warzone.api.socket.listeners.party.LiveParty
 import java.util.*
 
 class MatchPhaseListener : Listener() {
@@ -16,10 +19,10 @@ class MatchPhaseListener : Listener() {
 
     @FireAt(EventPriority.EARLY)
     suspend fun onLoad(event: MatchLoadEvent) {
-        val now = System.currentTimeMillis()
-        val parties = hashMapOf<String, LiveParty>()
-        val match = LiveMatch(
-            id = UUID.randomUUID().toString(),
+        val now = Date().time
+        val parties = hashMapOf<String, Party>()
+        val match = Match(
+            _id = UUID.randomUUID().toString(),
             loadedAt = now,
             startedAt = null,
             endedAt = null,
@@ -32,7 +35,8 @@ class MatchPhaseListener : Listener() {
         )
 
         event.data.parties.forEach {
-            parties[it.name] = LiveParty(
+            parties[it.name] = Party(
+
                 name = it.name,
                 alias = it.alias,
                 colour = it.colour,
@@ -42,33 +46,32 @@ class MatchPhaseListener : Listener() {
         }
         match.parties = parties
 
-        match.save()
-        event.server.currentMatchId = match.id
-        println("MATCH LOADED ID: ${match.id}")
+        MatchCache.set(match._id, match)
+
+        event.server.currentMatchId = match._id
     }
 
     @FireAt(EventPriority.EARLY)
     suspend fun onStart(event: MatchStartEvent) {
-        val current = event.match
-        if (current.state != MatchState.PRE) {
+        val match = event.match
+        if (match.state != MatchState.PRE) {
             event.cancelled = true
-            return println("Cannot start match ${current.id} on invalid state (${current.state})")
+            return println("Cannot start match ${match._id} on invalid state (${match.state})")
         }
-        current.startedAt = System.currentTimeMillis()
-        event.data.participants.forEach { simple ->
-            current.participants[simple.id] = Participant(simple)
-        }
-        current.save()
+        val participants = event.data.participants.map { Participant(it) }.toTypedArray()
+        match.startedAt = Date().time
+        match.saveParticipants(*participants)
+        MatchCache.set(match._id, match)
     }
 
     @FireAt(EventPriority.EARLIEST)
     suspend fun onEnd(event: MatchEndEvent) {
-        val current = event.match
-        if (current.state != MatchState.IN_PROGRESS) {
+        val match = event.match
+        if (match.state != MatchState.IN_PROGRESS) {
             event.cancelled = true
-            return println("Cannot end match ${current.id} on invalid state (${current.state})")
+            return println("Cannot end match ${match._id} on invalid state (${match.state})")
         }
-        current.endedAt = System.currentTimeMillis()
-        current.save()
+        match.endedAt = Date().time
+        MatchCache.set(match._id, match)
     }
 }

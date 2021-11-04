@@ -7,14 +7,14 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import network.warzone.api.database.Redis
+import network.warzone.api.database.models.Match
 import network.warzone.api.socket.event.EventType
-import network.warzone.api.socket.listeners.match.LiveMatch
 import network.warzone.api.util.zlibCompress
 
 object ConnectedServers : HashSet<LiveGameServer>()
 
 data class LiveGameServer(val id: String, val token: String, val session: DefaultWebSocketServerSession) {
-    val currentMatch: LiveMatch?
+    val currentMatch: Match?
         get() = Redis.get("match:$currentMatchId")
 
     var currentMatchId: String?

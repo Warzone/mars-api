@@ -15,8 +15,8 @@ import network.warzone.api.socket.listeners.chat.PlayerChatEvent
 import network.warzone.api.socket.listeners.death.DeathListener
 import network.warzone.api.socket.listeners.death.PlayerDeathEvent
 import network.warzone.api.socket.listeners.match.MatchEndEvent
-import network.warzone.api.socket.listeners.match.MatchPhaseListener
 import network.warzone.api.socket.listeners.match.MatchLoadEvent
+import network.warzone.api.socket.listeners.match.MatchPhaseListener
 import network.warzone.api.socket.listeners.match.MatchStartEvent
 import network.warzone.api.socket.listeners.objective.*
 import network.warzone.api.socket.listeners.party.PartyJoinEvent
@@ -82,32 +82,50 @@ fun Application.initSocketHandler() {
 
                     val match = server.currentMatch
 
-                    val event: ServerEvent = when (EventType.valueOf(eventName)) {
-                        EventType.MATCH_LOAD -> MatchLoadEvent(server, Json.decodeFromJsonElement(data))
-                        EventType.MATCH_START -> MatchStartEvent(
-                            match!!,
-                            Json.decodeFromJsonElement(data)
-                        )
-                        EventType.MATCH_END -> MatchEndEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.PARTY_JOIN -> PartyJoinEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.PARTY_LEAVE -> PartyLeaveEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.PLAYER_CHAT -> PlayerChatEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.PLAYER_DEATH -> PlayerDeathEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.CONTROL_POINT_CAPTURE -> ControlPointCaptureEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.CORE_LEAK -> CoreLeakEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.CORE_DAMAGE -> CoreDamageEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.DESTROYABLE_DAMAGE -> DestroyableDamageEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.DESTROYABLE_DESTROY -> DestroyableDestroyEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.FLAG_PICKUP -> FlagPickupEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.FLAG_CAPTURE -> FlagPlaceEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.FLAG_DEFEND -> FlagDefendEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.FLAG_DROP -> FlagDropEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.WOOL_PICKUP -> WoolPickupEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.WOOL_CAPTURE -> WoolPlaceEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.WOOL_DEFEND -> WoolDefendEvent(match!!, Json.decodeFromJsonElement(data))
-                        EventType.WOOL_DROP -> WoolDropEvent(match!!, Json.decodeFromJsonElement(data))
-                        else -> null
-                    } ?: throw RuntimeException("Unknown event called")
+                    val eventType = EventType.valueOf(eventName)
+
+                    val event = if (eventType == EventType.MATCH_LOAD) {
+                        MatchLoadEvent(server, Json.decodeFromJsonElement(data))
+                    } else if (match != null) {
+                        when (eventType) {
+                            EventType.MATCH_LOAD -> MatchLoadEvent(server, Json.decodeFromJsonElement(data))
+                            EventType.MATCH_START -> MatchStartEvent(
+                                match,
+                                Json.decodeFromJsonElement(data)
+                            )
+                            EventType.MATCH_END -> MatchEndEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.PARTY_JOIN -> PartyJoinEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.PARTY_LEAVE -> PartyLeaveEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.PLAYER_CHAT -> PlayerChatEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.PLAYER_DEATH -> PlayerDeathEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.CONTROL_POINT_CAPTURE -> ControlPointCaptureEvent(
+                                match,
+                                Json.decodeFromJsonElement(data)
+                            )
+                            EventType.CORE_LEAK -> CoreLeakEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.CORE_DAMAGE -> CoreDamageEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.DESTROYABLE_DAMAGE -> DestroyableDamageEvent(
+                                match,
+                                Json.decodeFromJsonElement(data)
+                            )
+                            EventType.DESTROYABLE_DESTROY -> DestroyableDestroyEvent(
+                                match,
+                                Json.decodeFromJsonElement(data)
+                            )
+                            EventType.FLAG_PICKUP -> FlagPickupEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.FLAG_CAPTURE -> FlagPlaceEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.FLAG_DEFEND -> FlagDefendEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.FLAG_DROP -> FlagDropEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.WOOL_PICKUP -> WoolPickupEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.WOOL_CAPTURE -> WoolPlaceEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.WOOL_DEFEND -> WoolDefendEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.WOOL_DROP -> WoolDropEvent(match, Json.decodeFromJsonElement(data))
+                            else -> throw RuntimeException("Event $eventType called by server ${server.id} was not handled")
+                        }
+                    } else {
+                        println("No match on server ${server.id} but received event type $eventType")
+                        continue
+                    }
 
                     handlers.filter { it.event.isInstance(event) }.sortedBy { it.priority }.forEach {
                         if (event.cancelled) return@forEach
