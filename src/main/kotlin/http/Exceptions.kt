@@ -10,7 +10,12 @@ open class ApiException(
     val statusCode: HttpStatusCode,
     val type: ApiExceptionType,
     override val message: String = "An error occurred"
-) : RuntimeException("${type.code}: $message ($statusCode)")
+) : RuntimeException("${type.name}: $message ($statusCode)") {
+    val response: ApiExceptionResponse
+    get() {
+        return ApiExceptionResponse(type.name, message, error = true)
+    }
+}
 
 class ValidationException(message: String = "Validation failed") :
     ApiException(HttpStatusCode.BadRequest, ApiExceptionType.VALIDATION_ERROR, message)
@@ -56,17 +61,24 @@ class TagNotPresentException :
 class MapMissingException :
     ApiException(HttpStatusCode.NotFound, ApiExceptionType.MAP_MISSING, "The map does not exist")
 
-enum class ApiExceptionType(val code: String) {
-    VALIDATION_ERROR("VALIDATION_ERROR"),
-    SESSION_INACTIVE("SESSION_INACTIVE"),
-    PLAYER_MISSING("PLAYER_MISSING"),
-    RANK_CONFLICT("RANK_CONFLICT"),
-    RANK_MISSING("RANK_MISSING"),
-    RANK_ALREADY_PRESENT("RANK_ALREADY_PRESENT"),
-    RANK_NOT_PRESENT("RANK_NOT_PRESENT"),
-    TAG_CONFLICT("TAG_CONFLICT"),
-    TAG_MISSING("TAG_MISSING"),
-    TAG_ALREADY_PRESENT("TAG_ALREADY_PRESENT"),
-    TAG_NOT_PRESENT("TAG_NOT_PRESENT"),
-    MAP_MISSING("MAP_MISSING");
+class InternalServerErrorException : ApiException(
+    HttpStatusCode.InternalServerError,
+    ApiExceptionType.INTERNAL_SERVER_ERROR,
+    "An internal server error occurred. This should not happen. Please report this bug."
+)
+
+enum class ApiExceptionType {
+    INTERNAL_SERVER_ERROR,
+    VALIDATION_ERROR,
+    SESSION_INACTIVE,
+    PLAYER_MISSING,
+    RANK_CONFLICT,
+    RANK_MISSING,
+    RANK_ALREADY_PRESENT,
+    RANK_NOT_PRESENT,
+    TAG_CONFLICT,
+    TAG_MISSING,
+    TAG_ALREADY_PRESENT,
+    TAG_NOT_PRESENT,
+    MAP_MISSING,
 }

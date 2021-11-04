@@ -11,7 +11,7 @@ import io.ktor.server.netty.*
 import io.ktor.util.*
 import io.ktor.websocket.*
 import network.warzone.api.http.ApiException
-import network.warzone.api.http.ApiExceptionResponse
+import network.warzone.api.http.InternalServerErrorException
 import network.warzone.api.http.map.mapRoutes
 import network.warzone.api.http.rank.rankRoutes
 import network.warzone.api.http.tag.tagRoutes
@@ -31,16 +31,13 @@ class Server {
 
         install(StatusPages) {
             exception<ApiException> { ex ->
-                call.respond(ex.statusCode, ApiExceptionResponse(ex.type.code, ex.message))
+                call.respond(ex.statusCode, ex.response)
             }
 
             exception<Throwable> { cause ->
                 call.respond(
                     HttpStatusCode.InternalServerError,
-                    ApiExceptionResponse(
-                        "INTERNAL_SERVER_ERROR",
-                        "An internal server error occurred. This should not happen."
-                    )
+                    InternalServerErrorException().response
                 )
                 log.error(cause)
             }
