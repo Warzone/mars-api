@@ -8,6 +8,7 @@ import network.warzone.api.database.models.Party
 import network.warzone.api.socket.event.EventPriority
 import network.warzone.api.socket.event.FireAt
 import network.warzone.api.socket.event.Listener
+import redis.clients.jedis.params.SetParams
 import java.util.*
 
 class MatchPhaseListener : Listener() {
@@ -72,6 +73,6 @@ class MatchPhaseListener : Listener() {
             return println("Cannot end match ${match._id} on invalid state (${match.state})")
         }
         match.endedAt = Date().time
-        MatchCache.set(match._id, match)
+        MatchCache.set(match._id, match, persist = true, SetParams().px(3600000L)) // expire one hour after match ends
     }
 }
