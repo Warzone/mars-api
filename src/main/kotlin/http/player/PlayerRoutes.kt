@@ -47,7 +47,7 @@ fun Route.playerSessions() {
                 val ranksWithDefault = returningPlayer.rankIds + Rank.findDefault().map { it._id }
                 returningPlayer.rankIds = ranksWithDefault.distinct()
 
-                Database.players.save(returningPlayer)
+                PlayerCache.set(returningPlayer.name, returningPlayer, persist = true)
                 Database.sessions.save(activeSession)
 
                 call.respond(PlayerLoginResponse(player = returningPlayer, activeSession))
@@ -67,7 +67,7 @@ fun Route.playerSessions() {
                     stats = PlayerStats()
                 )
 
-                Database.players.insertOne(player)
+                PlayerCache.set(player.name, player, persist = true)
                 Database.sessions.save(activeSession)
 
                 call.respond(HttpStatusCode.Created, PlayerLoginResponse(player, activeSession))
@@ -79,14 +79,14 @@ fun Route.playerSessions() {
 
     post("/logout") {
         validate<PlayerLogoutRequest>(this) { data ->
-            val player = Database.players.findById(data.playerId) ?: throw PlayerMissingException()
+            val player: Player = PlayerCache.get(data.playerId) ?: throw PlayerMissingException()
             val activeSession = player.getActiveSession() ?: throw SessionInactiveException()
 
             activeSession.endedAt = Date().time
             player.stats.serverPlaytime += data.playtime
 
             Database.sessions.save(activeSession)
-            Database.players.save(player)
+            PlayerCache.set(player.name, player, persist = true)
 
             call.respond(Unit)
         }
@@ -106,7 +106,7 @@ fun Route.playerTags() {
             val playerId = call.parameters["playerId"] ?: throw ValidationException()
             val tagId = data.activeTagId
 
-            val player = Database.players.findByIdOrName(playerId) ?: throw PlayerMissingException()
+            val player: Player = PlayerCache.get(playerId) ?: throw PlayerMissingException()
 
             if (tagId == player.activeTagId) return@put call.respond(player)
 
@@ -117,7 +117,7 @@ fun Route.playerTags() {
                 player.activeTagId = tagId
             }
 
-            Database.players.save(player)
+            PlayerCache.set(player.name, player, persist = true)
             call.respond(player)
         }
     }
@@ -126,13 +126,13 @@ fun Route.playerTags() {
         val playerId = call.parameters["playerId"] ?: throw ValidationException()
         val tagId = call.parameters["tagId"] ?: throw ValidationException()
 
-        val player = Database.players.findById(playerId) ?: throw PlayerMissingException()
+        val player: Player = PlayerCache.get(playerId) ?: throw PlayerMissingException()
         val tag = Database.tags.findByIdOrName(tagId) ?: throw TagMissingException()
 
         if (tag._id in player.tagIds) throw TagAlreadyPresentException()
         player.tagIds = player.tagIds + tag._id
 
-        Database.players.save(player)
+        PlayerCache.set(player.name, player, persist = true)
         call.respond(player)
     }
 
@@ -140,14 +140,14 @@ fun Route.playerTags() {
         val playerId = call.parameters["playerId"] ?: throw ValidationException()
         val tagId = call.parameters["tagId"] ?: throw ValidationException()
 
-        val player = Database.players.findById(playerId) ?: throw PlayerMissingException()
+        val player: Player = PlayerCache.get(playerId) ?: throw PlayerMissingException()
         val tag = Database.tags.findByIdOrName(tagId) ?: throw TagMissingException()
 
         if (tag._id !in player.tagIds) throw TagNotPresentException()
         player.tagIds = player.tagIds.filterNot { it == tag._id }
         if (player.activeTagId == tag._id) player.activeTagId = null
 
-        Database.players.save(player)
+        PlayerCache.set(player.name, player, persist = true)
         call.respond(player)
     }
 }
@@ -157,13 +157,13 @@ fun Route.playerRanks() {
         val playerId = call.parameters["playerId"] ?: throw ValidationException()
         val rankId = call.parameters["rankId"] ?: throw ValidationException()
 
-        val player = Database.players.findById(playerId) ?: throw PlayerMissingException()
+        val player: Player = PlayerCache.get(playerId) ?: throw PlayerMissingException()
         val rank = Database.ranks.findById(rankId) ?: throw RankMissingException()
 
         if (rank._id in player.rankIds) throw RankAlreadyPresentException()
         player.rankIds = player.rankIds + rank._id
 
-        Database.players.save(player)
+        PlayerCache.set(player.name, player, persist = true)
         call.respond(player)
     }
 
@@ -171,13 +171,13 @@ fun Route.playerRanks() {
         val playerId = call.parameters["playerId"] ?: throw ValidationException()
         val rankId = call.parameters["rankId"] ?: throw ValidationException()
 
-        val player = Database.players.findById(playerId) ?: throw PlayerMissingException()
+        val player: Player = PlayerCache.get(playerId) ?: throw PlayerMissingException()
         val rank = Database.ranks.findById(rankId) ?: throw RankMissingException()
 
         if (rank._id !in player.rankIds) throw RankNotPresentException()
         player.rankIds = player.rankIds.filterNot { it == rank._id }
 
-        Database.players.save(player)
+        PlayerCache.set(player.name, player, persist = true)
         call.respond(player)
     }
 }

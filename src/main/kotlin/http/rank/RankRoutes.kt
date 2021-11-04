@@ -60,7 +60,7 @@ fun Route.manageRanks() {
         val playersWithRank = Database.players.find(Player::rankIds contains id).toList()
         playersWithRank.forEach {
             it.rankIds = it.rankIds.filterNot { rankId -> rankId == id }
-            Database.players.save(it)
+            PlayerCache.set(it.name, it, persist = true)
         }
     }
 
