@@ -11,6 +11,7 @@ import network.warzone.api.socket.event.Listener
 import network.warzone.api.socket.listeners.death.PlayerDeathEvent
 import network.warzone.api.socket.listeners.match.MatchEndEvent
 import network.warzone.api.socket.listeners.objective.*
+import redis.clients.jedis.params.SetParams
 import java.util.*
 
 class ParticipantStatListener : Listener() {
@@ -176,7 +177,7 @@ class ParticipantStatListener : Listener() {
         MatchCache.set(event.match._id, event.match)
     }
 
-    @FireAt(EventPriority.EARLY)
+    @FireAt(EventPriority.LATEST)
     suspend fun onMatchEnd(event: MatchEndEvent) {
         val participants = mutableListOf<Participant>()
         event.data.bigStats.forEach {
@@ -211,6 +212,6 @@ class ParticipantStatListener : Listener() {
             participants.add(participant)
         }
         event.match.saveParticipants(*participants.toTypedArray())
-        MatchCache.set(event.match._id, event.match)
+        MatchCache.set(event.match._id, event.match, persist = true, SetParams().px(3600000L)) // expire one hour after match ends
     }
 }
