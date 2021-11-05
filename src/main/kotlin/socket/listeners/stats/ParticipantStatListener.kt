@@ -18,6 +18,7 @@ class ParticipantStatListener : Listener() {
     override val handlers = mapOf(
         ::onDeath to PlayerDeathEvent::class,
         ::onKill to PlayerDeathEvent::class,
+        ::onKillstreak to KillstreakEvent::class,
         ::onCoreLeak to CoreLeakEvent::class,
         ::onControlPointCapture to ControlPointCaptureEvent::class,
         ::onDestroyableDestroy to DestroyableDestroyEvent::class,
@@ -83,6 +84,14 @@ class ParticipantStatListener : Listener() {
     }
 
     @FireAt(EventPriority.EARLY)
+    suspend fun onKillstreak(event: KillstreakEvent) {
+        val participant = event.participant
+        var amount = participant.stats.killstreaks[event.data.amount] ?: 0
+        participant.stats.killstreaks[event.data.amount] = ++amount
+        MatchCache.set(event.match._id, event.match.saveParticipants(participant))
+    }
+
+    @FireAt(EventPriority.EARLY)
     suspend fun onCoreLeak(event: CoreLeakEvent) {
         val contributors = event.data.contributions.map {
             event.match.participants[it.playerId]
@@ -108,7 +117,8 @@ class ParticipantStatListener : Listener() {
     suspend fun onDestroyableDestroy(event: DestroyableDestroyEvent) {
         val contributors = mutableListOf<Participant>()
         event.data.contributions.forEach {
-            val contributor = event.match.participants[it.playerId] ?: throw RuntimeException("Destroyable contributor ${it.playerId} is not a participant")
+            val contributor = event.match.participants[it.playerId]
+                ?: throw RuntimeException("Destroyable contributor ${it.playerId} is not a participant")
             contributor.stats.objectives.destroyableDestroys++
             contributor.stats.objectives.destroyableBlockDestroys += it.blockCount
             contributors.add(contributor)

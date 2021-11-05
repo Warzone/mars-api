@@ -24,6 +24,7 @@ import network.warzone.api.socket.listeners.party.PartyLeaveEvent
 import network.warzone.api.socket.listeners.party.PartyListener
 import network.warzone.api.socket.listeners.server.ConnectedServers
 import network.warzone.api.socket.listeners.server.LiveGameServer
+import network.warzone.api.socket.listeners.stats.KillstreakEvent
 import network.warzone.api.socket.listeners.stats.ParticipantStatListener
 import network.warzone.api.socket.listeners.stats.PlayerStatListener
 import network.warzone.api.util.zlibDecompress
@@ -99,6 +100,7 @@ fun Application.initSocketHandler() {
                             EventType.PARTY_LEAVE -> PartyLeaveEvent(match, Json.decodeFromJsonElement(data))
                             EventType.PLAYER_CHAT -> PlayerChatEvent(match, Json.decodeFromJsonElement(data))
                             EventType.PLAYER_DEATH -> PlayerDeathEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.KILLSTREAK -> KillstreakEvent(match, Json.decodeFromJsonElement(data))
                             EventType.CONTROL_POINT_CAPTURE -> ControlPointCaptureEvent(
                                 match,
                                 Json.decodeFromJsonElement(data)

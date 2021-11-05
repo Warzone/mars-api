@@ -1,12 +1,17 @@
 package network.warzone.api.socket.listeners.stats
 
+import kotlinx.serialization.Serializable
 import network.warzone.api.database.PlayerCache
 import network.warzone.api.database.models.DamageCause
+import network.warzone.api.database.models.Match
+import network.warzone.api.database.models.Player
+import network.warzone.api.database.models.SimplePlayer
 import network.warzone.api.socket.event.EventPriority
 import network.warzone.api.socket.event.FireAt
 import network.warzone.api.socket.event.Listener
 import network.warzone.api.socket.listeners.death.PlayerDeathEvent
 import network.warzone.api.socket.listeners.match.MatchEndEvent
+import network.warzone.api.socket.listeners.match.MatchEvent
 import network.warzone.api.socket.listeners.objective.*
 import kotlin.math.max
 import kotlin.math.min
@@ -15,6 +20,7 @@ class PlayerStatListener : Listener() {
     override val handlers = mapOf(
         ::onDeath to PlayerDeathEvent::class,
         ::onKill to PlayerDeathEvent::class,
+        ::onKillstreak to KillstreakEvent::class,
         ::onCoreLeak to CoreLeakEvent::class,
         ::onControlPointCapture to ControlPointCaptureEvent::class,
         ::onDestroyableDestroy to DestroyableDestroyEvent::class,
@@ -68,6 +74,14 @@ class PlayerStatListener : Listener() {
 
         event.attacker.setPlayer(attacker)
         event.victim.setPlayer(victim)
+    }
+
+    @FireAt(EventPriority.EARLY)
+    suspend fun onKillstreak(event: KillstreakEvent) {
+        val player: Player = PlayerCache.get(event.data.player.name) ?: return
+        var amount = player.stats.killstreaks[event.data.amount] ?: 0
+        player.stats.killstreaks[event.data.amount] = ++amount
+        PlayerCache.set(player.name, player)
     }
 
     @FireAt(EventPriority.EARLY)
@@ -230,4 +244,12 @@ class PlayerStatListener : Listener() {
             PlayerCache.set(player.nameLower, player, true)
         }
     }
+}
+
+class KillstreakEvent(match: Match, val data: KillStreakData) : MatchEvent(match) {
+    val participant = match.participants[data.player.id]
+        ?: throw RuntimeException("Player ${data.player.id} is not a participant")
+
+    @Serializable
+    data class KillStreakData(val amount: Int, val player: SimplePlayer, val ended: Boolean)
 }

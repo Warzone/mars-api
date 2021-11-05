@@ -47,6 +47,8 @@ class PlayerDeathEvent(match: Match, val data: PlayerDeathData) : MatchEvent(mat
         val entity: String? = null,
         val distance: Int? = null,
         val key: String,
-        val cause: DamageCause
+        val cause: DamageCause,
+        val attackerKillstreak: Int? = null,
+        val victimKillstreakEnded: Int? = null,
     )
 }

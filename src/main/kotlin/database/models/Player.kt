@@ -6,7 +6,6 @@ import org.litote.kmongo.SetTo
 import org.litote.kmongo.and
 import org.litote.kmongo.eq
 import org.litote.kmongo.not
-import kotlin.collections.Map
 
 @Serializable
 data class Player(
@@ -51,15 +50,15 @@ data class PlayerStats(
     var voidDeaths: Int = 0,
     var firstBloods: Int = 0,
     var firstBloodsSuffered: Int = 0,
-    var objectives: PlayerObjectiveStatistics = PlayerObjectiveStatistics(),
+    val objectives: PlayerObjectiveStatistics = PlayerObjectiveStatistics(),
     var bowShotsTaken: Int = 0,
     var bowShotsHit: Int = 0,
-    var blocksPlaced: HashMap<String, Int> = hashMapOf(),
-    var blocksBroken: HashMap<String, Int> = hashMapOf(),
+    val blocksPlaced: HashMap<String, Int> = hashMapOf(),
+    val blocksBroken: HashMap<String, Int> = hashMapOf(),
     var damageTaken: Double = 0.0,
     var damageGiven: Double = 0.0,
     var damageGivenBow: Double = 0.0,
-    var messages: PlayerMessages = PlayerMessages(),
+    val messages: PlayerMessages = PlayerMessages(),
     var wins: Int = 0,
     var losses: Int = 0,
     var ties: Int = 0,
@@ -68,9 +67,9 @@ data class PlayerStats(
     var matchesPresentFull: Int = 0,
     var matchesPresentEnd: Int = 0,
     var mvps: Int = 0, // todo
-    var records: PlayerRecords = PlayerRecords(), // todo
-    var weaponKills: MutableMap<String, Int> = mutableMapOf(),
-    var killstreaks: Map<Int, Int> = emptyMap(), // todo
+    val records: PlayerRecords = PlayerRecords(), // todo
+    val weaponKills: MutableMap<String, Int> = mutableMapOf(),
+    val killstreaks: MutableMap<Int, Int> = mutableMapOf(5 to 0, 10 to 0, 25 to 0, 50 to 0, 100 to 0),
 )
 
 @Serializable

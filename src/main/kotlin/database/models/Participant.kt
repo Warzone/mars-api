@@ -3,7 +3,6 @@ package network.warzone.api.database.models
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.PlayerCache
 import java.util.*
-import kotlin.collections.Map
 
 @Serializable
 data class SimpleParticipant(val name: String, val id: String, var partyName: String?)
@@ -20,9 +19,9 @@ data class Participant(
     val stats: ParticipantStats
 ) {
     val nameLower: String
-    get() {
-        return name.lowercase()
-    }
+        get() {
+            return name.lowercase()
+        }
 
     val simplePlayer = SimplePlayer(name, id)
 
@@ -55,17 +54,17 @@ data class ParticipantStats(
     var deaths: Int = 0,
     var voidKills: Int = 0,
     var voidDeaths: Int = 0,
-    var objectives: PlayerObjectiveStatistics = PlayerObjectiveStatistics(),
+    val objectives: PlayerObjectiveStatistics = PlayerObjectiveStatistics(),
     var bowShotsTaken: Int = 0,
     var bowShotsHit: Int = 0,
-    var blocksPlaced: HashMap<String, Int> = hashMapOf(),
-    var blocksBroken: HashMap<String, Int> = hashMapOf(),
+    val blocksPlaced: HashMap<String, Int> = hashMapOf(),
+    val blocksBroken: HashMap<String, Int> = hashMapOf(),
     var damageTaken: Double = 0.0,
     var damageGiven: Double = 0.0,
     var damageGivenBow: Double = 0.0,
-    var messages: PlayerMessages = PlayerMessages(),
-    var weaponKills: MutableMap<String, Int> = mutableMapOf(),
-    var killstreaks: Map<Int, Int> = emptyMap(), // todo
+    val messages: PlayerMessages = PlayerMessages(),
+    val weaponKills: MutableMap<String, Int> = mutableMapOf(),
+    val killstreaks: MutableMap<Int, Int> = mutableMapOf(5 to 0, 10 to 0, 25 to 0, 50 to 0, 100 to 0),
     var duels: MutableMap<String, Duel> = mutableMapOf()
 )
 

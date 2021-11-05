@@ -13,6 +13,7 @@ enum class EventType {
     PARTY_JOIN,
     PARTY_LEAVE,
 
+    KILLSTREAK,
     DESTROYABLE_DESTROY,
     DESTROYABLE_DAMAGE,
     CORE_LEAK,
