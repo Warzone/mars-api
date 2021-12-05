@@ -1,0 +1,19 @@
+- name: Demo Infraction
+  short: demo # Short alias. Should be unique.
+  message: Thinking pineapple should be on pizza is not allowed. # Displayed to offender
+  tip: Verify they are sane before punishing # Only displayed to mods
+  material: PUMPKIN_PIE # Item to show in punishment GUI
+  position: 1 # Position in the punishment GUI. Not unique - there may be five 1s, three 2s, and two 3s etc.
+  actions:
+    - kind: WARN # Instant actions don't have lengths
+    - kind: KICK
+    - kind: MUTE
+      length: 3600000 # 1 hour in milliseconds
+    - kind: MUTE
+      length: 7200000 # 2 hours in milliseconds
+    - kind: MUTE
+      length: 14400000 # 4 hours in milliseconds
+    - kind: BAN
+      length: 86400000 # 1 day in milliseconds
+    - kind: IP_BAN # On their seventh offence, we IP ban them forever
+      length: -1

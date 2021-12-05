@@ -33,12 +33,15 @@ import io.ktor.websocket.*
 import network.warzone.api.http.ApiException
 import network.warzone.api.http.InternalServerErrorException
 import network.warzone.api.http.map.mapRoutes
+import network.warzone.api.http.punishment.punishmentRoutes
 import network.warzone.api.http.rank.rankRoutes
 import network.warzone.api.http.tag.tagRoutes
 import network.warzone.api.socket.initSocketHandler
 
 fun main() {
-    embeddedServer(Netty, host = "0.0.0.0", port = 3000) {
+    println(Config.punishmentTypes)
+
+    embeddedServer(Netty, host = Config.listenHost, port = Config.listenPort) {
         Server().apply { main() }
     }.start(wait = true)
 }
@@ -72,5 +75,6 @@ class Server {
         rankRoutes()
         tagRoutes()
         mapRoutes()
+        punishmentRoutes()
     }
 }

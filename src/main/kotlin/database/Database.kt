@@ -1,6 +1,7 @@
 package network.warzone.api.database
 
 import com.mongodb.client.result.DeleteResult
+import network.warzone.api.Config
 import network.warzone.api.database.models.*
 import network.warzone.api.database.models.Map
 import org.litote.kmongo.coroutine.CoroutineCollection
@@ -18,12 +19,13 @@ object Database {
     val maps: CoroutineCollection<Map>
     val matches: CoroutineCollection<Match>
     val deaths: CoroutineCollection<Death>
+    val punishments: CoroutineCollection<Punishment>
 
     init {
         // todo: index
 
-        val client = KMongo.createClient().coroutine
-        database = client.getDatabase("warzone-api")
+        val client = KMongo.createClient(Config.mongoUrl).coroutine
+        database = client.getDatabase("mars-api")
         players = database.getCollection()
         sessions = database.getCollection()
         ranks = database.getCollection()
@@ -31,6 +33,7 @@ object Database {
         maps = database.getCollection()
         matches = database.getCollection()
         deaths = database.getCollection()
+        punishments = database.getCollection()
     }
 }
 

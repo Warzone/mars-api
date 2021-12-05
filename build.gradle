@@ -19,6 +19,7 @@ dependencies {
     implementation 'io.ktor:ktor-websockets:1.6.2'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2'
+    implementation "com.charleskorn.kaml:kaml:0.36.0"
     implementation 'io.ktor:ktor-serialization:1.6.2'
     implementation 'org.valiktor:valiktor-core:0.12.0'
 

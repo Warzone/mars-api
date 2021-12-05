@@ -2,6 +2,7 @@ package network.warzone.api.http.player
 
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.models.Player
+import network.warzone.api.database.models.Punishment
 import network.warzone.api.database.models.Session
 
 @Serializable
@@ -14,7 +15,8 @@ data class PlayerLoginRequest(
 @Serializable
 data class PlayerLoginResponse(
     val player: Player,
-    val activeSession: Session?
+    val activeSession: Session?,
+    val activePunishments: List<Punishment>
 )
 
 @Serializable

@@ -61,6 +61,9 @@ class TagNotPresentException :
 class MapMissingException :
     ApiException(HttpStatusCode.NotFound, ApiExceptionType.MAP_MISSING, "The map does not exist")
 
+class PunishmentMissingException :
+    ApiException(HttpStatusCode.NotFound, ApiExceptionType.PUNISHMENT_MISSING, "The punishment does not exist")
+
 class InternalServerErrorException : ApiException(
     HttpStatusCode.InternalServerError,
     ApiExceptionType.INTERNAL_SERVER_ERROR,
@@ -81,4 +84,5 @@ enum class ApiExceptionType {
     TAG_ALREADY_PRESENT,
     TAG_NOT_PRESENT,
     MAP_MISSING,
+    PUNISHMENT_MISSING
 }

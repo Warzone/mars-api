@@ -8,16 +8,16 @@ import network.warzone.api.database.Database
 import network.warzone.api.database.PlayerCache
 import network.warzone.api.database.findById
 import network.warzone.api.database.findByIdOrName
-import network.warzone.api.database.models.Player
-import network.warzone.api.database.models.PlayerStats
-import network.warzone.api.database.models.Rank
-import network.warzone.api.database.models.Session
+import network.warzone.api.database.models.*
 import network.warzone.api.http.*
 import network.warzone.api.http.player.PlayerLoginRequest
 import network.warzone.api.http.player.PlayerLoginResponse
 import network.warzone.api.http.player.PlayerLogoutRequest
 import network.warzone.api.http.player.PlayerSetActiveTagRequest
+import network.warzone.api.http.punishment.PunishmentIssueRequest
 import network.warzone.api.util.validate
+import org.litote.kmongo.contains
+import org.litote.kmongo.div
 import org.litote.kmongo.eq
 import java.security.MessageDigest
 import java.util.*
@@ -38,7 +38,6 @@ fun Route.playerSessions() {
                 // Delete any active sessions the player may have. Sessions should always be ended when the player leaves.
                 Database.sessions.deleteMany(Session::endedAt eq null, Session::playerId eq data.playerId)
 
-                returningPlayer.lastJoinedAt = now
                 returningPlayer.name = data.playerName
                 returningPlayer.nameLower = returningPlayer.name.lowercase()
                 returningPlayer.ips =
@@ -47,10 +46,30 @@ fun Route.playerSessions() {
                 val ranksWithDefault = returningPlayer.rankIds + Rank.findDefault().map { it._id }
                 returningPlayer.rankIds = ranksWithDefault.distinct()
 
-                PlayerCache.set(returningPlayer.name, returningPlayer, persist = true)
-                Database.sessions.save(activeSession)
+                val playerPunishments = returningPlayer.getActivePunishments()
+                val playerBan = playerPunishments.firstOrNull { it.action.isBan }
+                val ipPunishments = if (playerBan != null) Database.punishments.find(
+                    Punishment::targetIps contains ip,
+                    Punishment::action / PunishmentAction::kind eq PunishmentKind.IP_BAN
+                ).toList() else emptyList()
+                val ipBan = ipPunishments.firstOrNull()
 
-                call.respond(PlayerLoginResponse(player = returningPlayer, activeSession))
+                val banned = playerBan != null || ipBan != null
+
+                if (!banned) {
+                    returningPlayer.lastJoinedAt = now
+                    Database.sessions.save(activeSession)
+                }
+
+                PlayerCache.set(returningPlayer.name, returningPlayer, persist = true)
+
+                call.respond(
+                    PlayerLoginResponse(
+                        player = returningPlayer,
+                        if (!banned) activeSession else null,
+                        playerPunishments + ipPunishments
+                    )
+                )
 
                 Player.ensureNameUniqueness(data.playerName, data.playerId)
             } else { // Player is new!
@@ -70,7 +89,7 @@ fun Route.playerSessions() {
                 PlayerCache.set(player.name, player, persist = true)
                 Database.sessions.save(activeSession)
 
-                call.respond(HttpStatusCode.Created, PlayerLoginResponse(player, activeSession))
+                call.respond(HttpStatusCode.Created, PlayerLoginResponse(player, activeSession, emptyList()))
 
                 Player.ensureNameUniqueness(data.playerName, data.playerId)
             }
@@ -97,6 +116,36 @@ fun Route.playerSessions() {
         val player: Player = PlayerCache.get(playerId) ?: throw PlayerMissingException()
 
         call.respond(player)
+    }
+}
+
+fun Route.playerPunishments() {
+    post("/{playerId}/punishments") {
+        validate<PunishmentIssueRequest>(this) { data ->
+            val id = UUID.randomUUID().toString()
+            val now = Date().time
+            val target: Player = PlayerCache.get(data.targetName) ?: throw PlayerMissingException()
+            val punishment = Punishment(
+                _id = id,
+                reason = data.reason,
+                issuedAt = now,
+                offence = data.offence,
+                action = data.action,
+                note = data.note,
+                punisher = data.punisher,
+                target = target.simple,
+                targetIps = data.targetIps,
+                silent = data.silent
+            )
+            Database.punishments.insertOne(punishment)
+            call.respond(punishment)
+        }
+    }
+
+    get("/{playerId}/punishments") {
+        val playerId = call.parameters["playerId"] ?: throw ValidationException()
+        val player = PlayerCache.get<Player>(playerId) ?: throw PlayerMissingException()
+        call.respond(player.getPunishments())
     }
 }
 
@@ -188,6 +237,7 @@ fun Application.playerRoutes() {
             playerSessions()
             playerRanks()
             playerTags()
+            playerPunishments()
         }
     }
 }

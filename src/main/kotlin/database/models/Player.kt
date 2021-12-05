@@ -2,10 +2,8 @@ package network.warzone.api.database.models
 
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.Database
-import org.litote.kmongo.SetTo
-import org.litote.kmongo.and
-import org.litote.kmongo.eq
-import org.litote.kmongo.not
+import org.litote.kmongo.*
+import java.util.*
 
 @Serializable
 data class Player(
@@ -24,6 +22,15 @@ data class Player(
         return Database.sessions.findOne(Session::endedAt eq null, Session::playerId eq _id)
     }
 
+    suspend fun getPunishments(): List<Punishment> {
+        return Database.punishments.find(Punishment::target / SimplePlayer::id eq this._id).toList().sortedBy { it.issuedAt }
+    }
+
+    suspend fun getActivePunishments(): List<Punishment> {
+        val now = Date().time
+        return getPunishments().filter { now < it.expiresAt || it.action.length == -1L }.sortedBy { it.issuedAt }
+    }
+
     companion object {
         suspend fun ensureNameUniqueness(name: String, keepId: String) {
             val tempName = ">>awarzoneplayer${(0..1000).random()}"
@@ -33,6 +40,11 @@ data class Player(
                 SetTo(Player::nameLower, tempName)
             )
         }
+    }
+
+    val simple: SimplePlayer
+    get() {
+        return SimplePlayer(name = this.name, id = this._id)
     }
 }
 
