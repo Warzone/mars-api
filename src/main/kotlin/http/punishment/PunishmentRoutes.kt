@@ -6,8 +6,11 @@ import io.ktor.routing.*
 import network.warzone.api.Config
 import network.warzone.api.database.Database
 import network.warzone.api.database.findById
+import network.warzone.api.database.models.PunishmentReversion
 import network.warzone.api.http.PunishmentMissingException
 import network.warzone.api.http.ValidationException
+import network.warzone.api.util.validate
+import java.util.*
 
 fun Route.managePunishments() {
     get("/types") {
@@ -18,6 +21,16 @@ fun Route.managePunishments() {
         val id = call.parameters["punishmentId"] ?: throw ValidationException()
         val punishment = Database.punishments.findById(id) ?: throw PunishmentMissingException()
         call.respond(punishment)
+    }
+
+    post("/{punishmentId}/revert") {
+        val id = call.parameters["punishmentId"] ?: throw ValidationException()
+        validate<PunishmentRevertRequest>(this) { data ->
+            val punishment = Database.punishments.findById(id) ?: throw PunishmentMissingException()
+            punishment.reversion = PunishmentReversion(Date().time, data.reverter, data.reason)
+            Database.punishments.save(punishment)
+            call.respond(punishment)
+        }
     }
 }
 

@@ -15,7 +15,7 @@ data class Punishment(
     val punisher: SimplePlayer,
     val target: SimplePlayer,
     val targetIps: List<String>,
-    val reversion: PunishmentReversion? = null
+    var reversion: PunishmentReversion? = null
 ) {
     val expiresAt: Long
         get() {
@@ -36,10 +36,4 @@ data class StaffNote(val author: SimplePlayer, val content: String, val createdA
 data class PunishmentReason(val name: String, val message: String, val short: String)
 
 @Serializable
-data class PunishmentReversion(val revertedAt: Long, val note: StaffNote, val reverter: SimplePlayer, val reason: ReversionReason)
-
-@Serializable
-enum class ReversionReason {
-    FALSE_PUNISHMENT,
-    COMPASSIONATE
-}
+data class PunishmentReversion(val revertedAt: Long, val reverter: SimplePlayer, val reason: String)

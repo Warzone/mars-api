@@ -16,3 +16,9 @@ data class PunishmentIssueRequest(
     val targetIps: List<String>,
     val silent: Boolean
 )
+
+@Serializable
+data class PunishmentRevertRequest(
+    val reason: String,
+    val reverter: SimplePlayer
+)
