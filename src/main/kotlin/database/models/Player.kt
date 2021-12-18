@@ -31,6 +31,11 @@ data class Player(
         return getPunishments().filter { now < it.expiresAt || it.action.length == -1L }.sortedBy { it.issuedAt }
     }
 
+    // note: only first degree alts atm
+    suspend fun getAlts(): List<Player> {
+        return Database.players.find(Player::ips `in` this.ips, Player::_id ne this._id).toList()
+    }
+
     companion object {
         suspend fun ensureNameUniqueness(name: String, keepId: String) {
             val tempName = ">>awarzoneplayer${(0..1000).random()}"

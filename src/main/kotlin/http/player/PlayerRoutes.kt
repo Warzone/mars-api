@@ -10,10 +10,7 @@ import network.warzone.api.database.findById
 import network.warzone.api.database.findByIdOrName
 import network.warzone.api.database.models.*
 import network.warzone.api.http.*
-import network.warzone.api.http.player.PlayerLoginRequest
-import network.warzone.api.http.player.PlayerLoginResponse
-import network.warzone.api.http.player.PlayerLogoutRequest
-import network.warzone.api.http.player.PlayerSetActiveTagRequest
+import network.warzone.api.http.player.*
 import network.warzone.api.http.punishment.PunishmentIssueRequest
 import network.warzone.api.util.validate
 import org.litote.kmongo.contains
@@ -119,7 +116,7 @@ fun Route.playerSessions() {
     }
 }
 
-fun Route.playerPunishments() {
+fun Route.playerModeration() {
     post("/{playerId}/punishments") {
         validate<PunishmentIssueRequest>(this) { data ->
             val id = UUID.randomUUID().toString()
@@ -146,6 +143,17 @@ fun Route.playerPunishments() {
         val playerId = call.parameters["playerId"] ?: throw ValidationException()
         val player = PlayerCache.get<Player>(playerId) ?: throw PlayerMissingException()
         call.respond(player.getPunishments())
+    }
+
+    get("/{playerId}/lookup") {
+        val playerId = call.parameters["playerId"] ?: throw ValidationException()
+        val player = PlayerCache.get<Player>(playerId) ?: throw PlayerMissingException()
+        val alts = mutableListOf<PlayerAltResponse>()
+        player.getAlts().forEach {
+            val puns = it.getPunishments()
+            alts.add(PlayerAltResponse(it, puns))
+        }
+        call.respond(PlayerLookupResponse(player, alts))
     }
 }
 
@@ -237,7 +245,7 @@ fun Application.playerRoutes() {
             playerSessions()
             playerRanks()
             playerTags()
-            playerPunishments()
+            playerModeration()
         }
     }
 }
