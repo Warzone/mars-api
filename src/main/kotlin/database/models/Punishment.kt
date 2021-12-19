@@ -30,7 +30,7 @@ data class Punishment(
 }
 
 @Serializable
-data class StaffNote(val author: SimplePlayer, val content: String, val createdAt: Long)
+data class StaffNote(val id: Int, val author: SimplePlayer, val content: String, val createdAt: Long)
 
 @Serializable
 data class PunishmentReason(val name: String, val message: String, val short: String)

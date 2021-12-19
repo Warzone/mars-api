@@ -60,6 +60,12 @@ fun Route.playerSessions() {
 
                 PlayerCache.set(returningPlayer.name, returningPlayer, persist = true)
 
+//                val alts = mutableListOf<PlayerAltResponse>()
+//                returningPlayer.getAlts().forEach {
+//                    val puns = it.getPunishments()
+//                    alts.add(PlayerAltResponse(it, puns))
+//                }
+
                 call.respond(
                     PlayerLoginResponse(
                         player = returningPlayer,
@@ -80,11 +86,18 @@ fun Route.playerSessions() {
                     rankIds = Rank.findDefault().map { it._id },
                     tagIds = emptyList(),
                     activeTagId = null,
-                    stats = PlayerStats()
+                    stats = PlayerStats(),
+                    notes = emptyList()
                 )
 
                 PlayerCache.set(player.name, player, persist = true)
                 Database.sessions.save(activeSession)
+
+//                val alts = mutableListOf<PlayerAltResponse>()
+//                player.getAlts().forEach {
+//                    val puns = it.getPunishments()
+//                    alts.add(PlayerAltResponse(it, puns))
+//                }
 
                 call.respond(HttpStatusCode.Created, PlayerLoginResponse(player, activeSession, emptyList()))
 
@@ -147,13 +160,36 @@ fun Route.playerModeration() {
 
     get("/{playerId}/lookup") {
         val playerId = call.parameters["playerId"] ?: throw ValidationException()
+        val includeAlts = call.request.queryParameters["alts"] == "true"
         val player = PlayerCache.get<Player>(playerId) ?: throw PlayerMissingException()
         val alts = mutableListOf<PlayerAltResponse>()
-        player.getAlts().forEach {
+        if (includeAlts) player.getAlts().forEach {
             val puns = it.getPunishments()
             alts.add(PlayerAltResponse(it, puns))
         }
         call.respond(PlayerLookupResponse(player, alts))
+    }
+
+    post("/{playerId}/notes") {
+        val playerId = call.parameters["playerId"] ?: throw ValidationException()
+        val player = PlayerCache.get<Player>(playerId) ?: throw PlayerMissingException()
+        validate<PlayerAddNoteRequest>(this) { data ->
+            val id = (player.notes.maxByOrNull { it.id }?.id ?: 0) + 1
+            val note = StaffNote(id, data.author, data.content, Date().time)
+            player.notes += note
+            PlayerCache.set(playerId, player, true)
+            call.respond(player)
+        }
+    }
+
+    delete("/{playerId}/notes/{noteId}") {
+        val playerId = call.parameters["playerId"] ?: throw ValidationException()
+        val noteId = call.parameters["noteId"]?.toInt() ?: throw ValidationException()
+        val player = PlayerCache.get<Player>(playerId) ?: throw PlayerMissingException()
+        val note = player.notes.find { it.id == noteId } ?: throw NoteMissingException()
+        player.notes -= note
+        PlayerCache.set(playerId, player, true)
+        call.respond(player)
     }
 }
 

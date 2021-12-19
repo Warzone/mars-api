@@ -12,9 +12,9 @@ open class ApiException(
     override val message: String = "An error occurred"
 ) : RuntimeException("${type.name}: $message ($statusCode)") {
     val response: ApiExceptionResponse
-    get() {
-        return ApiExceptionResponse(type.name, message, error = true)
-    }
+        get() {
+            return ApiExceptionResponse(type.name, message, error = true)
+        }
 }
 
 class ValidationException(message: String = "Validation failed") :
@@ -64,6 +64,9 @@ class MapMissingException :
 class PunishmentMissingException :
     ApiException(HttpStatusCode.NotFound, ApiExceptionType.PUNISHMENT_MISSING, "The punishment does not exist")
 
+class NoteMissingException :
+    ApiException(HttpStatusCode.NotFound, ApiExceptionType.NOTE_MISSING, "The note does not exist")
+
 class InternalServerErrorException : ApiException(
     HttpStatusCode.InternalServerError,
     ApiExceptionType.INTERNAL_SERVER_ERROR,
@@ -84,5 +87,6 @@ enum class ApiExceptionType {
     TAG_ALREADY_PRESENT,
     TAG_NOT_PRESENT,
     MAP_MISSING,
-    PUNISHMENT_MISSING
+    PUNISHMENT_MISSING,
+    NOTE_MISSING
 }

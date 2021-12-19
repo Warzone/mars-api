@@ -13,6 +13,7 @@ data class Player(
     var firstJoinedAt: Long,
     var lastJoinedAt: Long,
     var ips: List<String>,
+    var notes: List<StaffNote> = emptyList(),
     var rankIds: List<String>,
     var tagIds: List<String>,
     var activeTagId: String?,
