@@ -3,7 +3,6 @@ package network.warzone.api.database.models
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.Database
 import org.litote.kmongo.*
-import java.util.*
 
 @Serializable
 data class Player(
@@ -28,8 +27,7 @@ data class Player(
     }
 
     suspend fun getActivePunishments(): List<Punishment> {
-        val now = Date().time
-        return getPunishments().filter { now < it.expiresAt || it.action.length == -1L }.sortedBy { it.issuedAt }
+        return getPunishments().filter { it.isActive }.sortedBy { it.issuedAt }
     }
 
     // note: only first degree alts atm
@@ -39,7 +37,7 @@ data class Player(
 
     companion object {
         suspend fun ensureNameUniqueness(name: String, keepId: String) {
-            val tempName = ">>awarzoneplayer${(0..1000).random()}"
+            val tempName = ">WZPlayer${(0..1000).random()}"
             Database.players.updateMany(
                 and(Player::nameLower eq name.lowercase(), not(Player::_id eq keepId)),
                 SetTo(Player::name, tempName),
