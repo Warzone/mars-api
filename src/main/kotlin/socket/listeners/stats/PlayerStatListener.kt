@@ -45,6 +45,13 @@ class PlayerStatListener : Listener() {
         // If void death, increment victim's void death count
         if (event.data.cause == DamageCause.VOID) victim.stats.voidDeaths++
 
+        if (event.match.firstBlood == null) victim.stats.firstBloodsSuffered++
+
+        // Modify victim's weapon damage stats
+        val weaponName = event.data.weapon ?: "NONE"
+        var weaponDeaths = victim.stats.weaponDeaths[weaponName] ?: 0
+        victim.stats.weaponDeaths[weaponName] = ++weaponDeaths
+
         event.victim.setPlayer(victim)
     }
 
@@ -68,7 +75,6 @@ class PlayerStatListener : Listener() {
 
         // If this is the first kill of the match, update first blood stats for player & match
         if (event.match.firstBlood == null) {
-            victim.stats.firstBloodsSuffered++
             attacker.stats.firstBloods++
         }
 

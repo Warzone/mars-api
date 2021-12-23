@@ -64,6 +64,7 @@ data class ParticipantStats(
     var damageGivenBow: Double = 0.0,
     val messages: PlayerMessages = PlayerMessages(),
     val weaponKills: MutableMap<String, Int> = mutableMapOf(),
+    val weaponDeaths: MutableMap<String, Int> = mutableMapOf(),
     val killstreaks: MutableMap<Int, Int> = mutableMapOf(5 to 0, 10 to 0, 25 to 0, 50 to 0, 100 to 0),
     var duels: MutableMap<String, Duel> = mutableMapOf()
 )

@@ -5,7 +5,6 @@ import network.warzone.api.socket.listeners.objective.GoalCollection
 import network.warzone.api.socket.listeners.server.ConnectedServers
 import network.warzone.api.socket.listeners.server.LiveGameServer
 import java.util.*
-import kotlin.collections.Map
 
 @Serializable
 data class Match(
@@ -13,7 +12,7 @@ data class Match(
     val loadedAt: Long,
     var startedAt: Long?,
     var endedAt: Long?,
-    val mapId: String,
+    val level: Level,
     val goals: GoalCollection,
     var parties: Map<String, Party>,
     val participants: HashMap<String, Participant>,

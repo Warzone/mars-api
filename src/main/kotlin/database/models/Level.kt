@@ -3,23 +3,23 @@ package network.warzone.api.database.models
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Map(
+data class Level(
     val _id: String,
     var name: String,
     var nameLower: String,
     var version: String,
-    var gamemodes: List<MapGamemode>,
+    var gamemodes: List<LevelGamemode>,
     val loadedAt: Long,
     var updatedAt: Long,
-    var authors: List<MapContributor>,
-    var contributors: List<MapContributor>
+    var authors: List<LevelContributor>,
+    var contributors: List<LevelContributor>
 )
 
 @Serializable
-data class MapContributor(val uuid: String, var contribution: String? = null)
+data class LevelContributor(val uuid: String, var contribution: String? = null)
 
 @Serializable
-enum class MapGamemode(val fancy: String) {
+enum class LevelGamemode(val fancy: String) {
     ATTACK_DEFEND("Attack/Defend"),
     ARCADE("Arcade"),
     BLITZ("Blitz"),

@@ -24,6 +24,7 @@ import network.warzone.api.socket.listeners.party.PartyLeaveEvent
 import network.warzone.api.socket.listeners.party.PartyListener
 import network.warzone.api.socket.listeners.server.ConnectedServers
 import network.warzone.api.socket.listeners.server.LiveGameServer
+import network.warzone.api.socket.listeners.stats.GamemodeStatListener
 import network.warzone.api.socket.listeners.stats.KillstreakEvent
 import network.warzone.api.socket.listeners.stats.ParticipantStatListener
 import network.warzone.api.socket.listeners.stats.PlayerStatListener
@@ -45,6 +46,7 @@ fun Application.initSocketHandler() {
     listeners += DeathListener()
     listeners += ParticipantStatListener()
     listeners += PlayerStatListener()
+    listeners += GamemodeStatListener()
 
     listeners.forEach { listener ->
         listener.handlers.forEach {

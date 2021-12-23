@@ -1,5 +1,6 @@
 package network.warzone.api.socket.listeners.match
 
+import network.warzone.api.database.Database
 import network.warzone.api.database.MatchCache
 import network.warzone.api.database.models.Match
 import network.warzone.api.database.models.MatchState
@@ -21,12 +22,13 @@ class MatchPhaseListener : Listener() {
     suspend fun onLoad(event: MatchLoadEvent) {
         val now = Date().time
         val parties = hashMapOf<String, Party>()
+        val level = Database.levels.findOneById(event.data.mapId) ?: return // todo: force state change
         val match = Match(
             _id = UUID.randomUUID().toString(),
             loadedAt = now,
             startedAt = null,
             endedAt = null,
-            mapId = event.data.mapId,
+            level = level,
             parties = parties,
             participants = hashMapOf(),
             serverId = event.server.id,

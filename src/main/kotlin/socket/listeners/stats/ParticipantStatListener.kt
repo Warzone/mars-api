@@ -43,11 +43,16 @@ class ParticipantStatListener : Listener() {
         // If void death, increment victim's void death count
         if (event.data.cause == DamageCause.VOID) victim.stats.voidDeaths++
 
+        // Modify victim's weapon damage stats
+        val weaponName = event.data.weapon ?: "NONE"
+        var weaponDeaths = victim.stats.weaponDeaths[weaponName] ?: 0
+        victim.stats.weaponDeaths[weaponName] = ++weaponDeaths
+
         event.match.saveParticipants(event.victim)
         MatchCache.set(event.match._id, event.match)
     }
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.MONITOR)
     suspend fun onKill(event: PlayerDeathEvent) {
         val attacker = event.attacker ?: return
         val victim = event.victim

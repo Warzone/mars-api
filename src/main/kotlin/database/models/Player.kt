@@ -12,18 +12,20 @@ data class Player(
     var firstJoinedAt: Long,
     var lastJoinedAt: Long,
     var ips: List<String>,
-    var notes: List<StaffNote> = emptyList(),
+    var notes: List<StaffNote>,
     var rankIds: List<String>,
     var tagIds: List<String>,
     var activeTagId: String?,
-    val stats: PlayerStats
+    val stats: PlayerStats,
+    val gamemodeStats: HashMap<LevelGamemode, GamemodeStats>
 ) {
     suspend fun getActiveSession(): Session? {
         return Database.sessions.findOne(Session::endedAt eq null, Session::playerId eq _id)
     }
 
     suspend fun getPunishments(): List<Punishment> {
-        return Database.punishments.find(Punishment::target / SimplePlayer::id eq this._id).toList().sortedBy { it.issuedAt }
+        return Database.punishments.find(Punishment::target / SimplePlayer::id eq this._id).toList()
+            .sortedBy { it.issuedAt }
     }
 
     suspend fun getActivePunishments(): List<Punishment> {
@@ -34,6 +36,22 @@ data class Player(
     suspend fun getAlts(): List<Player> {
         return Database.players.find(Player::ips `in` this.ips, Player::_id ne this._id).toList()
     }
+
+
+    fun setGamemodeStats(gamemodes: List<LevelGamemode>, modify: (gamemodeStats: GamemodeStats) -> GamemodeStats) {
+        println("gamemodes: ${gamemodes}")
+        gamemodes.forEach {
+            modify(gamemodeStats[it] ?: GamemodeStats())
+            println("${it.name} ${gamemodeStats[it]}")
+        }
+    }
+
+    /*
+    *   player.setGamemodeStats(event.match.level.gamemodes) {
+    *       it.
+    *   }
+    *
+    * */
 
     companion object {
         suspend fun ensureNameUniqueness(name: String, keepId: String) {
@@ -47,10 +65,12 @@ data class Player(
     }
 
     val simple: SimplePlayer
-    get() {
-        return SimplePlayer(name = this.name, id = this._id)
-    }
+        get() {
+            return SimplePlayer(name = this.name, id = this._id)
+        }
 }
+
+typealias GamemodeStats = PlayerStats
 
 @Serializable
 data class SimplePlayer(val name: String, val id: String)
@@ -85,6 +105,7 @@ data class PlayerStats(
     var mvps: Int = 0, // todo
     val records: PlayerRecords = PlayerRecords(), // todo
     val weaponKills: MutableMap<String, Int> = mutableMapOf(),
+    val weaponDeaths: MutableMap<String, Int> = mutableMapOf(),
     val killstreaks: MutableMap<Int, Int> = mutableMapOf(5 to 0, 10 to 0, 25 to 0, 50 to 0, 100 to 0),
 )
 

@@ -87,6 +87,7 @@ fun Route.playerSessions() {
                     tagIds = emptyList(),
                     activeTagId = null,
                     stats = PlayerStats(),
+                    gamemodeStats = hashMapOf(),
                     notes = emptyList()
                 )
 

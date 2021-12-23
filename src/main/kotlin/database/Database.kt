@@ -3,7 +3,6 @@ package network.warzone.api.database
 import com.mongodb.client.result.DeleteResult
 import network.warzone.api.Config
 import network.warzone.api.database.models.*
-import network.warzone.api.database.models.Map
 import org.litote.kmongo.coroutine.CoroutineCollection
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.coroutine.coroutine
@@ -16,7 +15,7 @@ object Database {
     val sessions: CoroutineCollection<Session>
     val ranks: CoroutineCollection<Rank>
     val tags: CoroutineCollection<Tag>
-    val maps: CoroutineCollection<Map>
+    val levels: CoroutineCollection<Level>
     val matches: CoroutineCollection<Match>
     val deaths: CoroutineCollection<Death>
     val punishments: CoroutineCollection<Punishment>
@@ -30,7 +29,7 @@ object Database {
         sessions = database.getCollection()
         ranks = database.getCollection()
         tags = database.getCollection()
-        maps = database.getCollection()
+        levels = database.getCollection()
         matches = database.getCollection()
         deaths = database.getCollection()
         punishments = database.getCollection()
