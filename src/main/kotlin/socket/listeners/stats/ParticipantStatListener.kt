@@ -52,7 +52,7 @@ class ParticipantStatListener : Listener() {
         MatchCache.set(event.match._id, event.match)
     }
 
-    @FireAt(EventPriority.MONITOR)
+    @FireAt(EventPriority.LATE)
     suspend fun onKill(event: PlayerDeathEvent) {
         val attacker = event.attacker ?: return
         val victim = event.victim
@@ -198,7 +198,7 @@ class ParticipantStatListener : Listener() {
         MatchCache.set(event.match._id, event.match)
     }
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.LATE)
     suspend fun onMatchEnd(event: MatchEndEvent) {
         val participants = mutableListOf<Participant>()
         event.data.bigStats.forEach {

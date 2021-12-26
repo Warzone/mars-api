@@ -42,4 +42,8 @@ class MatchEndEvent(match: Match, val data: MatchEndData) : MatchEvent(match) {
         @Serializable
         data class PlayerBlocksData(var blocksPlaced: Map<String, Int> = mutableMapOf(), var blocksBroken: Map<String, Int> = mutableMapOf())
     }
+
+    fun isTie(): Boolean {
+        return data.winningParties.isEmpty() || data.winningParties.count() == match.parties.count()
+    }
 }

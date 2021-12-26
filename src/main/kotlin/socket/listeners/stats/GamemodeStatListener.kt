@@ -31,7 +31,7 @@ class GamemodeStatListener : Listener() {
         ::onMatchEnd to MatchEndEvent::class
     )
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.LATE)
     suspend fun onDeath(event: PlayerDeathEvent) {
         val victim = event.victim.getPlayer() ?: return
         victim.setGamemodeStats(event.match.level.gamemodes) {
@@ -54,7 +54,7 @@ class GamemodeStatListener : Listener() {
         event.victim.setPlayer(victim)
     }
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.LATE)
     suspend fun onKill(event: PlayerDeathEvent) {
         val attacker = event.attacker?.getPlayer() ?: return
         if (event.victim.id == attacker._id) return
@@ -80,7 +80,7 @@ class GamemodeStatListener : Listener() {
         event.attacker.setPlayer(attacker)
     }
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.LATE)
     suspend fun onKillstreak(event: KillstreakEvent) {
         val player: Player = PlayerCache.get(event.data.player.name) ?: return
         player.setGamemodeStats(event.match.level.gamemodes) {
@@ -91,7 +91,7 @@ class GamemodeStatListener : Listener() {
         PlayerCache.set(player.name, player)
     }
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.LATE)
     suspend fun onCoreLeak(event: CoreLeakEvent) {
         event.data.contributions.forEach {
             val participant = event.match.participants[it.playerId] ?: return
@@ -104,7 +104,7 @@ class GamemodeStatListener : Listener() {
         }
     }
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.LATE)
     suspend fun onControlPointCapture(event: ControlPointCaptureEvent) {
         event.data.playerIds.forEach {
             val participant = event.match.participants[it] ?: return
@@ -117,7 +117,7 @@ class GamemodeStatListener : Listener() {
         }
     }
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.LATE)
     suspend fun onDestroyableDestroy(event: DestroyableDestroyEvent) {
         event.data.contributions.forEach { contribution ->
             val participant = event.match.participants[contribution.playerId] ?: return
@@ -131,7 +131,7 @@ class GamemodeStatListener : Listener() {
         }
     }
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.LATE)
     suspend fun onFlagPlace(event: FlagPlaceEvent) {
         val participant = event.participant
         val player = participant.getPlayer() ?: return
@@ -143,7 +143,7 @@ class GamemodeStatListener : Listener() {
         participant.setPlayer(player)
     }
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.LATE)
     suspend fun onFlagPickup(event: FlagPickupEvent) {
         val participant = event.participant
         val player = participant.getPlayer() ?: return
@@ -154,7 +154,7 @@ class GamemodeStatListener : Listener() {
         participant.setPlayer(player)
     }
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.LATE)
     suspend fun onFlagDrop(event: FlagDropEvent) {
         val participant = event.participant
         val player = participant.getPlayer() ?: return
@@ -166,7 +166,7 @@ class GamemodeStatListener : Listener() {
         participant.setPlayer(player)
     }
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.LATE)
     suspend fun onFlagDefend(event: FlagDefendEvent) {
         val participant = event.participant
         val player = participant.getPlayer() ?: return
@@ -177,7 +177,7 @@ class GamemodeStatListener : Listener() {
         participant.setPlayer(player)
     }
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.LATE)
     suspend fun onWoolPlace(event: WoolPlaceEvent) {
         val participant = event.participant
         val player = participant.getPlayer() ?: return
@@ -188,7 +188,7 @@ class GamemodeStatListener : Listener() {
         participant.setPlayer(player)
     }
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.LATE)
     suspend fun onWoolPickup(event: WoolPickupEvent) {
         val participant = event.participant
         val player = participant.getPlayer() ?: return
@@ -199,7 +199,7 @@ class GamemodeStatListener : Listener() {
         participant.setPlayer(player)
     }
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.LATE)
     suspend fun onWoolDrop(event: WoolDropEvent) {
         val participant = event.participant
         val player = participant.getPlayer() ?: return
@@ -210,7 +210,7 @@ class GamemodeStatListener : Listener() {
         participant.setPlayer(player)
     }
 
-    @FireAt(EventPriority.LATEST)
+    @FireAt(EventPriority.LATE)
     suspend fun onWoolDefend(event: WoolDefendEvent) {
         val participant = event.participant
         val player = participant.getPlayer() ?: return
@@ -221,7 +221,7 @@ class GamemodeStatListener : Listener() {
         participant.setPlayer(player)
     }
 
-    @FireAt(EventPriority.MONITOR)
+    @FireAt(EventPriority.LATE)
     suspend fun onMatchEnd(event: MatchEndEvent) {
         val tie =
             event.data.winningParties.isEmpty() || event.data.winningParties.count() == event.match.parties.count()

@@ -17,7 +17,7 @@ class ChatListener : Listener() {
     @FireAt(EventPriority.EARLY)
     suspend fun onStaffChat(event: PlayerChatEvent) {
         if (event.data.channel != ChatChannel.STAFF) return
-        ConnectedServers.forEach {
+        ConnectedServers.filterNot { it.id == event.server.id }.forEach {
             it.call(EventType.PLAYER_CHAT, event.data)
         }
     }

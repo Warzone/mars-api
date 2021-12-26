@@ -38,7 +38,6 @@ class MatchPhaseListener : Listener() {
 
         event.data.parties.forEach {
             parties[it.name] = Party(
-
                 name = it.name,
                 alias = it.alias,
                 colour = it.colour,

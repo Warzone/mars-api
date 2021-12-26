@@ -2,11 +2,9 @@ package network.warzone.api.socket.listeners.stats
 
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.PlayerCache
-import network.warzone.api.database.models.DamageCause
-import network.warzone.api.database.models.Match
-import network.warzone.api.database.models.Player
-import network.warzone.api.database.models.SimplePlayer
+import network.warzone.api.database.models.*
 import network.warzone.api.socket.event.EventPriority
+import network.warzone.api.socket.event.EventType
 import network.warzone.api.socket.event.FireAt
 import network.warzone.api.socket.event.Listener
 import network.warzone.api.socket.listeners.death.PlayerDeathEvent
@@ -187,10 +185,9 @@ class PlayerStatListener : Listener() {
         participant.setPlayer(player)
     }
 
-    @FireAt(EventPriority.LATE)
+    @FireAt(EventPriority.EARLY)
     suspend fun onMatchEnd(event: MatchEndEvent) {
-        val tie =
-            event.data.winningParties.isEmpty() || event.data.winningParties.count() == event.match.parties.count()
+        val tie = event.isTie()
 
         event.match.participants.values.forEach {
             val id = it.id
@@ -229,12 +226,24 @@ class PlayerStatListener : Listener() {
                 player.stats.damageGivenBow += bigStats.damageGivenBow
             }
 
-            if (tie && isPlaying) player.stats.ties++
-            else if (!tie && event.data.winningParties.contains(it.partyName)) player.stats.wins++
-            else if (isPlaying && !event.data.winningParties.contains(it.partyName)) player.stats.losses++
-
             // min ( 10% of match length | 1 minute )
             val minimumPlaytime = min(0.10 * event.match.length, 60000.0)
+
+            val playerResult = it.resultInMatch(event)
+            if (it.stats.gamePlaytime > minimumPlaytime) {
+                if (tie) player.stats.ties++
+                else if (playerResult == PlayerMatchResult.WIN) player.stats.wins++
+                else if (playerResult == PlayerMatchResult.LOSE) player.stats.losses++
+            } else {
+                event.server.call(
+                    EventType.MESSAGE,
+                    MessageData(
+                        "&cThe outcome of this match has not affected your stats as you did not participate for long enough.",
+                        null,
+                        listOf(it.id)
+                    )
+                )
+            }
 
             // How much time between match start and player first joining match?
             val firstJoinedMatchAt = max(it.firstJoinedMatchAt - event.match.startedAt!!, 0)
@@ -252,10 +261,10 @@ class PlayerStatListener : Listener() {
     }
 }
 
-class KillstreakEvent(match: Match, val data: KillStreakData) : MatchEvent(match) {
+class KillstreakEvent(match: Match, val data: KillstreakData) : MatchEvent(match) {
     val participant = match.participants[data.player.id]
         ?: throw RuntimeException("Player ${data.player.id} is not a participant")
 
     @Serializable
-    data class KillStreakData(val amount: Int, val player: SimplePlayer, val ended: Boolean)
+    data class KillstreakData(val amount: Int, val player: SimplePlayer, val ended: Boolean)
 }

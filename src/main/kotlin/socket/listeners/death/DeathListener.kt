@@ -16,7 +16,7 @@ class DeathListener : Listener() {
         ::onDeath to PlayerDeathEvent::class
     )
 
-    @FireAt(EventPriority.EARLY)
+    @FireAt(EventPriority.MONITOR)
     suspend fun onDeath(event: PlayerDeathEvent) {
         val death = Death(
             _id = UUID.randomUUID().toString(),

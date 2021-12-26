@@ -2,7 +2,9 @@ package network.warzone.api.database.models
 
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.Database
+import network.warzone.api.socket.listeners.stats.XP_PER_LEVEL
 import org.litote.kmongo.*
+import kotlin.math.floor
 
 @Serializable
 data class Player(
@@ -41,17 +43,10 @@ data class Player(
     fun setGamemodeStats(gamemodes: List<LevelGamemode>, modify: (gamemodeStats: GamemodeStats) -> GamemodeStats) {
         println("gamemodes: ${gamemodes}")
         gamemodes.forEach {
-            modify(gamemodeStats[it] ?: GamemodeStats())
+            gamemodeStats[it] = modify(gamemodeStats[it] ?: GamemodeStats())
             println("${it.name} ${gamemodeStats[it]}")
         }
     }
-
-    /*
-    *   player.setGamemodeStats(event.match.level.gamemodes) {
-    *       it.
-    *   }
-    *
-    * */
 
     companion object {
         suspend fun ensureNameUniqueness(name: String, keepId: String) {
@@ -77,7 +72,7 @@ data class SimplePlayer(val name: String, val id: String)
 
 @Serializable
 data class PlayerStats(
-    var xp: Int = 0, // todo
+    var xp: Int = 0,
     var serverPlaytime: Long = 0,
     var gamePlaytime: Long = 0,
     var kills: Int = 0,
@@ -107,7 +102,10 @@ data class PlayerStats(
     val weaponKills: MutableMap<String, Int> = mutableMapOf(),
     val weaponDeaths: MutableMap<String, Int> = mutableMapOf(),
     val killstreaks: MutableMap<Int, Int> = mutableMapOf(5 to 0, 10 to 0, 25 to 0, 50 to 0, 100 to 0),
-)
+) {
+    val level: Int
+    get() = floor(((xp + XP_PER_LEVEL) / XP_PER_LEVEL).toDouble()).toInt()
+}
 
 @Serializable
 data class PlayerRecords(

@@ -27,4 +27,7 @@ enum class EventType {
     WOOL_DROP,
     WOOL_DEFEND,
     CONTROL_POINT_CAPTURE,
+
+    MESSAGE,
+    PLAYER_LEVEL_UP
 }
