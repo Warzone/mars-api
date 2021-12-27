@@ -100,6 +100,7 @@ fun Application.initSocketHandler() {
                             EventType.PARTY_LEAVE -> PartyLeaveEvent(match, Json.decodeFromJsonElement(data))
                             EventType.PLAYER_CHAT -> PlayerChatEvent(match, Json.decodeFromJsonElement(data))
                             EventType.PLAYER_DEATH -> PlayerDeathEvent(match, Json.decodeFromJsonElement(data))
+                            EventType.PROJECTILE_HIT -> ProjectileHitEvent(match, Json.decodeFromJsonElement(data))
                             EventType.KILLSTREAK -> KillstreakEvent(match, Json.decodeFromJsonElement(data))
                             EventType.CONTROL_POINT_CAPTURE -> ControlPointCaptureEvent(
                                 match,

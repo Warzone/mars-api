@@ -29,5 +29,6 @@ enum class EventType {
     CONTROL_POINT_CAPTURE,
 
     MESSAGE,
-    PLAYER_LEVEL_UP
+    PLAYER_LEVEL_UP,
+    PROJECTILE_HIT
 }
