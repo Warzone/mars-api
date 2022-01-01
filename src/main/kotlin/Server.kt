@@ -39,8 +39,6 @@ import network.warzone.api.http.tag.tagRoutes
 import network.warzone.api.socket.initSocketHandler
 
 fun main() {
-    println(Config.punishmentTypes)
-
     embeddedServer(Netty, host = Config.listenHost, port = Config.listenPort) {
         Server().apply { main() }
     }.start(wait = true)
