@@ -16,12 +16,12 @@ import network.warzone.api.socket.participant.ParticipantContext
 import network.warzone.api.socket.participant.ParticipantPartyListener
 import network.warzone.api.socket.participant.ParticipantStatListener
 import network.warzone.api.socket.player.*
-import network.warzone.api.socket.server.EventServer
 import network.warzone.api.socket.server.MatchLoadData
+import network.warzone.api.socket.server.ServerContext
 import redis.clients.jedis.params.SetParams
 import java.util.*
 
-class SocketRouter(val server: EventServer) {
+class SocketRouter(val server: ServerContext) {
     suspend fun route(event: EventType, data: JsonObject) {
         when (event) {
             EventType.MATCH_LOAD -> onMatchLoad(Json.decodeFromJsonElement(data))

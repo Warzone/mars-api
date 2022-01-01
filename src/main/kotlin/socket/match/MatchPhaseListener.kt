@@ -6,11 +6,11 @@ import network.warzone.api.database.models.Match
 import network.warzone.api.database.models.MatchState
 import network.warzone.api.database.models.Participant
 import network.warzone.api.database.models.Party
-import network.warzone.api.socket.server.EventServer
+import network.warzone.api.socket.server.ServerContext
 import network.warzone.api.socket.server.MatchLoadData
 import java.util.*
 
-class MatchPhaseListener(val server: EventServer) {
+class MatchPhaseListener(val server: ServerContext) {
     suspend fun onLoad(data: MatchLoadData) {
         val level = Database.levels.findOneById(data.mapId) ?: return // todo: force cycle
 

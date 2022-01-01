@@ -2,7 +2,7 @@ package network.warzone.api.database.models
 
 import kotlinx.serialization.Serializable
 import network.warzone.api.socket.server.ConnectedServers
-import network.warzone.api.socket.server.EventServer
+import network.warzone.api.socket.server.ServerContext
 import java.util.*
 
 @Serializable
@@ -32,7 +32,7 @@ data class Match(
             return end - start
         }
 
-    val server: EventServer
+    val server: ServerContext
     get() { return ConnectedServers.find { serverId == it.id }!! }
 
     fun saveParticipants(vararg participants: Participant): Match {

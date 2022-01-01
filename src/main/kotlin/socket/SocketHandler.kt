@@ -9,7 +9,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import network.warzone.api.socket.server.ConnectedServers
-import network.warzone.api.socket.server.EventServer
+import network.warzone.api.socket.server.ServerContext
 import network.warzone.api.util.zlibDecompress
 
 fun Application.initSocketHandler() {
@@ -21,7 +21,7 @@ fun Application.initSocketHandler() {
             // todo: don't hardcode credentials + support multiple servers
             if (!(serverID == "main" && serverToken == "secret")) throw RuntimeException("Invalid server ID or server token")
 
-            val server = EventServer(serverID, this)
+            val server = ServerContext(serverID, this)
             ConnectedServers += server
             println("Server ${server.id} connected to socket server")
 

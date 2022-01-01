@@ -11,9 +11,9 @@ import network.warzone.api.database.models.Match
 import network.warzone.api.socket.EventType
 import network.warzone.api.util.zlibCompress
 
-object ConnectedServers : HashSet<EventServer>()
+object ConnectedServers : HashSet<ServerContext>()
 
-class EventServer(val id: String, val session: DefaultWebSocketServerSession) {
+class ServerContext(val id: String, val session: DefaultWebSocketServerSession) {
     val match: Match?
         get() = Redis.get("match:$currentMatchId")
 
