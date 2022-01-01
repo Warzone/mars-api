@@ -38,14 +38,6 @@ data class Player(
         return Database.players.find(Player::ips `in` this.ips, Player::_id ne this._id).toList()
     }
 
-    fun setGamemodeStats(gamemodes: List<LevelGamemode>, modify: (gamemodeStats: GamemodeStats) -> GamemodeStats) {
-        println("gamemodes: ${gamemodes}")
-        gamemodes.forEach {
-            gamemodeStats[it] = modify(gamemodeStats[it] ?: GamemodeStats())
-            println("${it.name} ${gamemodeStats[it]}")
-        }
-    }
-
     companion object {
         suspend fun ensureNameUniqueness(name: String, keepId: String) {
             val tempName = ">WZPlayer${(0..1000).random()}"
@@ -63,12 +55,12 @@ data class Player(
         }
 }
 
-typealias GamemodeStats = PlayerStats
-
 @Serializable
 data class SimplePlayer(val name: String, val id: String)
 
 const val XP_PER_LEVEL = 5000
+
+typealias GamemodeStats = PlayerStats
 
 @Serializable
 data class PlayerStats(
