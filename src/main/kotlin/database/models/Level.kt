@@ -2,6 +2,7 @@ package network.warzone.api.database.models
 
 import kotlinx.serialization.Serializable
 
+// Also known as a "map" in-game
 @Serializable
 data class Level(
     val _id: String,

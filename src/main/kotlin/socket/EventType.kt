@@ -1,4 +1,4 @@
-package network.warzone.api.socket.event
+package network.warzone.api.socket
 
 import kotlinx.serialization.Serializable
 
@@ -7,28 +7,33 @@ enum class EventType {
     MATCH_LOAD,
     MATCH_START,
     MATCH_END,
+
     PLAYER_RECORD_BREAK,
     PLAYER_DEATH,
     PLAYER_CHAT,
+    MESSAGE,
+    PLAYER_LEVEL_UP,
+    PROJECTILE_HIT,
+    KILLSTREAK,
+
     PARTY_JOIN,
     PARTY_LEAVE,
 
-    KILLSTREAK,
     DESTROYABLE_DESTROY,
     DESTROYABLE_DAMAGE,
+
     CORE_LEAK,
     CORE_DAMAGE,
+
     FLAG_CAPTURE,
     FLAG_PICKUP,
     FLAG_DROP,
     FLAG_DEFEND,
+
     WOOL_CAPTURE,
     WOOL_PICKUP,
     WOOL_DROP,
     WOOL_DEFEND,
-    CONTROL_POINT_CAPTURE,
 
-    MESSAGE,
-    PLAYER_LEVEL_UP,
-    PROJECTILE_HIT
+    CONTROL_POINT_CAPTURE,
 }

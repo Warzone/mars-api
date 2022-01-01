@@ -1,4 +1,4 @@
-package network.warzone.api.socket.listeners.server
+package network.warzone.api.socket.server
 
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
@@ -8,13 +8,13 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import network.warzone.api.database.Redis
 import network.warzone.api.database.models.Match
-import network.warzone.api.socket.event.EventType
+import network.warzone.api.socket.EventType
 import network.warzone.api.util.zlibCompress
 
-object ConnectedServers : HashSet<LiveGameServer>()
+object ConnectedServers : HashSet<EventServer>()
 
-data class LiveGameServer(val id: String, val token: String, val session: DefaultWebSocketServerSession) {
-    val currentMatch: Match?
+class EventServer(val id: String, val session: DefaultWebSocketServerSession) {
+    val match: Match?
         get() = Redis.get("match:$currentMatchId")
 
     var currentMatchId: String?

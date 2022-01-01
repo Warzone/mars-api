@@ -2,7 +2,6 @@ package network.warzone.api.database.models
 
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.PlayerCache
-import network.warzone.api.socket.listeners.match.MatchEndEvent
 import java.util.*
 
 @Serializable
@@ -32,18 +31,6 @@ data class Participant(
 
     suspend fun setPlayer(player: Player) {
         return PlayerCache.set(nameLower, player)
-    }
-
-    fun resultInMatch(end: MatchEndEvent): PlayerMatchResult {
-        val isPlaying = this.partyName != null
-        if (!isPlaying) return PlayerMatchResult.INDETERMINATE
-
-        return when {
-            end.isTie() -> PlayerMatchResult.TIE
-            !end.isTie() && end.data.winningParties.contains(this.partyName) -> PlayerMatchResult.WIN
-            !end.data.winningParties.contains(this.partyName) -> PlayerMatchResult.LOSE
-            else -> PlayerMatchResult.INDETERMINATE
-        }
     }
 
     constructor(simple: SimpleParticipant) : this(
@@ -84,11 +71,3 @@ data class ParticipantStats(
 
 @Serializable
 data class Duel(var kills: Int = 0, var deaths: Int = 0)
-
-@Serializable
-enum class PlayerMatchResult {
-    WIN,
-    LOSE,
-    TIE,
-    INDETERMINATE
-}

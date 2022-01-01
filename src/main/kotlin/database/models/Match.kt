@@ -1,9 +1,8 @@
 package network.warzone.api.database.models
 
 import kotlinx.serialization.Serializable
-import network.warzone.api.socket.listeners.objective.GoalCollection
-import network.warzone.api.socket.listeners.server.ConnectedServers
-import network.warzone.api.socket.listeners.server.LiveGameServer
+import network.warzone.api.socket.server.ConnectedServers
+import network.warzone.api.socket.server.EventServer
 import java.util.*
 
 @Serializable
@@ -13,7 +12,7 @@ data class Match(
     var startedAt: Long?,
     var endedAt: Long?,
     val level: Level,
-    val goals: GoalCollection,
+    val goals: GoalCollection, // todo: consider storing this in level rather than match
     var parties: Map<String, Party>,
     val participants: HashMap<String, Participant>,
     val serverId: String,
@@ -33,11 +32,8 @@ data class Match(
             return end - start
         }
 
-    val server: LiveGameServer
-        get() {
-            return ConnectedServers.find { serverId == it.id }
-                ?: throw RuntimeException("Cannot fetch server associated with match")
-        }
+    val server: EventServer
+    get() { return ConnectedServers.find { serverId == it.id }!! }
 
     fun saveParticipants(vararg participants: Participant): Match {
         participants.forEach {
@@ -64,3 +60,33 @@ data class Party(
     val min: Int,
     val max: Int,
 )
+
+@Serializable
+data class GoalCollection(
+    val cores: List<CoreGoal>,
+    val destroyables: List<DestroyableGoal>,
+    val flags: List<FlagGoal>,
+    val wools: List<WoolGoal>,
+    val controlPoints: List<ControlPointGoal>
+)
+
+@Serializable
+data class CoreGoal(val id: String, val name: String, val ownerName: String, val material: String)
+
+@Serializable
+data class DestroyableGoal(
+    val id: String,
+    val name: String,
+    val ownerName: String,
+    val material: String,
+    val blockCount: Int
+)
+
+@Serializable
+data class FlagGoal(val id: String, val name: String, val ownerName: String?, val colour: String)
+
+@Serializable
+data class WoolGoal(val id: String, val name: String, val ownerName: String, val colour: String)
+
+@Serializable
+data class ControlPointGoal(val id: String, val name: String)

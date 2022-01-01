@@ -2,7 +2,6 @@ package network.warzone.api.database.models
 
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.Database
-import network.warzone.api.socket.listeners.stats.XP_PER_LEVEL
 import org.litote.kmongo.*
 import kotlin.math.floor
 
@@ -39,7 +38,6 @@ data class Player(
         return Database.players.find(Player::ips `in` this.ips, Player::_id ne this._id).toList()
     }
 
-
     fun setGamemodeStats(gamemodes: List<LevelGamemode>, modify: (gamemodeStats: GamemodeStats) -> GamemodeStats) {
         println("gamemodes: ${gamemodes}")
         gamemodes.forEach {
@@ -69,6 +67,8 @@ typealias GamemodeStats = PlayerStats
 
 @Serializable
 data class SimplePlayer(val name: String, val id: String)
+
+const val XP_PER_LEVEL = 5000
 
 @Serializable
 data class PlayerStats(
@@ -133,6 +133,7 @@ data class IntRecord(val matchId: String, val value: Int)
 @Serializable
 data class PlayerObjectiveStatistics(
     var coreLeaks: Int = 0,
+    var coreBlockDestroys: Int = 0,
     var destroyableDestroys: Int = 0,
     var destroyableBlockDestroys: Int = 0,
     var flagCaptures: Int = 0,
