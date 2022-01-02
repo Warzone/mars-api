@@ -5,8 +5,10 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import network.warzone.api.database.MatchCache
+import network.warzone.api.database.PlayerCache
 import network.warzone.api.database.models.FirstBlood
 import network.warzone.api.database.models.Participant
+import network.warzone.api.database.models.Player
 import network.warzone.api.database.models.SimpleParticipant
 import network.warzone.api.socket.match.MatchEndData
 import network.warzone.api.socket.match.MatchPhaseListener
@@ -123,15 +125,18 @@ class SocketRouter(val server: ServerContext) {
 
     private suspend fun onPlayerChat(data: PlayerChatData) {
         val match = server.match ?: throw RuntimeException("Player chat fired during no match") // todo: force cycle?
-        val participant = match.participants[data.playerId]!!
+        val participant = match.participants[data.playerId]
 
-        var participantContext = ParticipantContext(participant, match)
-        getParticipantListeners().forEach { participantContext = it.onChat(participantContext, data) }
-        match.saveParticipants(participantContext.profile)
+        if (participant != null) {
+            var participantContext = ParticipantContext(participant, match)
+            getParticipantListeners().forEach { participantContext = it.onChat(participantContext, data) }
+            match.saveParticipants(participantContext.profile)
+        }
 
-        var playerContext = participantContext.getPlayerContext()
+        val player: Player = PlayerCache.get(data.playerName) ?: return
+        var playerContext = PlayerContext(player, match)
         getPlayerListeners().forEach { playerContext = it.onChat(playerContext, data) }
-        participant.setPlayer(playerContext.profile)
+        PlayerCache.set(player.name, playerContext.profile)
 
         MatchCache.set(match._id, match)
     }
