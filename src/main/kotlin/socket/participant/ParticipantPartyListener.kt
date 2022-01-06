@@ -3,7 +3,7 @@ package network.warzone.api.socket.participant
 import network.warzone.api.socket.player.PlayerListener
 import java.util.*
 
-class ParticipantPartyListener : PlayerListener<ParticipantContext>() {
+object ParticipantPartyListener : PlayerListener<ParticipantContext>() {
     override suspend fun onPartyJoin(context: ParticipantContext, partyName: String): ParticipantContext {
         val (profile) = context
         profile.partyName = partyName

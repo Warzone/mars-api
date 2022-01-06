@@ -26,6 +26,9 @@ import org.litote.kmongo.replaceOne
 import redis.clients.jedis.params.SetParams
 import java.util.*
 
+val participantListeners = listOf(ParticipantStatListener, ParticipantPartyListener)
+val playerListeners = listOf(PlayerStatListener, PlayerGamemodeStatListener, PlayerXPListener, PlayerRecordListener)
+
 class SocketRouter(val server: ServerContext) {
     suspend fun route(event: EventType, data: JsonObject) {
         when (event) {
@@ -65,9 +68,6 @@ class SocketRouter(val server: ServerContext) {
     private suspend fun onMatchEnd(data: MatchEndData) {
         var match = server.match ?: return
         match = MatchPhaseListener(server).onEnd(data, match) ?: return
-
-        val participantListeners = getParticipantListeners()
-        val playerListeners = getPlayerListeners()
 
         val profiles = mutableListOf<Player>()
 
@@ -111,11 +111,11 @@ class SocketRouter(val server: ServerContext) {
             val attacker = match.participants[data.attackerId]!!
 
             var participantContext = ParticipantContext(attacker, match)
-            getParticipantListeners().forEach { participantContext = it.onKill(participantContext, data, isFirstBlood) }
+            participantListeners.forEach { participantContext = it.onKill(participantContext, data, isFirstBlood) }
             match.saveParticipants(participantContext.profile)
 
             var playerContext = participantContext.getPlayerContext()
-            getPlayerListeners().forEach { playerContext = it.onKill(playerContext, data, isFirstBlood) }
+            playerListeners.forEach { playerContext = it.onKill(playerContext, data, isFirstBlood) }
             attacker.setPlayer(playerContext.profile)
         }
 
@@ -123,11 +123,11 @@ class SocketRouter(val server: ServerContext) {
         val victim = match.participants[data.victimId]!!
 
         var participantContext = ParticipantContext(victim, match)
-        getParticipantListeners().forEach { participantContext = it.onDeath(participantContext, data, isFirstBlood) }
+        participantListeners.forEach { participantContext = it.onDeath(participantContext, data, isFirstBlood) }
         match.saveParticipants(participantContext.profile)
 
         var playerContext = participantContext.getPlayerContext()
-        getPlayerListeners().forEach { playerContext = it.onDeath(playerContext, data, isFirstBlood) }
+        playerListeners.forEach { playerContext = it.onDeath(playerContext, data, isFirstBlood) }
         victim.setPlayer(playerContext.profile)
 
         // Save
@@ -140,13 +140,13 @@ class SocketRouter(val server: ServerContext) {
 
         if (participant != null) {
             var participantContext = ParticipantContext(participant, match)
-            getParticipantListeners().forEach { participantContext = it.onChat(participantContext, data) }
+            participantListeners.forEach { participantContext = it.onChat(participantContext, data) }
             match.saveParticipants(participantContext.profile)
         }
 
         val player: Player = PlayerCache.get(data.playerName) ?: return
         var playerContext = PlayerContext(player, match)
-        getPlayerListeners().forEach { playerContext = it.onChat(playerContext, data) }
+        playerListeners.forEach { playerContext = it.onChat(playerContext, data) }
         PlayerCache.set(player.name, playerContext.profile)
 
         MatchCache.set(match._id, match)
@@ -158,11 +158,11 @@ class SocketRouter(val server: ServerContext) {
         val participant = match.participants[data.player.id]!!
 
         var participantContext = ParticipantContext(participant, match)
-        getParticipantListeners().forEach { participantContext = it.onKillstreak(participantContext, data.amount) }
+        participantListeners.forEach { participantContext = it.onKillstreak(participantContext, data.amount) }
         match.saveParticipants(participantContext.profile)
 
         var playerContext = participantContext.getPlayerContext()
-        getPlayerListeners().forEach { playerContext = it.onKillstreak(playerContext, data.amount) }
+        playerListeners.forEach { playerContext = it.onKillstreak(playerContext, data.amount) }
         participant.setPlayer(playerContext.profile)
 
         MatchCache.set(match._id, match)
@@ -179,11 +179,11 @@ class SocketRouter(val server: ServerContext) {
         )
 
         var participantContext = ParticipantContext(participant, match)
-        getParticipantListeners().forEach { participantContext = it.onPartyJoin(participantContext, data.partyName) }
+        participantListeners.forEach { participantContext = it.onPartyJoin(participantContext, data.partyName) }
         match.saveParticipants(participantContext.profile)
 
         var playerContext = participantContext.getPlayerContext()
-        getPlayerListeners().forEach { playerContext = it.onPartyJoin(playerContext, data.partyName) }
+        playerListeners.forEach { playerContext = it.onPartyJoin(playerContext, data.partyName) }
         participant.setPlayer(playerContext.profile)
 
         MatchCache.set(match._id, match)
@@ -194,11 +194,11 @@ class SocketRouter(val server: ServerContext) {
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
-        getParticipantListeners().forEach { participantContext = it.onPartyLeave(participantContext) }
+        participantListeners.forEach { participantContext = it.onPartyLeave(participantContext) }
         match.saveParticipants(participantContext.profile)
 
         var playerContext = participantContext.getPlayerContext()
-        getPlayerListeners().forEach { playerContext = it.onPartyLeave(playerContext) }
+        playerListeners.forEach { playerContext = it.onPartyLeave(playerContext) }
         participant.setPlayer(playerContext.profile)
 
         match.saveParticipants(participantContext.profile)
@@ -208,9 +208,6 @@ class SocketRouter(val server: ServerContext) {
     private suspend fun onDestroyableDestroy(data: DestroyableDestroyData) {
         val match =
             server.match ?: throw RuntimeException("Destroyable destroy fired during no match") // todo: force cycle?
-
-        val participantListeners = getParticipantListeners()
-        val playerListeners = getPlayerListeners()
 
         data.contributions.forEach { contribution ->
             val participant = match.participants[contribution.playerId] ?: return
@@ -234,9 +231,6 @@ class SocketRouter(val server: ServerContext) {
 
     private suspend fun onCoreLeak(data: CoreLeakData) {
         val match = server.match ?: throw RuntimeException("Core leak fired during no match") // todo: force cycle?
-
-        val participantListeners = getParticipantListeners()
-        val playerListeners = getPlayerListeners()
 
         data.contributions.forEach { contribution ->
             val participant = match.participants[contribution.playerId] ?: return
@@ -262,10 +256,10 @@ class SocketRouter(val server: ServerContext) {
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
-        getParticipantListeners().forEach { participantContext = it.onFlagPlace(participantContext, data.heldTime) }
+        participantListeners.forEach { participantContext = it.onFlagPlace(participantContext, data.heldTime) }
 
         var playerContext = participantContext.getPlayerContext()
-        getPlayerListeners().forEach { playerContext = it.onFlagPlace(playerContext, data.heldTime) }
+        playerListeners.forEach { playerContext = it.onFlagPlace(playerContext, data.heldTime) }
         participant.setPlayer(playerContext.profile)
 
         match.saveParticipants(participantContext.profile)
@@ -277,11 +271,11 @@ class SocketRouter(val server: ServerContext) {
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
-        getParticipantListeners().forEach { participantContext = it.onFlagPickup(participantContext) }
+        participantListeners.forEach { participantContext = it.onFlagPickup(participantContext) }
         match.saveParticipants(participantContext.profile)
 
         var playerContext = participantContext.getPlayerContext()
-        getPlayerListeners().forEach { playerContext = it.onFlagPickup(playerContext) }
+        playerListeners.forEach { playerContext = it.onFlagPickup(playerContext) }
         participant.setPlayer(playerContext.profile)
 
         MatchCache.set(match._id, match)
@@ -292,11 +286,11 @@ class SocketRouter(val server: ServerContext) {
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
-        getParticipantListeners().forEach { participantContext = it.onFlagDrop(participantContext, data.heldTime) }
+        participantListeners.forEach { participantContext = it.onFlagDrop(participantContext, data.heldTime) }
         match.saveParticipants(participantContext.profile)
 
         var playerContext = participantContext.getPlayerContext()
-        getPlayerListeners().forEach { playerContext = it.onFlagDrop(playerContext, data.heldTime) }
+        playerListeners.forEach { playerContext = it.onFlagDrop(playerContext, data.heldTime) }
         participant.setPlayer(playerContext.profile)
 
         MatchCache.set(match._id, match)
@@ -307,11 +301,11 @@ class SocketRouter(val server: ServerContext) {
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
-        getParticipantListeners().forEach { participantContext = it.onFlagDefend(participantContext) }
+        participantListeners.forEach { participantContext = it.onFlagDefend(participantContext) }
         match.saveParticipants(participantContext.profile)
 
         var playerContext = participantContext.getPlayerContext()
-        getPlayerListeners().forEach { playerContext = it.onFlagDefend(playerContext) }
+        playerListeners.forEach { playerContext = it.onFlagDefend(playerContext) }
         participant.setPlayer(playerContext.profile)
 
         MatchCache.set(match._id, match)
@@ -322,11 +316,11 @@ class SocketRouter(val server: ServerContext) {
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
-        getParticipantListeners().forEach { participantContext = it.onWoolPlace(participantContext, data.heldTime) }
+        participantListeners.forEach { participantContext = it.onWoolPlace(participantContext, data.heldTime) }
         match.saveParticipants(participantContext.profile)
 
         var playerContext = participantContext.getPlayerContext()
-        getPlayerListeners().forEach { playerContext = it.onWoolPlace(playerContext, data.heldTime) }
+        playerListeners.forEach { playerContext = it.onWoolPlace(playerContext, data.heldTime) }
         participant.setPlayer(playerContext.profile)
 
         MatchCache.set(match._id, match)
@@ -337,11 +331,11 @@ class SocketRouter(val server: ServerContext) {
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
-        getParticipantListeners().forEach { participantContext = it.onWoolPickup(participantContext) }
+        participantListeners.forEach { participantContext = it.onWoolPickup(participantContext) }
         match.saveParticipants(participantContext.profile)
 
         var playerContext = participantContext.getPlayerContext()
-        getPlayerListeners().forEach { playerContext = it.onWoolPickup(playerContext) }
+        playerListeners.forEach { playerContext = it.onWoolPickup(playerContext) }
         participant.setPlayer(playerContext.profile)
 
         MatchCache.set(match._id, match)
@@ -352,11 +346,11 @@ class SocketRouter(val server: ServerContext) {
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
-        getParticipantListeners().forEach { participantContext = it.onWoolDrop(participantContext, data.heldTime) }
+        participantListeners.forEach { participantContext = it.onWoolDrop(participantContext, data.heldTime) }
         match.saveParticipants(participantContext.profile)
 
         var playerContext = participantContext.getPlayerContext()
-        getPlayerListeners().forEach { playerContext = it.onWoolDrop(playerContext, data.heldTime) }
+        playerListeners.forEach { playerContext = it.onWoolDrop(playerContext, data.heldTime) }
         participant.setPlayer(playerContext.profile)
 
         MatchCache.set(match._id, match)
@@ -367,11 +361,11 @@ class SocketRouter(val server: ServerContext) {
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
-        getParticipantListeners().forEach { participantContext = it.onWoolDefend(participantContext) }
+        participantListeners.forEach { participantContext = it.onWoolDefend(participantContext) }
         match.saveParticipants(participantContext.profile)
 
         var playerContext = participantContext.getPlayerContext()
-        getPlayerListeners().forEach { playerContext = it.onWoolDefend(playerContext) }
+        playerListeners.forEach { playerContext = it.onWoolDefend(playerContext) }
         participant.setPlayer(playerContext.profile)
 
         MatchCache.set(match._id, match)
@@ -380,9 +374,6 @@ class SocketRouter(val server: ServerContext) {
     private suspend fun onControlPointCapture(data: ControlPointCaptureData) {
         val match = server.match
             ?: throw RuntimeException("Control point capture fired during no match") // todo: force cycle? - catch special exception?
-
-        val participantListeners = getParticipantListeners()
-        val playerListeners = getPlayerListeners()
 
         data.playerIds.forEach { id ->
             val participant = match.participants[id] ?: return
@@ -400,12 +391,4 @@ class SocketRouter(val server: ServerContext) {
 
         MatchCache.set(match._id, match)
     }
-}
-
-fun getParticipantListeners(): List<PlayerListener<ParticipantContext>> {
-    return listOf(ParticipantStatListener(), ParticipantPartyListener())
-}
-
-fun getPlayerListeners(): List<PlayerListener<PlayerContext>> {
-    return listOf(PlayerStatListener(), PlayerGamemodeStatListener(), PlayerXPListener, PlayerRecordListener)
 }

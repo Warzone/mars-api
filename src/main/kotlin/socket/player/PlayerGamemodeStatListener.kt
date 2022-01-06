@@ -7,7 +7,7 @@ import network.warzone.api.socket.participant.PlayerMatchResult.*
 import kotlin.math.max
 import kotlin.math.min
 
-class PlayerGamemodeStatListener : PlayerListener<PlayerContext>() {
+object PlayerGamemodeStatListener : PlayerListener<PlayerContext>() {
     override suspend fun onDeath(
         context: PlayerContext,
         data: PlayerDeathData,

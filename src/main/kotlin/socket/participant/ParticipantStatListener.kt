@@ -8,7 +8,7 @@ import network.warzone.api.socket.player.PlayerDeathData
 import network.warzone.api.socket.player.PlayerListener
 import java.util.*
 
-class ParticipantStatListener : PlayerListener<ParticipantContext>() {
+object ParticipantStatListener : PlayerListener<ParticipantContext>() {
     override suspend fun onPartyJoin(context: ParticipantContext, partyName: String): ParticipantContext {
         val (profile) = context
 
