@@ -88,10 +88,11 @@ data class PlayerStats(
     var matchesPresentStart: Int = 0,
     var matchesPresentFull: Int = 0,
     var matchesPresentEnd: Int = 0,
-    val records: PlayerRecords = PlayerRecords(), // todo
+    val records: PlayerRecords = PlayerRecords(),
     val weaponKills: MutableMap<String, Int> = mutableMapOf(),
     val weaponDeaths: MutableMap<String, Int> = mutableMapOf(),
-    val killstreaks: MutableMap<Int, Int> = mutableMapOf(5 to 0, 10 to 0, 25 to 0, 50 to 0, 100 to 0),
+    val killstreaks: MutableMap<Int, Int> = mutableMapOf(),
+    val killstreaksEnded: MutableMap<Int, Int> = mutableMapOf(),
 ) {
     val level: Int
         get() = floor(((xp + XP_PER_LEVEL) / XP_PER_LEVEL).toDouble()).toInt()

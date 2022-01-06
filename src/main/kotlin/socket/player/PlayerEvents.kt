@@ -15,8 +15,6 @@ data class PlayerDeathData(
     val distance: Int? = null,
     val key: String,
     val cause: DamageCause,
-    val attackerKillstreak: Int? = null,
-    val victimKillstreakEnded: Int? = null,
 ) {
     val isMurder: Boolean
     get() = simpleAttacker != null && simpleAttacker != simpleVictim

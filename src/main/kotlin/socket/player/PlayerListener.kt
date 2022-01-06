@@ -20,6 +20,10 @@ open class PlayerListener<T> {
         return context
     }
 
+    open suspend fun onKillstreakEnd(context: T, amount: Int): T {
+        return context
+    }
+
     open suspend fun onPartyJoin(context: T, partyName: String): T {
         return context
     }

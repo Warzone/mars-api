@@ -77,6 +77,13 @@ object ParticipantStatListener : PlayerListener<ParticipantContext>() {
         return context
     }
 
+    override suspend fun onKillstreakEnd(context: ParticipantContext, amount: Int): ParticipantContext {
+        val (profile) = context
+        val prevAmount = profile.stats.killstreaksEnded[amount] ?: 0
+        profile.stats.killstreaksEnded[amount] = prevAmount + 1
+        return context
+    }
+
     override suspend fun onCoreLeak(
         context: ParticipantContext,
         percentage: Float,

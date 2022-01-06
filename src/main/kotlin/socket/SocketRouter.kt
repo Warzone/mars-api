@@ -158,11 +158,15 @@ class SocketRouter(val server: ServerContext) {
         val participant = match.participants[data.player.id]!!
 
         var participantContext = ParticipantContext(participant, match)
-        participantListeners.forEach { participantContext = it.onKillstreak(participantContext, data.amount) }
-        match.saveParticipants(participantContext.profile)
-
         var playerContext = participantContext.getPlayerContext()
-        playerListeners.forEach { playerContext = it.onKillstreak(playerContext, data.amount) }
+        if (data.ended) {
+            participantListeners.forEach { participantContext = it.onKillstreakEnd(participantContext, data.amount) }
+            playerListeners.forEach { playerContext = it.onKillstreakEnd(playerContext, data.amount) }
+        } else {
+            participantListeners.forEach { participantContext = it.onKillstreak(participantContext, data.amount) }
+            playerListeners.forEach { playerContext = it.onKillstreak(playerContext, data.amount) }
+        }
+        match.saveParticipants(participantContext.profile)
         participant.setPlayer(playerContext.profile)
 
         MatchCache.set(match._id, match)
