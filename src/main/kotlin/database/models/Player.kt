@@ -88,7 +88,6 @@ data class PlayerStats(
     var matchesPresentStart: Int = 0,
     var matchesPresentFull: Int = 0,
     var matchesPresentEnd: Int = 0,
-    var mvps: Int = 0, // todo
     val records: PlayerRecords = PlayerRecords(), // todo
     val weaponKills: MutableMap<String, Int> = mutableMapOf(),
     val weaponDeaths: MutableMap<String, Int> = mutableMapOf(),
@@ -101,25 +100,27 @@ data class PlayerStats(
 @Serializable
 data class PlayerRecords(
 //    var highestKillstreak: Int = 0, -- this can be calculated from profile
-    var longestSession: Long = 0,
-    var longestProjectileHit: ProjectileRecord? = null,
+    var longestSession: Session? = null,
+//    var longestProjectileHit: ProjectileRecord? = null,
     var longestProjectileKill: ProjectileRecord? = null,
-    var fastestWoolCapture: IntRecord? = null,
+    var fastestWoolCapture: LongRecord? = null,
+    var fastestFlagCapture: LongRecord? = null,
     var fastestFirstBlood: FirstBloodRecord? = null,
-    var fastestFlagCapture: IntRecord? = null,
-    var killsPerMatch: IntRecord? = null,
+    var killsInMatch: IntRecord? = null,
     var deathsInMatch: IntRecord? = null,
-    var highestScore: IntRecord? = null
 )
 
 @Serializable
-data class ProjectileRecord(val matchId: String, val type: String, val distance: Int)
+data class ProjectileRecord(val matchId: String, val distance: Int)
 
 @Serializable
-data class FirstBloodRecord(val matchId: String, val victim: SimplePlayer, val time: Int)
+data class FirstBloodRecord(val matchId: String, val victim: SimplePlayer, val time: Long)
 
 @Serializable
 data class IntRecord(val matchId: String, val value: Int)
+
+@Serializable
+data class LongRecord(val matchId: String, val value: Long)
 
 @Serializable
 data class PlayerObjectiveStatistics(

@@ -407,5 +407,5 @@ fun getParticipantListeners(): List<PlayerListener<ParticipantContext>> {
 }
 
 fun getPlayerListeners(): List<PlayerListener<PlayerContext>> {
-    return listOf(PlayerStatListener(), PlayerGamemodeStatListener(), PlayerXPListener)
+    return listOf(PlayerStatListener(), PlayerGamemodeStatListener(), PlayerXPListener, PlayerRecordListener)
 }

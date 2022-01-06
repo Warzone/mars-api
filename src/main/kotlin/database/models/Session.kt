@@ -8,4 +8,7 @@ data class Session(
     val playerId: String,
     val createdAt: Long,
     var endedAt: Long?
-)
+) {
+    val length: Long?
+    get() = if (endedAt == null) null else endedAt!! - createdAt
+}

@@ -115,6 +115,10 @@ fun Route.playerSessions() {
             activeSession.endedAt = Date().time
             player.stats.serverPlaytime += data.playtime
 
+            // Longest Session Record
+            val recordSession = player.stats.records.longestSession?.length
+            if (recordSession == null || data.playtime > recordSession) player.stats.records.longestSession = activeSession
+
             Database.sessions.save(activeSession)
             PlayerCache.set(player.name, player, persist = true)
 
