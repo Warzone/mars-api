@@ -123,6 +123,15 @@ class PlayerStatListener : PlayerListener<PlayerContext>() {
         return context
     }
 
+    override suspend fun onChat(context: PlayerContext, data: PlayerChatData): PlayerContext {
+        when (data.channel) {
+            PlayerChatData.ChatChannel.GLOBAL -> context.profile.stats.messages.global++
+            PlayerChatData.ChatChannel.TEAM -> context.profile.stats.messages.team++
+            PlayerChatData.ChatChannel.STAFF -> context.profile.stats.messages.staff++
+        }
+        return context
+    }
+
     override suspend fun onMatchEnd(
         context: PlayerContext,
         data: MatchEndData,
@@ -141,9 +150,6 @@ class PlayerStatListener : PlayerListener<PlayerContext>() {
             profile.stats.blocksPlaced[block] = interaction.value
         }
 
-        profile.stats.messages.global += bigStats.messages.global
-        profile.stats.messages.team += bigStats.messages.team
-        profile.stats.messages.staff += bigStats.messages.staff
         profile.stats.bowShotsTaken += bigStats.bowShotsTaken
         profile.stats.bowShotsHit += bigStats.bowShotsHit
         profile.stats.damageGiven += bigStats.damageGiven

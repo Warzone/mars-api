@@ -2,7 +2,6 @@ package network.warzone.api.socket.match
 
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.models.Match
-import network.warzone.api.database.models.PlayerMessages
 import network.warzone.api.database.models.SimpleParticipant
 
 @Serializable
@@ -13,7 +12,6 @@ data class MatchEndData(val winningParties: List<String>, val bigStats: Map<Stri
     @Serializable
     data class BigStats(
         var blocks: PlayerBlocksData = PlayerBlocksData(),
-        var messages: PlayerMessages = PlayerMessages(),
         var bowShotsTaken: Int = 0,
         var bowShotsHit: Int = 0,
         var damageGiven: Double = 0.0,

@@ -3,6 +3,7 @@ package network.warzone.api.socket.participant
 import network.warzone.api.database.models.DamageCause
 import network.warzone.api.database.models.Duel
 import network.warzone.api.socket.match.MatchEndData
+import network.warzone.api.socket.player.PlayerChatData
 import network.warzone.api.socket.player.PlayerDeathData
 import network.warzone.api.socket.player.PlayerListener
 import java.util.*
@@ -145,6 +146,15 @@ class ParticipantStatListener : PlayerListener<ParticipantContext>() {
         return context
     }
 
+    override suspend fun onChat(context: ParticipantContext, data: PlayerChatData): ParticipantContext {
+        when (data.channel) {
+            PlayerChatData.ChatChannel.GLOBAL -> context.profile.stats.messages.global++
+            PlayerChatData.ChatChannel.TEAM -> context.profile.stats.messages.team++
+            PlayerChatData.ChatChannel.STAFF -> context.profile.stats.messages.staff++
+        }
+        return context
+    }
+
     override suspend fun onMatchEnd(
         context: ParticipantContext,
         data: MatchEndData,
@@ -163,9 +173,6 @@ class ParticipantStatListener : PlayerListener<ParticipantContext>() {
             profile.stats.blocksPlaced[block] = interaction.value
         }
 
-        profile.stats.messages.global = bigStats.messages.global
-        profile.stats.messages.team = bigStats.messages.team
-        profile.stats.messages.staff = bigStats.messages.staff
         profile.stats.bowShotsTaken = bigStats.bowShotsTaken
         profile.stats.bowShotsHit = bigStats.bowShotsHit
         profile.stats.damageGiven = bigStats.damageGiven
