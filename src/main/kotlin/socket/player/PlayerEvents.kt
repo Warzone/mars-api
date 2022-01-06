@@ -29,6 +29,9 @@ data class PlayerDeathData(
 
     val simpleVictim: SimplePlayer
     get() = SimplePlayer(name = victimName, id = victimId)
+
+    val safeWeapon: String
+    get() = if (distance == null) weapon ?: "NONE" else "PROJECTILE"
 }
 
 @Serializable

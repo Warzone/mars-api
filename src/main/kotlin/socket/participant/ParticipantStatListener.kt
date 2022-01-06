@@ -38,9 +38,8 @@ object ParticipantStatListener : PlayerListener<ParticipantContext>() {
         if (data.cause == DamageCause.VOID) profile.stats.voidDeaths++
 
         if (data.isMurder) {
-            val weaponName = data.weapon ?: "NONE"
-            val weaponDeaths = profile.stats.weaponDeaths[weaponName] ?: 0
-            profile.stats.weaponDeaths[weaponName] = weaponDeaths + 1
+            val weaponDeaths = profile.stats.weaponDeaths[data.safeWeapon] ?: 0
+            profile.stats.weaponDeaths[data.safeWeapon] = weaponDeaths + 1
 
             val duel = profile.stats.duels[data.attackerId] ?: Duel()
             duel.deaths++
@@ -59,9 +58,8 @@ object ParticipantStatListener : PlayerListener<ParticipantContext>() {
 
         profile.stats.kills++
 
-        val weaponName = data.weapon ?: "NONE"
-        val weaponKills = profile.stats.weaponKills[weaponName] ?: 0
-        profile.stats.weaponKills[weaponName] = weaponKills + 1
+        val weaponKills = profile.stats.weaponKills[data.safeWeapon] ?: 0
+        profile.stats.weaponKills[data.safeWeapon] = weaponKills + 1
 
         val duel = profile.stats.duels[data.victimId] ?: Duel()
         duel.kills++

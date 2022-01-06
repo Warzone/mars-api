@@ -22,9 +22,8 @@ object PlayerStatListener : PlayerListener<PlayerContext>() {
         if (firstBlood) profile.stats.firstBloodsSuffered++
 
         if (data.isMurder) {
-            val weaponName = data.weapon ?: "NONE"
-            val weaponDeaths = profile.stats.weaponDeaths[weaponName] ?: 0
-            profile.stats.weaponDeaths[weaponName] = weaponDeaths + 1
+            val weaponDeaths = profile.stats.weaponDeaths[data.safeWeapon] ?: 0
+            profile.stats.weaponDeaths[data.safeWeapon] = weaponDeaths + 1
         }
 
         return context
@@ -42,9 +41,8 @@ object PlayerStatListener : PlayerListener<PlayerContext>() {
         if (firstBlood) profile.stats.firstBloods++
         if (data.cause == DamageCause.VOID) profile.stats.voidKills++
 
-        val weaponName = data.weapon ?: "NONE"
-        val weaponKills = profile.stats.weaponKills[weaponName] ?: 0
-        profile.stats.weaponKills[weaponName] = weaponKills + 1
+        val weaponKills = profile.stats.weaponKills[data.safeWeapon] ?: 0
+        profile.stats.weaponKills[data.safeWeapon] = weaponKills + 1
 
         return context
     }
