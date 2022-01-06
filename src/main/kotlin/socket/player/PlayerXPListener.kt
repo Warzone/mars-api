@@ -40,7 +40,7 @@ object PlayerXPListener : PlayerListener<PlayerContext>() {
         return context
     }
 
-    override suspend fun onWoolPlace(context: PlayerContext): PlayerContext {
+    override suspend fun onWoolPlace(context: PlayerContext, heldTime: Long): PlayerContext {
         context.addXP(XP_WOOL_OBJECTIVE, "Captured wool")
         return context
     }

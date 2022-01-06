@@ -257,7 +257,7 @@ class SocketRouter(val server: ServerContext) {
         MatchCache.set(match._id, match)
     }
 
-    private suspend fun onFlagPlace(data: FlagPlaceDropData) {
+    private suspend fun onFlagPlace(data: FlagDropData) {
         val match = server.match ?: throw RuntimeException("Flag place fired during no match") // todo: force cycle?
         val participant = match.participants[data.playerId]!!
 
@@ -272,7 +272,7 @@ class SocketRouter(val server: ServerContext) {
         MatchCache.set(match._id, match)
     }
 
-    private suspend fun onFlagPickup(data: FlagPickupDefendData) {
+    private suspend fun onFlagPickup(data: FlagEventData) {
         val match = server.match ?: throw RuntimeException("Flag pickup fired during no match") // todo: force cycle?
         val participant = match.participants[data.playerId]!!
 
@@ -287,7 +287,7 @@ class SocketRouter(val server: ServerContext) {
         MatchCache.set(match._id, match)
     }
 
-    private suspend fun onFlagDrop(data: FlagPlaceDropData) {
+    private suspend fun onFlagDrop(data: FlagDropData) {
         val match = server.match ?: throw RuntimeException("Flag drop fired during no match") // todo: force cycle?
         val participant = match.participants[data.playerId]!!
 
@@ -302,7 +302,7 @@ class SocketRouter(val server: ServerContext) {
         MatchCache.set(match._id, match)
     }
 
-    private suspend fun onFlagDefend(data: FlagPickupDefendData) {
+    private suspend fun onFlagDefend(data: FlagEventData) {
         val match = server.match ?: throw RuntimeException("Flag defend fired during no match") // todo: force cycle?
         val participant = match.participants[data.playerId]!!
 
@@ -317,16 +317,16 @@ class SocketRouter(val server: ServerContext) {
         MatchCache.set(match._id, match)
     }
 
-    private suspend fun onWoolPlace(data: WoolEventData) {
+    private suspend fun onWoolPlace(data: WoolDropData) {
         val match = server.match ?: throw RuntimeException("Wool place fired during no match") // todo: force cycle?
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
-        getParticipantListeners().forEach { participantContext = it.onWoolPlace(participantContext) }
+        getParticipantListeners().forEach { participantContext = it.onWoolPlace(participantContext, data.heldTime) }
         match.saveParticipants(participantContext.profile)
 
         var playerContext = participantContext.getPlayerContext()
-        getPlayerListeners().forEach { playerContext = it.onWoolPlace(playerContext) }
+        getPlayerListeners().forEach { playerContext = it.onWoolPlace(playerContext, data.heldTime) }
         participant.setPlayer(playerContext.profile)
 
         MatchCache.set(match._id, match)
@@ -347,16 +347,16 @@ class SocketRouter(val server: ServerContext) {
         MatchCache.set(match._id, match)
     }
 
-    private suspend fun onWoolDrop(data: WoolEventData) {
+    private suspend fun onWoolDrop(data: WoolDropData) {
         val match = server.match ?: throw RuntimeException("Wool drop fired during no match") // todo: force cycle?
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
-        getParticipantListeners().forEach { participantContext = it.onWoolDrop(participantContext) }
+        getParticipantListeners().forEach { participantContext = it.onWoolDrop(participantContext, data.heldTime) }
         match.saveParticipants(participantContext.profile)
 
         var playerContext = participantContext.getPlayerContext()
-        getPlayerListeners().forEach { playerContext = it.onWoolDrop(playerContext) }
+        getPlayerListeners().forEach { playerContext = it.onWoolDrop(playerContext, data.heldTime) }
         participant.setPlayer(playerContext.profile)
 
         MatchCache.set(match._id, match)

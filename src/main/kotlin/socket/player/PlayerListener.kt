@@ -56,7 +56,7 @@ open class PlayerListener<T> {
         return context
     }
 
-    open suspend fun onWoolPlace(context: T): T {
+    open suspend fun onWoolPlace(context: T, heldTime: Long): T {
         return context
     }
 
@@ -64,7 +64,7 @@ open class PlayerListener<T> {
         return context
     }
 
-    open suspend fun onWoolDrop(context: T): T {
+    open suspend fun onWoolDrop(context: T, heldTime: Long): T {
         return context
     }
 

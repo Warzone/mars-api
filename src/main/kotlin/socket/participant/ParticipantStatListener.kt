@@ -126,7 +126,7 @@ class ParticipantStatListener : PlayerListener<ParticipantContext>() {
         return context
     }
 
-    override suspend fun onWoolPlace(context: ParticipantContext): ParticipantContext {
+    override suspend fun onWoolPlace(context: ParticipantContext, heldTime: Long): ParticipantContext {
         context.profile.stats.objectives.woolCaptures++
         return context
     }
@@ -136,7 +136,7 @@ class ParticipantStatListener : PlayerListener<ParticipantContext>() {
         return context
     }
 
-    override suspend fun onWoolDrop(context: ParticipantContext): ParticipantContext {
+    override suspend fun onWoolDrop(context: ParticipantContext, heldTime: Long): ParticipantContext {
         context.profile.stats.objectives.woolDrops++
         return context
     }
