@@ -2,6 +2,7 @@ package network.warzone.api.database.models
 
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.Database
+import network.warzone.api.socket.player.XP_PER_LEVEL
 import org.litote.kmongo.*
 import kotlin.math.floor
 
@@ -57,8 +58,6 @@ data class Player(
 
 @Serializable
 data class SimplePlayer(val name: String, val id: String)
-
-const val XP_PER_LEVEL = 5000
 
 typealias GamemodeStats = PlayerStats
 

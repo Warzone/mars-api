@@ -66,7 +66,7 @@ class PlayerStatListener : PlayerListener<PlayerContext>() {
         return context
     }
 
-    override suspend fun onControlPointCapture(context: PlayerContext): PlayerContext {
+    override suspend fun onControlPointCapture(context: PlayerContext, contributors: Int): PlayerContext {
         context.profile.stats.objectives.controlPointCaptures++
         return context
     }
@@ -132,11 +132,11 @@ class PlayerStatListener : PlayerListener<PlayerContext>() {
         val (profile) = context
 
         val blocks = bigStats.blocks
-        blocks?.blocksBroken?.forEach { interaction ->
+        blocks.blocksBroken.forEach { interaction ->
             val block = interaction.key
             profile.stats.blocksBroken[block] = interaction.value
         }
-        blocks?.blocksPlaced?.forEach { interaction ->
+        blocks.blocksPlaced.forEach { interaction ->
             val block = interaction.key
             profile.stats.blocksPlaced[block] = interaction.value
         }

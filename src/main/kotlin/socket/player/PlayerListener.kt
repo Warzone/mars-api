@@ -72,7 +72,7 @@ open class PlayerListener<T> {
         return context
     }
 
-    open suspend fun onControlPointCapture(context: T): T {
+    open suspend fun onControlPointCapture(context: T, contributors: Int): T {
         return context
     }
 }

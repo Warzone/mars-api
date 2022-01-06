@@ -21,7 +21,7 @@ data class PlayerLoginResponse(
 )
 
 @Serializable
-data class PlayerLogoutRequest(val playerId: String, val playtime: Long)
+data class PlayerLogoutRequest(val playerId: String, val playerName: String, val playtime: Long)
 
 @Serializable
 data class PlayerSetActiveTagRequest(val activeTagId: String? = null)

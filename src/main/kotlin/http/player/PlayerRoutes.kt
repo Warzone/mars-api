@@ -109,7 +109,7 @@ fun Route.playerSessions() {
 
     post("/logout") {
         validate<PlayerLogoutRequest>(this) { data ->
-            val player: Player = PlayerCache.get(data.playerId) ?: throw PlayerMissingException()
+            val player: Player = PlayerCache.get(data.playerName) ?: throw PlayerMissingException()
             val activeSession = player.getActiveSession() ?: throw SessionInactiveException()
 
             activeSession.endedAt = Date().time

@@ -69,7 +69,7 @@ class PlayerGamemodeStatListener : PlayerListener<PlayerContext>() {
         }
     }
 
-    override suspend fun onControlPointCapture(context: PlayerContext): PlayerContext {
+    override suspend fun onControlPointCapture(context: PlayerContext, contributors: Int): PlayerContext {
         return context.modifyGamemodeStats { stats ->
             stats.objectives.controlPointCaptures++
             return@modifyGamemodeStats stats
@@ -154,11 +154,11 @@ class PlayerGamemodeStatListener : PlayerListener<PlayerContext>() {
     ): PlayerContext {
         return context.modifyGamemodeStats { stats ->
             val blocks = bigStats.blocks
-            blocks?.blocksBroken?.forEach { interaction ->
+            blocks.blocksBroken.forEach { interaction ->
                 val block = interaction.key
                 stats.blocksBroken[block] = interaction.value
             }
-            blocks?.blocksPlaced?.forEach { interaction ->
+            blocks.blocksPlaced.forEach { interaction ->
                 val block = interaction.key
                 stats.blocksPlaced[block] = interaction.value
             }

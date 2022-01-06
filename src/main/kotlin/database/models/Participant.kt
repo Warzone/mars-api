@@ -25,8 +25,8 @@ data class Participant(
 
     val simplePlayer = SimplePlayer(name, id)
 
-    suspend fun getPlayer(): Player? {
-        return PlayerCache.get(nameLower)
+    suspend fun getPlayer(): Player {
+        return PlayerCache.get(nameLower)!!
     }
 
     suspend fun setPlayer(player: Player) {

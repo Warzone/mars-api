@@ -26,7 +26,22 @@ data class PlayerContext(val profile: Player, val match: Match) {
         return this
     }
 
+    /**
+     * Sends a message to the player in-game with an optional Bukkit Sound
+     */
     suspend fun sendMessage(message: String, sound: String? = null) {
         match.server.call(EventType.MESSAGE, MessageData(message, sound, listOf(profile._id)))
+    }
+
+    suspend fun addXP(rawXP: Int, reason: String, notify: Boolean = true, rawOnly: Boolean = false): PlayerContext {
+        val originalLevel = profile.stats.level
+
+        val xp = if (rawOnly) rawXP else gain(rawXP, originalLevel)
+        profile.stats.xp += xp
+
+        // Notify the MC server of the XP gain
+        match.server.call(EventType.PLAYER_XP_GAIN, PlayerXPGainData(profile._id, xp, reason, notify))
+
+        return this
     }
 }

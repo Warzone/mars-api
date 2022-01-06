@@ -12,8 +12,8 @@ data class MatchStartData(val participants: Set<SimpleParticipant>)
 data class MatchEndData(val winningParties: List<String>, val bigStats: Map<String, BigStats>) {
     @Serializable
     data class BigStats(
-        var blocks: PlayerBlocksData?,
-        var messages: PlayerMessages,
+        var blocks: PlayerBlocksData = PlayerBlocksData(),
+        var messages: PlayerMessages = PlayerMessages(),
         var bowShotsTaken: Int = 0,
         var bowShotsHit: Int = 0,
         var damageGiven: Double = 0.0,

@@ -4,6 +4,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
+import network.warzone.api.database.Database
 import network.warzone.api.database.MatchCache
 import network.warzone.api.database.PlayerCache
 import network.warzone.api.database.models.FirstBlood
@@ -20,6 +21,8 @@ import network.warzone.api.socket.participant.ParticipantStatListener
 import network.warzone.api.socket.player.*
 import network.warzone.api.socket.server.MatchLoadData
 import network.warzone.api.socket.server.ServerContext
+import org.litote.kmongo.eq
+import org.litote.kmongo.replaceOne
 import redis.clients.jedis.params.SetParams
 import java.util.*
 
@@ -66,23 +69,31 @@ class SocketRouter(val server: ServerContext) {
         val participantListeners = getParticipantListeners()
         val playerListeners = getPlayerListeners()
 
-        data.bigStats.forEach { (id, stats) ->
+        val profiles = mutableListOf<Player>()
+
+        match.participants.forEach { (id, participant) ->
             runBlocking {
-                val participant = match.participants[id]!!
+                val bigStats = data.bigStats[id] ?: MatchEndData.BigStats()
 
                 var participantContext = ParticipantContext(participant, match)
                 participantListeners.forEach {
-                    participantContext = it.onMatchEnd(participantContext, data, stats, participantContext.getMatchResult(data))
+                    participantContext =
+                        it.onMatchEnd(participantContext, data, bigStats, participantContext.getMatchResult(data))
                 }
                 match.saveParticipants(participantContext.profile)
 
                 var playerContext = participantContext.getPlayerContext()
                 playerListeners.forEach {
-                    playerContext = it.onMatchEnd(playerContext, data, stats, participantContext.getMatchResult(data))
+                    playerContext = it.onMatchEnd(playerContext, data, bigStats, participantContext.getMatchResult(data))
                 }
                 participant.setPlayer(playerContext.profile)
+                profiles.add(playerContext.profile)
             }
         }
+
+        // Write all updated player profiles (since the last match ended) to the database
+        // Only players who participated in the match at any point. Players who observed the entire match will not be affected.
+        Database.players.bulkWrite(profiles.map { replaceOne(Player::_id eq it._id, it) })
 
         MatchCache.set(match._id, match, true, SetParams().px(3600000L)) // cache expires one hour after end
     }
@@ -206,7 +217,8 @@ class SocketRouter(val server: ServerContext) {
 
             var participantContext = ParticipantContext(participant, match)
             participantListeners.forEach {
-                participantContext = it.onDestroyableDestroy(participantContext, contribution.percentage, contribution.blockCount)
+                participantContext =
+                    it.onDestroyableDestroy(participantContext, contribution.percentage, contribution.blockCount)
             }
             match.saveParticipants(participantContext.profile)
 
@@ -376,11 +388,13 @@ class SocketRouter(val server: ServerContext) {
             val participant = match.participants[id] ?: return
 
             var participantContext = ParticipantContext(participant, match)
-            participantListeners.forEach { participantContext = it.onControlPointCapture(participantContext) }
+            participantListeners.forEach {
+                participantContext = it.onControlPointCapture(participantContext, data.playerIds.size)
+            }
             match.saveParticipants(participantContext.profile)
 
             var playerContext = participantContext.getPlayerContext()
-            playerListeners.forEach { playerContext = it.onControlPointCapture(playerContext) }
+            playerListeners.forEach { playerContext = it.onControlPointCapture(playerContext, data.playerIds.size) }
             participant.setPlayer(playerContext.profile)
         }
 
@@ -393,5 +407,5 @@ fun getParticipantListeners(): List<PlayerListener<ParticipantContext>> {
 }
 
 fun getPlayerListeners(): List<PlayerListener<PlayerContext>> {
-    return listOf(PlayerStatListener(), PlayerGamemodeStatListener())
+    return listOf(PlayerStatListener(), PlayerGamemodeStatListener(), PlayerXPListener)
 }

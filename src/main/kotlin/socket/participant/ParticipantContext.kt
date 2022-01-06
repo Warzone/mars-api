@@ -20,7 +20,7 @@ data class ParticipantContext(val profile: Participant, val match: Match) {
     }
 
     suspend fun getPlayerContext(): PlayerContext {
-        return PlayerContext(profile.getPlayer()!!, match)
+        return PlayerContext(profile.getPlayer(), match)
     }
 }
 
