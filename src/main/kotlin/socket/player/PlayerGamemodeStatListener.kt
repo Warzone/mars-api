@@ -163,9 +163,6 @@ class PlayerGamemodeStatListener : PlayerListener<PlayerContext>() {
                 stats.blocksPlaced[block] = interaction.value
             }
 
-            stats.messages.global += bigStats.messages.global
-            stats.messages.team += bigStats.messages.team
-            stats.messages.staff += bigStats.messages.staff
             stats.bowShotsTaken += bigStats.bowShotsTaken
             stats.bowShotsHit += bigStats.bowShotsHit
             stats.damageGiven += bigStats.damageGiven
