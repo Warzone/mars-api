@@ -47,7 +47,6 @@ data class Participant(
 
 @Serializable
 data class ParticipantStats(
-    var xp: Int = 0, // todo
     var gamePlaytime: Long = 0,
     var timeAway: Long = 0,
     var kills: Int = 0,
