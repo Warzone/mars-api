@@ -2,6 +2,7 @@ package network.warzone.api
 
 import com.charleskorn.kaml.Yaml
 import kotlinx.serialization.decodeFromString
+import network.warzone.api.database.models.Broadcast
 import network.warzone.api.database.models.PunishmentType
 import java.io.File
 import java.util.*
@@ -9,6 +10,7 @@ import java.util.*
 object Config {
     private val configPath: String? = System.getenv("MARS_CONFIG_PATH")
     private val punTypesPath: String? = System.getenv("MARS_PUNTYPES_PATH")
+    private val broadcastsPath: String? = System.getenv("MARS_BROADCASTS_PATH")
 
     private val configFile: File? =
         if (configPath != null) {
@@ -21,8 +23,12 @@ object Config {
         if (punTypesPath != null) {
             val file = File(punTypesPath)
             if (file.exists()) file.readText() else throw RuntimeException("Invalid MARS_PUNTYPES_PATH provided")
-        } else
-            Config::class.java.classLoader.getResource("punishment_types.yml").readText()
+        } else getResource("punishment_types.yml")
+
+    private val broadcastsRaw: String = if (broadcastsPath != null) {
+        val file = File(broadcastsPath)
+        if (file.exists()) file.readText() else throw RuntimeException("Invalid MARS_BROADCASTS_PATH provided")
+    } else getResource("broadcasts.yml")
 
     var listenPort = 3000
         private set
@@ -36,9 +42,13 @@ object Config {
     var punishmentTypes: List<PunishmentType> = emptyList()
         private set
 
+    var broadcasts: List<Broadcast> = emptyList()
+        private set
+
     init {
         loadConfig()
         loadPunishmentTypes()
+        loadBroadcasts()
     }
 
     private fun loadConfig() {
@@ -58,5 +68,14 @@ object Config {
     private fun loadPunishmentTypes() {
         val result = Yaml.default.decodeFromString<List<PunishmentType>>(punTypesRaw)
         punishmentTypes = result
+    }
+
+    private fun loadBroadcasts() {
+        val result = Yaml.default.decodeFromString<List<Broadcast>>(broadcastsRaw)
+        broadcasts = result
+    }
+
+    private fun getResource(name: String): String {
+        return Config::class.java.classLoader.getResource(name).readText()
     }
 }
