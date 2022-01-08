@@ -29,6 +29,11 @@ suspend inline fun <reified T : Any> validate(context: PipelineContext<Unit, App
     }
 }
 
+/**
+ * This validation util is not used for internal (API <-> MC) routes
+ * It can be used for external routes (API <-> Web/Discord) in the future
+ */
+
 object PlayerName : Constraint
 
 fun <E> Validator<E>.Property<String?>.isPlayerName() = this.validate(PlayerName) {
