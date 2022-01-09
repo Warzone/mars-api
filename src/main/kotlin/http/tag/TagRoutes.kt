@@ -9,6 +9,7 @@ import network.warzone.api.database.models.Tag
 import network.warzone.api.http.TagConflictException
 import network.warzone.api.http.TagMissingException
 import network.warzone.api.http.ValidationException
+import network.warzone.api.util.protected
 import network.warzone.api.util.validate
 import org.litote.kmongo.contains
 import org.litote.kmongo.eq
@@ -16,21 +17,23 @@ import java.util.*
 
 fun Route.manageTags() {
     post {
-        validate<TagCreateRequest>(this) { data ->
-            val conflict = Database.tags.findByName(data.name)
-            if (conflict !== null) throw TagConflictException()
+        protected(this) { _ ->
+            validate<TagCreateRequest>(this) { data ->
+                val conflict = Database.tags.findByName(data.name)
+                if (conflict !== null) throw TagConflictException()
 
-            val tag = Tag(
-                _id = UUID.randomUUID().toString(),
-                name = data.name,
-                nameLower = data.name.lowercase(),
-                display = data.display,
-                createdAt = Date().time
-            )
+                val tag = Tag(
+                    _id = UUID.randomUUID().toString(),
+                    name = data.name,
+                    nameLower = data.name.lowercase(),
+                    display = data.display,
+                    createdAt = Date().time
+                )
 
-            Database.tags.save(tag)
+                Database.tags.save(tag)
 
-            call.respond(tag)
+                call.respond(tag)
+            }
         }
     }
 
@@ -46,35 +49,39 @@ fun Route.manageTags() {
     }
 
     delete("/{tagId}") {
-        val id = call.parameters["tagId"] ?: throw ValidationException()
-        val result = Database.ranks.deleteById(id)
-        if (result.deletedCount == 0L) throw TagMissingException()
-        call.respond(Unit)
+        protected(this) { _ ->
+            val id = call.parameters["tagId"] ?: throw ValidationException()
+            val result = Database.ranks.deleteById(id)
+            if (result.deletedCount == 0L) throw TagMissingException()
+            call.respond(Unit)
 
-        val playersWithTag = Database.players.find(Player::tagIds contains id).toList()
-        playersWithTag.forEach {
-            it.tagIds = it.tagIds.filterNot { tagId -> tagId == id }
-            if (it.activeTagId == id) it.activeTagId = null
-            PlayerCache.set(it.name, it, persist = true)
+            val playersWithTag = Database.players.find(Player::tagIds contains id).toList()
+            playersWithTag.forEach {
+                it.tagIds = it.tagIds.filterNot { tagId -> tagId == id }
+                if (it.activeTagId == id) it.activeTagId = null
+                PlayerCache.set(it.name, it, persist = true)
+            }
         }
     }
 
     put("/{tagId}") {
-        val id = call.parameters["tagId"] ?: throw ValidationException()
-        validate<TagCreateRequest>(this) { data ->
-            val existingTag = Database.tags.findByIdOrName(id) ?: throw TagMissingException()
+        protected(this) { _ ->
+            val id = call.parameters["tagId"] ?: throw ValidationException()
+            validate<TagCreateRequest>(this) { data ->
+                val existingTag = Database.tags.findByIdOrName(id) ?: throw TagMissingException()
 
-            val updatedTag = Tag(
-                _id = existingTag._id,
-                createdAt = existingTag.createdAt,
-                name = data.name,
-                nameLower = data.name.lowercase(),
-                display = data.display,
-            )
+                val updatedTag = Tag(
+                    _id = existingTag._id,
+                    createdAt = existingTag.createdAt,
+                    name = data.name,
+                    nameLower = data.name.lowercase(),
+                    display = data.display,
+                )
 
-            Database.tags.updateOne(Tag::_id eq existingTag._id, updatedTag)
+                Database.tags.updateOne(Tag::_id eq existingTag._id, updatedTag)
 
-            call.respond(updatedTag)
+                call.respond(updatedTag)
+            }
         }
     }
 }
