@@ -3,6 +3,7 @@ package network.warzone.api
 import com.charleskorn.kaml.Yaml
 import kotlinx.serialization.decodeFromString
 import network.warzone.api.database.models.Broadcast
+import network.warzone.api.database.models.LevelColor
 import network.warzone.api.database.models.PunishmentType
 import java.io.File
 import java.util.*
@@ -11,6 +12,7 @@ object Config {
     private val configPath: String? = System.getenv("MARS_CONFIG_PATH")
     private val punTypesPath: String? = System.getenv("MARS_PUNTYPES_PATH")
     private val broadcastsPath: String? = System.getenv("MARS_BROADCASTS_PATH")
+    private val levelColorsPath: String? = System.getenv("MARS_LEVEL_COLORS_PATH")
 
     private val configFile: File? =
         if (configPath != null) {
@@ -30,6 +32,11 @@ object Config {
         if (file.exists()) file.readText() else throw RuntimeException("Invalid MARS_BROADCASTS_PATH provided")
     } else getResource("broadcasts.yml")
 
+    private val levelColorsRaw: String = if (levelColorsPath != null) {
+        val file = File(levelColorsPath)
+        if (file.exists()) file.readText() else throw RuntimeException("Invalid MARS_LEVEL_COLORS_PATH provided")
+    } else getResource("level_colors.yml")
+
     var listenPort = 3000
         private set
 
@@ -45,10 +52,14 @@ object Config {
     var broadcasts: List<Broadcast> = emptyList()
         private set
 
+    var levelColors: List<LevelColor> = emptyList()
+        private set
+
     init {
         loadConfig()
         loadPunishmentTypes()
         loadBroadcasts()
+        loadLevelColors()
     }
 
     private fun loadConfig() {
@@ -73,6 +84,11 @@ object Config {
     private fun loadBroadcasts() {
         val result = Yaml.default.decodeFromString<List<Broadcast>>(broadcastsRaw)
         broadcasts = result
+    }
+
+    private fun loadLevelColors() {
+        val result = Yaml.default.decodeFromString<List<LevelColor>>(levelColorsRaw)
+        levelColors = result
     }
 
     private fun getResource(name: String): String {
