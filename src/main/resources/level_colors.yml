@@ -1,0 +1,8 @@
+- level: 10
+  color: aqua
+
+- level: 20
+  color: red
+
+- level: 30
+  color: green

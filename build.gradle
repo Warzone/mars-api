@@ -24,11 +24,11 @@ dependencies {
     implementation 'org.valiktor:valiktor-core:0.12.0'
 
     implementation 'org.litote.kmongo:kmongo-coroutine-serialization:4.2.8'
-    compile 'org.litote.kmongo:kmongo-id:4.2.8'
+    implementation 'org.litote.kmongo:kmongo-id:4.2.8'
     implementation 'redis.clients:jedis:3.6.3'
 
-    compile 'org.slf4j:slf4j-simple:1.7.32'
-    compile 'org.jetbrains.kotlin:kotlin-reflect:1.5.21'
+    implementation 'org.slf4j:slf4j-simple:1.7.32'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.5.21'
 }
 
 jar {
