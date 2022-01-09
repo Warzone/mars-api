@@ -9,6 +9,7 @@ import network.warzone.api.database.models.Rank
 import network.warzone.api.http.RankConflictException
 import network.warzone.api.http.RankMissingException
 import network.warzone.api.http.ValidationException
+import network.warzone.api.util.protected
 import network.warzone.api.util.validate
 import org.litote.kmongo.contains
 import org.litote.kmongo.eq
@@ -17,26 +18,28 @@ import java.util.*
 
 fun Route.manageRanks() {
     post {
-        validate<RankCreateRequest>(this) { data ->
-            val conflict = Database.ranks.findByName(data.name)
-            if (conflict !== null) throw RankConflictException()
+        protected(this) { _ ->
+            validate<RankCreateRequest>(this) { data ->
+                val conflict = Database.ranks.findByName(data.name)
+                if (conflict !== null) throw RankConflictException()
 
-            val rank = Rank(
-                _id = UUID.randomUUID().toString(),
-                name = data.name,
-                nameLower = data.name.lowercase(),
-                displayName = data.displayName,
-                priority = data.priority,
-                prefix = data.prefix,
-                permissions = data.permissions.distinct(),
-                staff = data.staff,
-                applyOnJoin = data.applyOnJoin,
-                createdAt = Date().time
-            )
+                val rank = Rank(
+                    _id = UUID.randomUUID().toString(),
+                    name = data.name,
+                    nameLower = data.name.lowercase(),
+                    displayName = data.displayName,
+                    priority = data.priority,
+                    prefix = data.prefix,
+                    permissions = data.permissions.distinct(),
+                    staff = data.staff,
+                    applyOnJoin = data.applyOnJoin,
+                    createdAt = Date().time
+                )
 
-            Database.ranks.save(rank)
+                Database.ranks.save(rank)
 
-            call.respond(rank)
+                call.respond(rank)
+            }
         }
     }
 
@@ -52,42 +55,46 @@ fun Route.manageRanks() {
     }
 
     delete("/{rankId}") {
-        val id = call.parameters["rankId"] ?: throw ValidationException()
-        val result = Database.ranks.deleteById(id)
-        if (result.deletedCount == 0L) throw RankMissingException()
-        call.respond(Unit)
+        protected(this) { _ ->
+            val id = call.parameters["rankId"] ?: throw ValidationException()
+            val result = Database.ranks.deleteById(id)
+            if (result.deletedCount == 0L) throw RankMissingException()
+            call.respond(Unit)
 
-        val playersWithRank = Database.players.find(Player::rankIds contains id).toList()
-        playersWithRank.forEach {
-            it.rankIds = it.rankIds.filterNot { rankId -> rankId == id }
-            PlayerCache.set(it.name, it, persist = true)
+            val playersWithRank = Database.players.find(Player::rankIds contains id).toList()
+            playersWithRank.forEach {
+                it.rankIds = it.rankIds.filterNot { rankId -> rankId == id }
+                PlayerCache.set(it.name, it, persist = true)
+            }
         }
     }
 
     put("/{rankId}") {
-        val id = call.parameters["rankId"] ?: throw ValidationException()
-        validate<RankUpdateRequest>(this) { data ->
-            val existingRank = Database.ranks.findById(id) ?: throw RankMissingException()
-            val conflictRank =
-                Database.ranks.findOne(not(Rank::_id eq existingRank._id), Rank::nameLower eq data.name.lowercase())
-            if (conflictRank != null) throw RankConflictException()
+        protected(this) { _ ->
+            val id = call.parameters["rankId"] ?: throw ValidationException()
+            validate<RankUpdateRequest>(this) { data ->
+                val existingRank = Database.ranks.findById(id) ?: throw RankMissingException()
+                val conflictRank =
+                    Database.ranks.findOne(not(Rank::_id eq existingRank._id), Rank::nameLower eq data.name.lowercase())
+                if (conflictRank != null) throw RankConflictException()
 
-            val updatedRank = Rank(
-                _id = existingRank._id,
-                createdAt = existingRank.createdAt,
-                name = data.name,
-                nameLower = data.name.lowercase(),
-                displayName = data.displayName,
-                prefix = data.prefix,
-                priority = data.priority,
-                permissions = data.permissions.distinct(),
-                staff = data.staff,
-                applyOnJoin = data.applyOnJoin
-            )
+                val updatedRank = Rank(
+                    _id = existingRank._id,
+                    createdAt = existingRank.createdAt,
+                    name = data.name,
+                    nameLower = data.name.lowercase(),
+                    displayName = data.displayName,
+                    prefix = data.prefix,
+                    priority = data.priority,
+                    permissions = data.permissions.distinct(),
+                    staff = data.staff,
+                    applyOnJoin = data.applyOnJoin
+                )
 
-            Database.ranks.updateOne(Rank::_id eq existingRank._id, updatedRank)
+                Database.ranks.updateOne(Rank::_id eq existingRank._id, updatedRank)
 
-            call.respond(updatedRank)
+                call.respond(updatedRank)
+            }
         }
     }
 }

@@ -8,6 +8,8 @@ import io.ktor.websocket.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import network.warzone.api.Config
+import network.warzone.api.http.UnauthorizedException
 import network.warzone.api.socket.server.ConnectedServers
 import network.warzone.api.socket.server.ServerContext
 import network.warzone.api.util.zlibDecompress
@@ -15,15 +17,14 @@ import network.warzone.api.util.zlibDecompress
 fun Application.initSocketHandler() {
     routing {
         webSocket("/minecraft") {
-            val serverID = call.request.queryParameters["id"]
-            val serverToken = call.request.queryParameters["token"]
+            val serverID = call.request.queryParameters["id"] ?: throw UnauthorizedException()
+            val serverToken = call.request.queryParameters["token"] ?: throw UnauthorizedException()
 
-            // todo: don't hardcode credentials + support multiple servers
-            if (!(serverID == "main" && serverToken == "secret")) throw RuntimeException("Invalid server ID or server token")
+            if (serverToken != Config.apiToken) throw UnauthorizedException()
 
             val server = ServerContext(serverID, this)
             ConnectedServers += server
-            println("Server ${server.id} connected to socket server")
+            println("Server '${server.id}' connected to socket server")
 
             val router = SocketRouter(server)
 

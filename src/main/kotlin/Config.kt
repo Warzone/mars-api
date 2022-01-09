@@ -39,6 +39,10 @@ object Config {
     var mongoUrl = "mongodb://localhost:27017"
         private set
 
+    var apiToken: String =
+        System.getenv("MARS_API_TOKEN") ?: throw Exception("MARS_API_TOKEN is a required env variable")
+        private set
+
     var punishmentTypes: List<PunishmentType> = emptyList()
         private set
 

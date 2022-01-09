@@ -73,8 +73,15 @@ class InternalServerErrorException : ApiException(
     "An internal server error occurred. This should not happen. Please report this bug."
 )
 
+class UnauthorizedException : ApiException(
+    HttpStatusCode.Unauthorized,
+    ApiExceptionType.UNAUTHORIZED_EXCEPTION,
+    "API credentials are missing or invalid"
+)
+
 enum class ApiExceptionType {
     INTERNAL_SERVER_ERROR,
+    UNAUTHORIZED_EXCEPTION,
     VALIDATION_ERROR,
     SESSION_INACTIVE,
     PLAYER_MISSING,
