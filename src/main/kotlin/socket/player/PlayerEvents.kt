@@ -41,10 +41,10 @@ data class PlayerChatData(
 data class KillstreakData(val amount: Int, val player: SimplePlayer, val ended: Boolean)
 
 @Serializable
-data class PartyJoinData(val playerId: String, val playerName: String, val partyName: String)
+data class PartyJoinData(val player: SimplePlayer, val partyName: String)
 
 @Serializable
-data class PartyLeaveData(val playerId: String, val playerName: String)
+data class PartyLeaveData(val player: SimplePlayer)
 
 @Serializable
 data class MessageData(val message: String, val sound: String?, val playerIds: List<String>)

@@ -174,10 +174,10 @@ class SocketRouter(val server: ServerContext) {
 
     private suspend fun onPartyJoin(data: PartyJoinData) {
         val match = server.match ?: throw RuntimeException("Party join fired during no match") // todo: force cycle?
-        val participant = match.participants[data.playerId] ?: Participant(
+        val participant = match.participants[data.player.id] ?: Participant(
             SimpleParticipant(
-                data.playerName,
-                data.playerId,
+                data.player.name,
+                data.player.id,
                 data.partyName
             )
         )
@@ -195,7 +195,7 @@ class SocketRouter(val server: ServerContext) {
 
     private suspend fun onPartyLeave(data: PartyLeaveData) {
         val match = server.match ?: throw RuntimeException("Party leave fired during no match") // todo: force cycle?
-        val participant = match.participants[data.playerId]!!
+        val participant = match.participants[data.player.id]!!
 
         var participantContext = ParticipantContext(participant, match)
         participantListeners.forEach { participantContext = it.onPartyLeave(participantContext) }
