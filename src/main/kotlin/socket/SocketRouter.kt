@@ -136,7 +136,7 @@ class SocketRouter(val server: ServerContext) {
 
     private suspend fun onPlayerChat(data: PlayerChatData) {
         val match = server.match ?: throw RuntimeException("Player chat fired during no match") // todo: force cycle?
-        val participant = match.participants[data.playerId]
+        val participant = match.participants[data.player.id]
 
         if (participant != null) {
             var participantContext = ParticipantContext(participant, match)
@@ -144,7 +144,7 @@ class SocketRouter(val server: ServerContext) {
             match.saveParticipants(participantContext.profile)
         }
 
-        val player: Player = PlayerCache.get(data.playerName) ?: return
+        val player: Player = PlayerCache.get(data.player.name) ?: return
         var playerContext = PlayerContext(player, match)
         playerListeners.forEach { playerContext = it.onChat(playerContext, data) }
         PlayerCache.set(player.name, playerContext.profile)

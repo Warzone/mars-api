@@ -23,8 +23,7 @@ data class PlayerDeathData(
 
 @Serializable
 data class PlayerChatData(
-    val playerId: String,
-    val playerName: String,
+    val player: SimplePlayer,
     val playerPrefix: String,
     val channel: ChatChannel,
     val message: String,
