@@ -17,7 +17,7 @@ object PlayerRecordListener : PlayerListener<PlayerContext>() {
 
             val recordTime = profile.stats.records.fastestFirstBlood?.time
             if (recordTime == null || time < recordTime)  // The record was beat (or set)
-                profile.stats.records.fastestFirstBlood = FirstBloodRecord(context.match._id, data.simpleVictim, time)
+                profile.stats.records.fastestFirstBlood = FirstBloodRecord(context.match._id, data.victim, time)
 
         }
 

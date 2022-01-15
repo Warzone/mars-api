@@ -6,10 +6,8 @@ import network.warzone.api.database.models.SimplePlayer
 
 @Serializable
 data class PlayerDeathData(
-    val victimId: String,
-    val victimName: String,
-    val attackerId: String? = null,
-    val attackerName: String? = null,
+    val victim: SimplePlayer,
+    val attacker: SimplePlayer? = null,
     val weapon: String? = null,
     val entity: String? = null,
     val distance: Int? = null,
@@ -17,16 +15,7 @@ data class PlayerDeathData(
     val cause: DamageCause,
 ) {
     val isMurder: Boolean
-    get() = simpleAttacker != null && simpleAttacker != simpleVictim
-
-    val simpleAttacker: SimplePlayer?
-    get() {
-        if (attackerName == null || attackerId == null) return null
-        return SimplePlayer(name = attackerName, id = attackerId)
-    }
-
-    val simpleVictim: SimplePlayer
-    get() = SimplePlayer(name = victimName, id = victimId)
+    get() = attacker != null && attacker != victim
 
     val safeWeapon: String
     get() = if (distance == null) weapon ?: "NONE" else "PROJECTILE"

@@ -104,11 +104,11 @@ class SocketRouter(val server: ServerContext) {
         // Save first blood status & set first blood data if kill is first blood
         val isFirstBlood = match.firstBlood == null && data.isMurder
         if (isFirstBlood) match.firstBlood =
-            FirstBlood(data.simpleAttacker!!, data.simpleVictim, Date().time)
+            FirstBlood(data.attacker!!, data.victim, Date().time)
 
         // Fire kill event for attacker
         if (data.isMurder) {
-            val attacker = match.participants[data.attackerId]!!
+            val attacker = match.participants[data.attacker?.id]!!
 
             var participantContext = ParticipantContext(attacker, match)
             participantListeners.forEach { participantContext = it.onKill(participantContext, data, isFirstBlood) }
@@ -120,7 +120,7 @@ class SocketRouter(val server: ServerContext) {
         }
 
         // Fire death event for victim
-        val victim = match.participants[data.victimId]!!
+        val victim = match.participants[data.victim.id]!!
 
         var participantContext = ParticipantContext(victim, match)
         participantListeners.forEach { participantContext = it.onDeath(participantContext, data, isFirstBlood) }

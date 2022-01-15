@@ -41,9 +41,9 @@ object ParticipantStatListener : PlayerListener<ParticipantContext>() {
             val weaponDeaths = profile.stats.weaponDeaths[data.safeWeapon] ?: 0
             profile.stats.weaponDeaths[data.safeWeapon] = weaponDeaths + 1
 
-            val duel = profile.stats.duels[data.attackerId] ?: Duel()
+            val duel = profile.stats.duels[data.attacker?.id] ?: Duel()
             duel.deaths++
-            profile.stats.duels[data.attackerId!!] = duel
+            profile.stats.duels[data.attacker?.id!!] = duel
         }
 
         return context
@@ -61,9 +61,9 @@ object ParticipantStatListener : PlayerListener<ParticipantContext>() {
         val weaponKills = profile.stats.weaponKills[data.safeWeapon] ?: 0
         profile.stats.weaponKills[data.safeWeapon] = weaponKills + 1
 
-        val duel = profile.stats.duels[data.victimId] ?: Duel()
+        val duel = profile.stats.duels[data.victim.id] ?: Duel()
         duel.kills++
-        profile.stats.duels[data.victimId] = duel
+        profile.stats.duels[data.victim.id] = duel
 
         if (data.cause == DamageCause.VOID) profile.stats.voidKills++
 
