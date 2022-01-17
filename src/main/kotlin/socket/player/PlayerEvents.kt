@@ -6,10 +6,8 @@ import network.warzone.api.database.models.SimplePlayer
 
 @Serializable
 data class PlayerDeathData(
-    val victimId: String,
-    val victimName: String,
-    val attackerId: String? = null,
-    val attackerName: String? = null,
+    val victim: SimplePlayer,
+    val attacker: SimplePlayer? = null,
     val weapon: String? = null,
     val entity: String? = null,
     val distance: Int? = null,
@@ -17,16 +15,7 @@ data class PlayerDeathData(
     val cause: DamageCause,
 ) {
     val isMurder: Boolean
-    get() = simpleAttacker != null && simpleAttacker != simpleVictim
-
-    val simpleAttacker: SimplePlayer?
-    get() {
-        if (attackerName == null || attackerId == null) return null
-        return SimplePlayer(name = attackerName, id = attackerId)
-    }
-
-    val simpleVictim: SimplePlayer
-    get() = SimplePlayer(name = victimName, id = victimId)
+    get() = attacker != null && attacker != victim
 
     val safeWeapon: String
     get() = if (distance == null) weapon ?: "NONE" else "PROJECTILE"
@@ -34,8 +23,7 @@ data class PlayerDeathData(
 
 @Serializable
 data class PlayerChatData(
-    val playerId: String,
-    val playerName: String,
+    val player: SimplePlayer,
     val playerPrefix: String,
     val channel: ChatChannel,
     val message: String,
@@ -53,10 +41,10 @@ data class PlayerChatData(
 data class KillstreakData(val amount: Int, val player: SimplePlayer, val ended: Boolean)
 
 @Serializable
-data class PartyJoinData(val playerId: String, val playerName: String, val partyName: String)
+data class PartyJoinData(val player: SimplePlayer, val partyName: String)
 
 @Serializable
-data class PartyLeaveData(val playerId: String, val playerName: String)
+data class PartyLeaveData(val player: SimplePlayer)
 
 @Serializable
 data class MessageData(val message: String, val sound: String?, val playerIds: List<String>)

@@ -28,21 +28,21 @@ fun Route.playerSessions() {
                 val ip = hashSHA256(data.ip)
                 val activeSession =
                     Session(
-                        playerId = data.playerId,
+                        playerId = data.player.id,
                         createdAt = now,
                         endedAt = null,
                         _id = UUID.randomUUID().toString()
                     )
 
-                val returningPlayer = Database.players.findById(data.playerId)
+                val returningPlayer = Database.players.findById(data.player.name)
 
                 // Player has joined before
                 if (returningPlayer !== null) {
                     // todo: account for multi-server. kick player from server if they're joining a diff server.
                     // Delete any active sessions the player may have. Sessions should always be ended when the player leaves.
-                    Database.sessions.deleteMany(Session::endedAt eq null, Session::playerId eq data.playerId)
+                    Database.sessions.deleteMany(Session::endedAt eq null, Session::playerId eq data.player.id)
 
-                    returningPlayer.name = data.playerName
+                    returningPlayer.name = data.player.name
                     returningPlayer.nameLower = returningPlayer.name.lowercase()
                     returningPlayer.ips =
                         if (ip in returningPlayer.ips) returningPlayer.ips else returningPlayer.ips + ip
@@ -81,12 +81,12 @@ fun Route.playerSessions() {
                         )
                     )
 
-                    Player.ensureNameUniqueness(data.playerName, data.playerId)
+                    Player.ensureNameUniqueness(data.player.name, data.player.id)
                 } else { // Player is new!
                     val player = Player(
-                        _id = data.playerId,
-                        name = data.playerName,
-                        nameLower = data.playerName.lowercase(),
+                        _id = data.player.id,
+                        name = data.player.name,
+                        nameLower = data.player.name.lowercase(),
                         ips = listOf(ip),
                         firstJoinedAt = now,
                         lastJoinedAt = now,
@@ -109,7 +109,7 @@ fun Route.playerSessions() {
 
                     call.respond(HttpStatusCode.Created, PlayerLoginResponse(player, activeSession, emptyList()))
 
-                    Player.ensureNameUniqueness(data.playerName, data.playerId)
+                    Player.ensureNameUniqueness(data.player.name, data.player.id)
                 }
             }
         }
@@ -118,7 +118,7 @@ fun Route.playerSessions() {
     post("/logout") {
         protected(this) { _ ->
             validate<PlayerLogoutRequest>(this) { data ->
-                val player: Player = PlayerCache.get(data.playerName) ?: throw PlayerMissingException()
+                val player: Player = PlayerCache.get(data.player.name) ?: throw PlayerMissingException()
                 val activeSession = player.getActiveSession() ?: throw SessionInactiveException()
 
                 activeSession.endedAt = Date().time

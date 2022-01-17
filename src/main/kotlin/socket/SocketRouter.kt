@@ -104,11 +104,11 @@ class SocketRouter(val server: ServerContext) {
         // Save first blood status & set first blood data if kill is first blood
         val isFirstBlood = match.firstBlood == null && data.isMurder
         if (isFirstBlood) match.firstBlood =
-            FirstBlood(data.simpleAttacker!!, data.simpleVictim, Date().time)
+            FirstBlood(data.attacker!!, data.victim, Date().time)
 
         // Fire kill event for attacker
         if (data.isMurder) {
-            val attacker = match.participants[data.attackerId]!!
+            val attacker = match.participants[data.attacker?.id]!!
 
             var participantContext = ParticipantContext(attacker, match)
             participantListeners.forEach { participantContext = it.onKill(participantContext, data, isFirstBlood) }
@@ -120,7 +120,7 @@ class SocketRouter(val server: ServerContext) {
         }
 
         // Fire death event for victim
-        val victim = match.participants[data.victimId]!!
+        val victim = match.participants[data.victim.id]!!
 
         var participantContext = ParticipantContext(victim, match)
         participantListeners.forEach { participantContext = it.onDeath(participantContext, data, isFirstBlood) }
@@ -136,7 +136,7 @@ class SocketRouter(val server: ServerContext) {
 
     private suspend fun onPlayerChat(data: PlayerChatData) {
         val match = server.match ?: throw RuntimeException("Player chat fired during no match") // todo: force cycle?
-        val participant = match.participants[data.playerId]
+        val participant = match.participants[data.player.id]
 
         if (participant != null) {
             var participantContext = ParticipantContext(participant, match)
@@ -144,7 +144,7 @@ class SocketRouter(val server: ServerContext) {
             match.saveParticipants(participantContext.profile)
         }
 
-        val player: Player = PlayerCache.get(data.playerName) ?: return
+        val player: Player = PlayerCache.get(data.player.name) ?: return
         var playerContext = PlayerContext(player, match)
         playerListeners.forEach { playerContext = it.onChat(playerContext, data) }
         PlayerCache.set(player.name, playerContext.profile)
@@ -174,10 +174,10 @@ class SocketRouter(val server: ServerContext) {
 
     private suspend fun onPartyJoin(data: PartyJoinData) {
         val match = server.match ?: throw RuntimeException("Party join fired during no match") // todo: force cycle?
-        val participant = match.participants[data.playerId] ?: Participant(
+        val participant = match.participants[data.player.id] ?: Participant(
             SimpleParticipant(
-                data.playerName,
-                data.playerId,
+                data.player.name,
+                data.player.id,
                 data.partyName
             )
         )
@@ -195,7 +195,7 @@ class SocketRouter(val server: ServerContext) {
 
     private suspend fun onPartyLeave(data: PartyLeaveData) {
         val match = server.match ?: throw RuntimeException("Party leave fired during no match") // todo: force cycle?
-        val participant = match.participants[data.playerId]!!
+        val participant = match.participants[data.player.id]!!
 
         var participantContext = ParticipantContext(participant, match)
         participantListeners.forEach { participantContext = it.onPartyLeave(participantContext) }
