@@ -8,8 +8,7 @@ import network.warzone.api.database.models.SimplePlayer
 
 @Serializable
 data class PlayerLoginRequest(
-    val playerId: String,
-    val playerName: String,
+    val player: SimplePlayer,
     val ip: String
 )
 
@@ -21,7 +20,7 @@ data class PlayerLoginResponse(
 )
 
 @Serializable
-data class PlayerLogoutRequest(val playerId: String, val playerName: String, val playtime: Long)
+data class PlayerLogoutRequest(val player: SimplePlayer, val playtime: Long)
 
 @Serializable
 data class PlayerSetActiveTagRequest(val activeTagId: String? = null)
