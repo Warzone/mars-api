@@ -56,7 +56,7 @@ data class FirstBlood(var attacker: SimplePlayer, var victim: SimplePlayer, var 
 data class Party(
     val name: String,
     val alias: String,
-    val colour: String,
+    val color: String,
     val min: Int,
     val max: Int,
 )
@@ -83,10 +83,10 @@ data class DestroyableGoal(
 )
 
 @Serializable
-data class FlagGoal(val id: String, val name: String, val ownerName: String?, val colour: String)
+data class FlagGoal(val id: String, val name: String, val ownerName: String?, val color: String)
 
 @Serializable
-data class WoolGoal(val id: String, val name: String, val ownerName: String, val colour: String)
+data class WoolGoal(val id: String, val name: String, val ownerName: String, val color: String)
 
 @Serializable
 data class ControlPointGoal(val id: String, val name: String)

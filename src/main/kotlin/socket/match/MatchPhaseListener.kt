@@ -34,7 +34,7 @@ class MatchPhaseListener(val server: ServerContext) {
             parties[it.name] = Party(
                 name = it.name,
                 alias = it.alias,
-                colour = it.colour,
+                color = it.color,
                 min = it.min,
                 max = it.max
             )
