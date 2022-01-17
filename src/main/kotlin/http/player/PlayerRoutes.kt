@@ -67,12 +67,6 @@ fun Route.playerSessions() {
 
                     PlayerCache.set(returningPlayer.name, returningPlayer, persist = true)
 
-//                val alts = mutableListOf<PlayerAltResponse>()
-//                returningPlayer.getAlts().forEach {
-//                    val puns = it.getPunishments()
-//                    alts.add(PlayerAltResponse(it, puns))
-//                }
-
                     call.respond(
                         PlayerLoginResponse(
                             new = false,
@@ -101,12 +95,6 @@ fun Route.playerSessions() {
 
                     PlayerCache.set(player.name, player, persist = true)
                     Database.sessions.save(activeSession)
-
-//                val alts = mutableListOf<PlayerAltResponse>()
-//                player.getAlts().forEach {
-//                    val puns = it.getPunishments()
-//                    alts.add(PlayerAltResponse(it, puns))
-//                }
 
                     call.respond(
                         HttpStatusCode.Created,
