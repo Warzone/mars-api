@@ -75,6 +75,7 @@ fun Route.playerSessions() {
 
                     call.respond(
                         PlayerLoginResponse(
+                            new = false,
                             player = returningPlayer,
                             if (!banned) activeSession else null,
                             playerPunishments + ipPunishments
@@ -107,7 +108,10 @@ fun Route.playerSessions() {
 //                    alts.add(PlayerAltResponse(it, puns))
 //                }
 
-                    call.respond(HttpStatusCode.Created, PlayerLoginResponse(player, activeSession, emptyList()))
+                    call.respond(
+                        HttpStatusCode.Created,
+                        PlayerLoginResponse(new = true, player, activeSession, emptyList())
+                    )
 
                     Player.ensureNameUniqueness(data.player.name, data.player.id)
                 }

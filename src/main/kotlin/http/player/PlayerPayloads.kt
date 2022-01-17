@@ -14,6 +14,7 @@ data class PlayerLoginRequest(
 
 @Serializable
 data class PlayerLoginResponse(
+    val new: Boolean,
     val player: Player,
     val activeSession: Session?,
     val activePunishments: List<Punishment>,
