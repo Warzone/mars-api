@@ -50,5 +50,5 @@ suspend inline fun <reified T : Any> CoroutineCollection<T>.findByIdOrName(targe
 }
 
 suspend inline fun <reified T : Any> CoroutineCollection<T>.deleteById(id: String): DeleteResult {
-    return Database.database.getCollection<T>().deleteOne("{ id: ${id.json} }")
+    return Database.database.getCollection<T>().deleteOne("{ _id: ${id.json} }")
 }
