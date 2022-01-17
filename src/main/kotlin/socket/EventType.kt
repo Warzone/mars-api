@@ -7,11 +7,12 @@ enum class EventType {
     MATCH_LOAD,
     MATCH_START,
     MATCH_END,
+    FORCE_MATCH_END, // plugin-bound
 
     PLAYER_DEATH,
-    PLAYER_CHAT,
-    PLAYER_XP_GAIN,
-    MESSAGE,
+    PLAYER_CHAT, // bi-directional
+    PLAYER_XP_GAIN, // plugin-bound
+    MESSAGE, // plugin-bound
     PROJECTILE_HIT,
     KILLSTREAK,
 

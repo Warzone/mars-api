@@ -7,10 +7,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import network.warzone.api.database.Database
 import network.warzone.api.database.MatchCache
 import network.warzone.api.database.PlayerCache
-import network.warzone.api.database.models.FirstBlood
-import network.warzone.api.database.models.Participant
-import network.warzone.api.database.models.Player
-import network.warzone.api.database.models.SimpleParticipant
+import network.warzone.api.database.models.*
 import network.warzone.api.socket.match.MatchEndData
 import network.warzone.api.socket.match.MatchPhaseListener
 import network.warzone.api.socket.match.MatchStartData
@@ -31,27 +28,33 @@ val playerListeners = listOf(PlayerStatListener, PlayerGamemodeStatListener, Pla
 
 class SocketRouter(val server: ServerContext) {
     suspend fun route(event: EventType, data: JsonObject) {
-        when (event) {
-            EventType.MATCH_LOAD -> onMatchLoad(Json.decodeFromJsonElement(data))
-            EventType.MATCH_START -> onMatchStart(Json.decodeFromJsonElement(data))
-            EventType.MATCH_END -> onMatchEnd(Json.decodeFromJsonElement(data))
-            EventType.PLAYER_DEATH -> onPlayerDeath(Json.decodeFromJsonElement(data))
-            EventType.PLAYER_CHAT -> onPlayerChat(Json.decodeFromJsonElement(data))
-            EventType.KILLSTREAK -> onKillstreak(Json.decodeFromJsonElement(data))
-            EventType.PARTY_JOIN -> onPartyJoin(Json.decodeFromJsonElement(data))
-            EventType.PARTY_LEAVE -> onPartyLeave(Json.decodeFromJsonElement(data))
-            EventType.DESTROYABLE_DESTROY -> onDestroyableDestroy(Json.decodeFromJsonElement(data))
-            EventType.CORE_LEAK -> onCoreLeak(Json.decodeFromJsonElement(data))
-            EventType.FLAG_CAPTURE -> onFlagPlace(Json.decodeFromJsonElement(data))
-            EventType.FLAG_PICKUP -> onFlagPickup(Json.decodeFromJsonElement(data))
-            EventType.FLAG_DROP -> onFlagDrop(Json.decodeFromJsonElement(data))
-            EventType.FLAG_DEFEND -> onFlagDefend(Json.decodeFromJsonElement(data))
-            EventType.WOOL_CAPTURE -> onWoolPlace(Json.decodeFromJsonElement(data))
-            EventType.WOOL_PICKUP -> onWoolPickup(Json.decodeFromJsonElement(data))
-            EventType.WOOL_DROP -> onWoolDrop(Json.decodeFromJsonElement(data))
-            EventType.WOOL_DEFEND -> onWoolDefend(Json.decodeFromJsonElement(data))
-            EventType.CONTROL_POINT_CAPTURE -> onControlPointCapture(Json.decodeFromJsonElement(data))
-            else -> println("Event (srv ${server.id}) fell through router: $event - $data")
+        try {
+            when (event) {
+                EventType.MATCH_LOAD -> onMatchLoad(Json.decodeFromJsonElement(data))
+                EventType.MATCH_START -> onMatchStart(Json.decodeFromJsonElement(data))
+                EventType.MATCH_END -> onMatchEnd(Json.decodeFromJsonElement(data))
+                EventType.PLAYER_DEATH -> onPlayerDeath(Json.decodeFromJsonElement(data))
+                EventType.PLAYER_CHAT -> onPlayerChat(Json.decodeFromJsonElement(data))
+                EventType.KILLSTREAK -> onKillstreak(Json.decodeFromJsonElement(data))
+                EventType.PARTY_JOIN -> onPartyJoin(Json.decodeFromJsonElement(data))
+                EventType.PARTY_LEAVE -> onPartyLeave(Json.decodeFromJsonElement(data))
+                EventType.DESTROYABLE_DESTROY -> onDestroyableDestroy(Json.decodeFromJsonElement(data))
+                EventType.CORE_LEAK -> onCoreLeak(Json.decodeFromJsonElement(data))
+                EventType.FLAG_CAPTURE -> onFlagPlace(Json.decodeFromJsonElement(data))
+                EventType.FLAG_PICKUP -> onFlagPickup(Json.decodeFromJsonElement(data))
+                EventType.FLAG_DROP -> onFlagDrop(Json.decodeFromJsonElement(data))
+                EventType.FLAG_DEFEND -> onFlagDefend(Json.decodeFromJsonElement(data))
+                EventType.WOOL_CAPTURE -> onWoolPlace(Json.decodeFromJsonElement(data))
+                EventType.WOOL_PICKUP -> onWoolPickup(Json.decodeFromJsonElement(data))
+                EventType.WOOL_DROP -> onWoolDrop(Json.decodeFromJsonElement(data))
+                EventType.WOOL_DEFEND -> onWoolDefend(Json.decodeFromJsonElement(data))
+                EventType.CONTROL_POINT_CAPTURE -> onControlPointCapture(Json.decodeFromJsonElement(data))
+                else -> println("Event (srv ${server.id}) fell through router: $event - $data")
+            }
+        } catch (e: InvalidMatchStateException) {
+            // Automatically end the match and force Mars to load a new match to sync state
+            server.call(EventType.FORCE_MATCH_END, Unit)
+            println("$e - Match ID: ${server.match?._id}")
         }
     }
 
@@ -60,13 +63,15 @@ class SocketRouter(val server: ServerContext) {
     }
 
     private suspend fun onMatchStart(data: MatchStartData) {
-        var match = server.match ?: return
+        var match = server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.PRE) throw InvalidMatchStateException()
         match = MatchPhaseListener(server).onStart(data, match) ?: return
         MatchCache.set(match._id, match)
     }
 
     private suspend fun onMatchEnd(data: MatchEndData) {
-        var match = server.match ?: return
+        var match = server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         match = MatchPhaseListener(server).onEnd(data, match) ?: return
 
         val profiles = mutableListOf<Player>()
@@ -84,7 +89,8 @@ class SocketRouter(val server: ServerContext) {
 
                 var playerContext = participantContext.getPlayerContext()
                 playerListeners.forEach {
-                    playerContext = it.onMatchEnd(playerContext, data, bigStats, participantContext.getMatchResult(data))
+                    playerContext =
+                        it.onMatchEnd(playerContext, data, bigStats, participantContext.getMatchResult(data))
                 }
                 participant.setPlayer(playerContext.profile)
                 profiles.add(playerContext.profile)
@@ -99,7 +105,8 @@ class SocketRouter(val server: ServerContext) {
     }
 
     private suspend fun onPlayerDeath(data: PlayerDeathData) {
-        val match = server.match ?: throw RuntimeException("Player death fired during no match") // todo: force cycle?
+        val match = server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
 
         // Save first blood status & set first blood data if kill is first blood
         val isFirstBlood = match.firstBlood == null && data.isMurder
@@ -135,7 +142,7 @@ class SocketRouter(val server: ServerContext) {
     }
 
     private suspend fun onPlayerChat(data: PlayerChatData) {
-        val match = server.match ?: throw RuntimeException("Player chat fired during no match") // todo: force cycle?
+        val match = server.match ?: throw InvalidMatchStateException()
         val participant = match.participants[data.player.id]
 
         if (participant != null) {
@@ -154,7 +161,8 @@ class SocketRouter(val server: ServerContext) {
 
     private suspend fun onKillstreak(data: KillstreakData) {
         val match =
-            server.match ?: throw RuntimeException("Killstreak event fired during no match") // todo: force cycle?
+            server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         val participant = match.participants[data.player.id]!!
 
         var participantContext = ParticipantContext(participant, match)
@@ -173,7 +181,8 @@ class SocketRouter(val server: ServerContext) {
     }
 
     private suspend fun onPartyJoin(data: PartyJoinData) {
-        val match = server.match ?: throw RuntimeException("Party join fired during no match") // todo: force cycle?
+        val match = server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         val participant = match.participants[data.player.id] ?: Participant(
             SimpleParticipant(
                 data.player.name,
@@ -194,7 +203,8 @@ class SocketRouter(val server: ServerContext) {
     }
 
     private suspend fun onPartyLeave(data: PartyLeaveData) {
-        val match = server.match ?: throw RuntimeException("Party leave fired during no match") // todo: force cycle?
+        val match = server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         val participant = match.participants[data.player.id]!!
 
         var participantContext = ParticipantContext(participant, match)
@@ -211,7 +221,8 @@ class SocketRouter(val server: ServerContext) {
 
     private suspend fun onDestroyableDestroy(data: DestroyableDestroyData) {
         val match =
-            server.match ?: throw RuntimeException("Destroyable destroy fired during no match") // todo: force cycle?
+            server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
 
         data.contributions.forEach { contribution ->
             val participant = match.participants[contribution.playerId] ?: return
@@ -234,7 +245,8 @@ class SocketRouter(val server: ServerContext) {
     }
 
     private suspend fun onCoreLeak(data: CoreLeakData) {
-        val match = server.match ?: throw RuntimeException("Core leak fired during no match") // todo: force cycle?
+        val match = server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
 
         data.contributions.forEach { contribution ->
             val participant = match.participants[contribution.playerId] ?: return
@@ -256,7 +268,8 @@ class SocketRouter(val server: ServerContext) {
     }
 
     private suspend fun onFlagPlace(data: FlagDropData) {
-        val match = server.match ?: throw RuntimeException("Flag place fired during no match") // todo: force cycle?
+        val match = server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
@@ -271,7 +284,8 @@ class SocketRouter(val server: ServerContext) {
     }
 
     private suspend fun onFlagPickup(data: FlagEventData) {
-        val match = server.match ?: throw RuntimeException("Flag pickup fired during no match") // todo: force cycle?
+        val match = server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
@@ -286,7 +300,8 @@ class SocketRouter(val server: ServerContext) {
     }
 
     private suspend fun onFlagDrop(data: FlagDropData) {
-        val match = server.match ?: throw RuntimeException("Flag drop fired during no match") // todo: force cycle?
+        val match = server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
@@ -301,7 +316,8 @@ class SocketRouter(val server: ServerContext) {
     }
 
     private suspend fun onFlagDefend(data: FlagEventData) {
-        val match = server.match ?: throw RuntimeException("Flag defend fired during no match") // todo: force cycle?
+        val match = server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
@@ -316,7 +332,8 @@ class SocketRouter(val server: ServerContext) {
     }
 
     private suspend fun onWoolPlace(data: WoolDropData) {
-        val match = server.match ?: throw RuntimeException("Wool place fired during no match") // todo: force cycle?
+        val match = server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
@@ -331,7 +348,8 @@ class SocketRouter(val server: ServerContext) {
     }
 
     private suspend fun onWoolPickup(data: WoolEventData) {
-        val match = server.match ?: throw RuntimeException("Wool pickup fired during no match") // todo: force cycle?
+        val match = server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
@@ -346,7 +364,8 @@ class SocketRouter(val server: ServerContext) {
     }
 
     private suspend fun onWoolDrop(data: WoolDropData) {
-        val match = server.match ?: throw RuntimeException("Wool drop fired during no match") // todo: force cycle?
+        val match = server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
@@ -361,7 +380,8 @@ class SocketRouter(val server: ServerContext) {
     }
 
     private suspend fun onWoolDefend(data: WoolEventData) {
-        val match = server.match ?: throw RuntimeException("Wool defend fired during no match") // todo: force cycle?
+        val match = server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
@@ -376,8 +396,8 @@ class SocketRouter(val server: ServerContext) {
     }
 
     private suspend fun onControlPointCapture(data: ControlPointCaptureData) {
-        val match = server.match
-            ?: throw RuntimeException("Control point capture fired during no match") // todo: force cycle? - catch special exception?
+        val match = server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
 
         data.playerIds.forEach { id ->
             val participant = match.participants[id] ?: return
@@ -396,3 +416,5 @@ class SocketRouter(val server: ServerContext) {
         MatchCache.set(match._id, match)
     }
 }
+
+class InvalidMatchStateException : IllegalStateException("Encountered invalid match state or missing match")
