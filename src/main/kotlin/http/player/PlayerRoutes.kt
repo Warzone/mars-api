@@ -34,10 +34,10 @@ fun Route.playerSessions() {
                         _id = UUID.randomUUID().toString()
                     )
 
-                val returningPlayer = Database.players.findById(data.player.name)
+                val returningPlayer = Database.players.findById(data.player.id)
 
                 // Player has joined before
-                if (returningPlayer !== null) {
+                if (returningPlayer != null) {
                     // todo: account for multi-server. kick player from server if they're joining a diff server.
                     // Delete any active sessions the player may have. Sessions should always be ended when the player leaves.
                     Database.sessions.deleteMany(Session::endedAt eq null, Session::playerId eq data.player.id)

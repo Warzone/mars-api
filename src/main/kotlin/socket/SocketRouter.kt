@@ -93,7 +93,7 @@ class SocketRouter(val server: ServerContext) {
 
         // Write all updated player profiles (since the last match ended) to the database
         // Only players who participated in the match at any point. Players who observed the entire match will not be affected.
-        Database.players.bulkWrite(profiles.map { replaceOne(Player::_id eq it._id, it) })
+        if (profiles.isNotEmpty()) Database.players.bulkWrite(profiles.map { replaceOne(Player::_id eq it._id, it) })
 
         MatchCache.set(match._id, match, true, SetParams().px(3600000L)) // cache expires one hour after end
     }
