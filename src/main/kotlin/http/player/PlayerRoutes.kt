@@ -12,6 +12,7 @@ import network.warzone.api.database.models.*
 import network.warzone.api.http.*
 import network.warzone.api.http.player.*
 import network.warzone.api.http.punishment.PunishmentIssueRequest
+import network.warzone.api.socket.leaderboard.ServerPlaytimeLeaderboard
 import network.warzone.api.util.protected
 import network.warzone.api.util.validate
 import org.litote.kmongo.contains
@@ -115,6 +116,8 @@ fun Route.playerSessions() {
 
                 activeSession.endedAt = Date().time
                 player.stats.serverPlaytime += data.playtime
+
+                ServerPlaytimeLeaderboard.increment(player.idName, data.playtime.toInt()) // Will break in 2038
 
                 // Longest Session Record
                 val recordSession = player.stats.records.longestSession?.length

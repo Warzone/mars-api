@@ -2,6 +2,7 @@ package network.warzone.api.database.models
 
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.Database
+import network.warzone.api.socket.leaderboard.ScoreType
 import network.warzone.api.socket.player.XP_PER_LEVEL
 import org.litote.kmongo.*
 import kotlin.math.floor
@@ -54,6 +55,13 @@ data class Player(
         get() {
             return SimplePlayer(name = this.name, id = this._id)
         }
+
+    /**
+     * If name is Notch & ID is 069a79f4-44e9-4726-a5be-fca90e38aaf5
+     * Encoded string is 069a79f4-44e9-4726-a5be-fca90e38aaf5/Notch
+     */
+    val idName: String
+    get() = "${_id}/${name}"
 }
 
 @Serializable
@@ -96,6 +104,22 @@ data class PlayerStats(
 ) {
     val level: Int
         get() = floor(((xp + XP_PER_LEVEL) / XP_PER_LEVEL).toDouble()).toInt()
+
+    fun getScore(type: ScoreType): Int {
+        return when (type) {
+            ScoreType.KILLS -> kills
+            ScoreType.DEATHS -> deaths
+            ScoreType.FIRST_BLOODS -> firstBloods
+            ScoreType.WINS -> wins
+            ScoreType.LOSSES -> losses
+            ScoreType.TIES -> ties
+            ScoreType.XP -> xp
+            ScoreType.MESSAGES_SENT -> messages.total
+            ScoreType.MATCHES_PLAYED -> matches
+            ScoreType.SERVER_PLAYTIME -> serverPlaytime.toInt() // 2038
+            ScoreType.GAME_PLAYTIME -> gamePlaytime.toInt()
+        }
+    }
 }
 
 @Serializable
@@ -142,4 +166,7 @@ data class PlayerObjectiveStatistics(
 )
 
 @Serializable
-data class PlayerMessages(var staff: Int = 0, var global: Int = 0, var team: Int = 0)
+data class PlayerMessages(var staff: Int = 0, var global: Int = 0, var team: Int = 0) {
+    val total: Int
+    get() = staff + global + team
+}

@@ -4,6 +4,7 @@ import network.warzone.api.database.models.GamemodeStats
 import network.warzone.api.database.models.Match
 import network.warzone.api.database.models.Player
 import network.warzone.api.socket.EventType
+import network.warzone.api.socket.leaderboard.XPLeaderboard
 import network.warzone.api.socket.participant.ParticipantContext
 
 data class PlayerContext(val profile: Player, val match: Match) {
@@ -41,6 +42,9 @@ data class PlayerContext(val profile: Player, val match: Match) {
 
         // Notify the MC server of the XP gain
         match.server.call(EventType.PLAYER_XP_GAIN, PlayerXPGainData(profile._id, xp, reason, notify))
+
+        // Update XP leaderboard score
+        XPLeaderboard.increment(profile.idName, xp)
 
         return this
     }

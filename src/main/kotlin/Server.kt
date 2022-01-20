@@ -33,6 +33,7 @@ import io.ktor.websocket.*
 import network.warzone.api.http.ApiException
 import network.warzone.api.http.InternalServerErrorException
 import network.warzone.api.http.broadcast.broadcastRoutes
+import network.warzone.api.http.leaderboard.leaderboardRoutes
 import network.warzone.api.http.level.levelRoutes
 import network.warzone.api.http.map.mapRoutes
 import network.warzone.api.http.punishment.punishmentRoutes
@@ -78,5 +79,6 @@ class Server {
         punishmentRoutes()
         broadcastRoutes()
         levelRoutes()
+        leaderboardRoutes()
     }
 }

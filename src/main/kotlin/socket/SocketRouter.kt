@@ -8,6 +8,7 @@ import network.warzone.api.database.Database
 import network.warzone.api.database.MatchCache
 import network.warzone.api.database.PlayerCache
 import network.warzone.api.database.models.*
+import network.warzone.api.socket.leaderboard.LeaderboardListener
 import network.warzone.api.socket.match.MatchEndData
 import network.warzone.api.socket.match.MatchPhaseListener
 import network.warzone.api.socket.match.MatchStartData
@@ -24,7 +25,8 @@ import redis.clients.jedis.params.SetParams
 import java.util.*
 
 val participantListeners = listOf(ParticipantStatListener, ParticipantPartyListener)
-val playerListeners = listOf(PlayerStatListener, PlayerGamemodeStatListener, PlayerXPListener, PlayerRecordListener)
+val playerListeners =
+    listOf(PlayerStatListener, PlayerGamemodeStatListener, PlayerXPListener, PlayerRecordListener, LeaderboardListener)
 
 class SocketRouter(val server: ServerContext) {
     suspend fun route(event: EventType, data: JsonObject) {
