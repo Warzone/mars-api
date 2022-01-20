@@ -10,46 +10,6 @@ fun getCalendar(): Calendar {
     return Calendar.getInstance(TimeZone.getTimeZone("EST")).also { it.add(Calendar.HOUR_OF_DAY, 7) }
 }
 
-enum class ScoreType {
-    KILLS,
-    DEATHS,
-    FIRST_BLOODS,
-    WINS,
-    LOSSES,
-    TIES,
-    XP,
-    MESSAGES_SENT,
-    MATCHES_PLAYED,
-    SERVER_PLAYTIME,
-    GAME_PLAYTIME;
-
-    fun toLeaderboard(): Leaderboard {
-        return when (this) {
-            KILLS -> KillsLeaderboard
-            DEATHS -> DeathsLeaderboard
-            FIRST_BLOODS -> FirstBloodsLeaderboard
-            WINS -> WinsLeaderboard
-            LOSSES -> LossesLeaderboard
-            TIES -> TiesLeaderboard
-            XP -> XPLeaderboard
-            MESSAGES_SENT -> MessagesSentLeaderboard
-            MATCHES_PLAYED -> MatchesPlayedLeaderboard
-            SERVER_PLAYTIME -> ServerPlaytimeLeaderboard
-            GAME_PLAYTIME -> GamePlaytimeLeaderboard
-        }
-    }
-
-    companion object {
-        fun find(name: String): ScoreType? {
-            return try {
-                valueOf(name.uppercase())
-            } catch (e: Exception) {
-                null
-            }
-        }
-    }
-}
-
 enum class Season {
     SPRING,
     SUMMER,
@@ -124,6 +84,75 @@ enum class LeaderboardPeriod {
     }
 }
 
+enum class ScoreType {
+    KILLS,
+    DEATHS,
+    FIRST_BLOODS,
+    WINS,
+    LOSSES,
+    TIES,
+    XP,
+    MESSAGES_SENT,
+    MATCHES_PLAYED,
+    SERVER_PLAYTIME,
+    GAME_PLAYTIME,
+    CORE_LEAKS,
+    CORE_BLOCK_DESTROYS,
+    DESTROYABLE_DESTROYS,
+    DESTROYABLE_BLOCK_DESTROYS,
+    FLAG_CAPTURES,
+    FLAG_DROPS,
+    FLAG_PICKUPS,
+    FLAG_DEFENDS,
+    FLAG_HOLD_TIME,
+    WOOL_CAPTURES,
+    WOOL_DROPS,
+    WOOL_PICKUPS,
+    WOOL_DEFENDS,
+    CONTROL_POINT_CAPTURES;
+
+    fun toLeaderboard(): Leaderboard {
+        return when (this) {
+            KILLS -> KillsLeaderboard
+            DEATHS -> DeathsLeaderboard
+            FIRST_BLOODS -> FirstBloodsLeaderboard
+            WINS -> WinsLeaderboard
+            LOSSES -> LossesLeaderboard
+            TIES -> TiesLeaderboard
+            XP -> XPLeaderboard
+            MESSAGES_SENT -> MessagesSentLeaderboard
+            MATCHES_PLAYED -> MatchesPlayedLeaderboard
+            SERVER_PLAYTIME -> ServerPlaytimeLeaderboard
+            GAME_PLAYTIME -> GamePlaytimeLeaderboard
+
+            CORE_LEAKS -> CoreLeaksLeaderboard
+            CORE_BLOCK_DESTROYS -> CoreBlockDestroysLeaderboard
+            DESTROYABLE_DESTROYS -> DestroyableDestroysLeaderboard
+            DESTROYABLE_BLOCK_DESTROYS -> DestroyableBlockDestroysLeaderboard
+            FLAG_CAPTURES -> FlagCapturesLeaderboard
+            FLAG_PICKUPS -> FlagPickupsLeaderboard
+            FLAG_DEFENDS -> FlagDefendsLeaderboard
+            FLAG_DROPS -> FlagDropsLeaderboard
+            FLAG_HOLD_TIME -> FlagHoldTimeLeaderboard
+            WOOL_CAPTURES -> WoolCapturesLeaderboard
+            WOOL_DROPS -> WoolDropsLeaderboard
+            WOOL_DEFENDS -> WoolDefendsLeaderboard
+            WOOL_PICKUPS -> WoolPickupsLeaderboard
+            CONTROL_POINT_CAPTURES -> ControlPointCapturesLeaderboard
+        }
+    }
+
+    companion object {
+        fun find(name: String): ScoreType? {
+            return try {
+                valueOf(name.uppercase())
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+}
+
 object KillsLeaderboard : Leaderboard(ScoreType.KILLS)
 object DeathsLeaderboard : Leaderboard(ScoreType.DEATHS)
 object FirstBloodsLeaderboard : Leaderboard(ScoreType.FIRST_BLOODS)
@@ -133,6 +162,25 @@ object TiesLeaderboard : Leaderboard(ScoreType.TIES)
 object XPLeaderboard : Leaderboard(ScoreType.XP)
 object MessagesSentLeaderboard : Leaderboard(ScoreType.MESSAGES_SENT)
 object MatchesPlayedLeaderboard : Leaderboard(ScoreType.MATCHES_PLAYED)
+
+object CoreLeaksLeaderboard : Leaderboard(ScoreType.CORE_LEAKS)
+object CoreBlockDestroysLeaderboard : Leaderboard(ScoreType.CORE_BLOCK_DESTROYS)
+
+object DestroyableDestroysLeaderboard : Leaderboard(ScoreType.DESTROYABLE_DESTROYS)
+object DestroyableBlockDestroysLeaderboard : Leaderboard(ScoreType.DESTROYABLE_BLOCK_DESTROYS)
+
+object FlagCapturesLeaderboard : Leaderboard(ScoreType.FLAG_CAPTURES)
+object FlagPickupsLeaderboard : Leaderboard(ScoreType.FLAG_PICKUPS)
+object FlagDropsLeaderboard : Leaderboard(ScoreType.FLAG_DROPS)
+object FlagDefendsLeaderboard : Leaderboard(ScoreType.FLAG_DEFENDS)
+object FlagHoldTimeLeaderboard : Leaderboard(ScoreType.FLAG_HOLD_TIME)
+
+object WoolCapturesLeaderboard : Leaderboard(ScoreType.WOOL_CAPTURES)
+object WoolPickupsLeaderboard : Leaderboard(ScoreType.WOOL_PICKUPS)
+object WoolDropsLeaderboard : Leaderboard(ScoreType.WOOL_DROPS)
+object WoolDefendsLeaderboard: Leaderboard(ScoreType.WOOL_DEFENDS)
+
+object ControlPointCapturesLeaderboard : Leaderboard(ScoreType.CONTROL_POINT_CAPTURES)
 
 // If these leaderboards are still being used in 2037, make sure to switch to Longs before 2038
 object ServerPlaytimeLeaderboard : Leaderboard(ScoreType.SERVER_PLAYTIME)
@@ -181,7 +229,7 @@ abstract class Leaderboard(private val type: ScoreType) {
     /**
      * For a standard player leaderboard, id = Player#idName ("uuid-xx-xx/username")
      */
-    fun increment(id: String, incr: Int) {
+    fun increment(id: String, incr: Int = 1) {
         val double = incr.toDouble()
         Redis.pool.resource.use {
             it.zincrby(getID(LeaderboardPeriod.DAILY), double, id)

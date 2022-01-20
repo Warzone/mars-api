@@ -61,7 +61,7 @@ data class Player(
      * Encoded string is 069a79f4-44e9-4726-a5be-fca90e38aaf5/Notch
      */
     val idName: String
-    get() = "${_id}/${name}"
+        get() = "${_id}/${name}"
 }
 
 @Serializable
@@ -118,6 +118,20 @@ data class PlayerStats(
             ScoreType.MATCHES_PLAYED -> matches
             ScoreType.SERVER_PLAYTIME -> serverPlaytime.toInt() // 2038
             ScoreType.GAME_PLAYTIME -> gamePlaytime.toInt()
+            ScoreType.CORE_LEAKS -> objectives.coreLeaks
+            ScoreType.CORE_BLOCK_DESTROYS -> objectives.coreBlockDestroys
+            ScoreType.DESTROYABLE_DESTROYS -> objectives.destroyableDestroys
+            ScoreType.DESTROYABLE_BLOCK_DESTROYS -> objectives.destroyableBlockDestroys
+            ScoreType.FLAG_CAPTURES -> objectives.flagCaptures
+            ScoreType.FLAG_DROPS -> objectives.flagDrops
+            ScoreType.FLAG_PICKUPS -> objectives.flagPickups
+            ScoreType.FLAG_DEFENDS -> objectives.flagDefends
+            ScoreType.FLAG_HOLD_TIME -> objectives.totalFlagHoldTime.toInt()
+            ScoreType.WOOL_CAPTURES -> objectives.woolCaptures
+            ScoreType.WOOL_DROPS -> objectives.woolDrops
+            ScoreType.WOOL_PICKUPS -> objectives.woolPickups
+            ScoreType.WOOL_DEFENDS -> objectives.woolDefends
+            ScoreType.CONTROL_POINT_CAPTURES -> objectives.controlPointCaptures
         }
     }
 }
@@ -168,5 +182,5 @@ data class PlayerObjectiveStatistics(
 @Serializable
 data class PlayerMessages(var staff: Int = 0, var global: Int = 0, var team: Int = 0) {
     val total: Int
-    get() = staff + global + team
+        get() = staff + global + team
 }
