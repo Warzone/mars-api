@@ -132,6 +132,7 @@ data class PlayerStats(
             ScoreType.WOOL_PICKUPS -> objectives.woolPickups
             ScoreType.WOOL_DEFENDS -> objectives.woolDefends
             ScoreType.CONTROL_POINT_CAPTURES -> objectives.controlPointCaptures
+            ScoreType.HIGHEST_KILLSTREAK -> killstreaks[killstreaks.keys.maxOrNull() ?: 100] ?: 0
         }
     }
 }

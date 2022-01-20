@@ -109,7 +109,8 @@ enum class ScoreType {
     WOOL_DROPS,
     WOOL_PICKUPS,
     WOOL_DEFENDS,
-    CONTROL_POINT_CAPTURES;
+    CONTROL_POINT_CAPTURES,
+    HIGHEST_KILLSTREAK;
 
     fun toLeaderboard(): Leaderboard {
         return when (this) {
@@ -139,6 +140,7 @@ enum class ScoreType {
             WOOL_DEFENDS -> WoolDefendsLeaderboard
             WOOL_PICKUPS -> WoolPickupsLeaderboard
             CONTROL_POINT_CAPTURES -> ControlPointCapturesLeaderboard
+            HIGHEST_KILLSTREAK -> HighestKillstreakLeaderboard
         }
     }
 
@@ -178,9 +180,11 @@ object FlagHoldTimeLeaderboard : Leaderboard(ScoreType.FLAG_HOLD_TIME)
 object WoolCapturesLeaderboard : Leaderboard(ScoreType.WOOL_CAPTURES)
 object WoolPickupsLeaderboard : Leaderboard(ScoreType.WOOL_PICKUPS)
 object WoolDropsLeaderboard : Leaderboard(ScoreType.WOOL_DROPS)
-object WoolDefendsLeaderboard: Leaderboard(ScoreType.WOOL_DEFENDS)
+object WoolDefendsLeaderboard : Leaderboard(ScoreType.WOOL_DEFENDS)
 
 object ControlPointCapturesLeaderboard : Leaderboard(ScoreType.CONTROL_POINT_CAPTURES)
+
+object HighestKillstreakLeaderboard : Leaderboard(ScoreType.HIGHEST_KILLSTREAK)
 
 // If these leaderboards are still being used in 2037, make sure to switch to Longs before 2038
 object ServerPlaytimeLeaderboard : Leaderboard(ScoreType.SERVER_PLAYTIME)
@@ -216,13 +220,11 @@ abstract class Leaderboard(private val type: ScoreType) {
      */
     fun set(id: String, score: Int) {
         val double = score.toDouble()
-        Redis.pool.resource.use {
-            it.zadd(getID(LeaderboardPeriod.DAILY), double, id)
-            it.zadd(getID(LeaderboardPeriod.WEEKLY), double, id)
-            it.zadd(getID(LeaderboardPeriod.MONTHLY), double, id)
-            it.zadd(getID(LeaderboardPeriod.SEASONALLY), double, id)
-            it.zadd(getID(LeaderboardPeriod.YEARLY), double, id)
-            it.zadd(getID(LeaderboardPeriod.ALL_TIME), double, id)
+        Redis.pool.resource.use { redis ->
+            // Set value on every leaderboard period
+            LeaderboardPeriod.values().forEach { period ->
+                redis.zadd(getID(period), double, id)
+            }
         }
     }
 
@@ -231,13 +233,11 @@ abstract class Leaderboard(private val type: ScoreType) {
      */
     fun increment(id: String, incr: Int = 1) {
         val double = incr.toDouble()
-        Redis.pool.resource.use {
-            it.zincrby(getID(LeaderboardPeriod.DAILY), double, id)
-            it.zincrby(getID(LeaderboardPeriod.WEEKLY), double, id)
-            it.zincrby(getID(LeaderboardPeriod.MONTHLY), double, id)
-            it.zincrby(getID(LeaderboardPeriod.SEASONALLY), double, id)
-            it.zincrby(getID(LeaderboardPeriod.YEARLY), double, id)
-            it.zincrby(getID(LeaderboardPeriod.ALL_TIME), double, id)
+        Redis.pool.resource.use { redis ->
+            // Increment on every leaderboard period
+            LeaderboardPeriod.values().forEach { period ->
+                redis.zincrby(getID(period), double, id)
+            }
         }
     }
 
@@ -247,6 +247,17 @@ abstract class Leaderboard(private val type: ScoreType) {
             return top.map {
                 val split = it.element.split("/")
                 return@map LeaderboardEntry(split.first(), split.last(), it.score.toInt())
+            }
+        }
+    }
+
+    fun setIfHigher(id: String, new: Int) {
+        Redis.pool.resource.use { redis ->
+            LeaderboardPeriod.values().forEach { period ->
+                val key = getID(period)
+                val current = redis.zscore(key, id)?.toInt() ?: 0
+                if (new > current)
+                    redis.zadd(key, new.toDouble(), id)
             }
         }
     }

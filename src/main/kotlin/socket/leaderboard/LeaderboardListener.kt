@@ -105,4 +105,9 @@ object LeaderboardListener : PlayerListener<PlayerContext>() {
         ControlPointCapturesLeaderboard.increment(context.profile.idName)
         return context
     }
+
+    override suspend fun onKillstreak(context: PlayerContext, amount: Int): PlayerContext {
+        HighestKillstreakLeaderboard.setIfHigher(context.profile.idName, amount)
+        return context
+    }
 }

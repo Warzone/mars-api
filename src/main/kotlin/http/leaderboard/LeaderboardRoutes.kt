@@ -8,7 +8,13 @@ import network.warzone.api.http.ValidationException
 import network.warzone.api.socket.leaderboard.LeaderboardPeriod
 import network.warzone.api.socket.leaderboard.ScoreType
 
-val publicScoreTypes = listOf(ScoreType.KILLS, ScoreType.WINS, ScoreType.FIRST_BLOODS, ScoreType.XP)
+val publicScoreTypes = listOf(
+    ScoreType.KILLS,
+    ScoreType.WINS,
+    ScoreType.FIRST_BLOODS,
+    ScoreType.XP,
+    ScoreType.HIGHEST_KILLSTREAK
+)
 
 fun Route.leaderboards() {
     get("/{score_type}/{period}") {
