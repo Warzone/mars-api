@@ -23,14 +23,14 @@ import java.util.*
 
 fun Route.playerSessions() {
     post("/login") {
-        protected(this) { serverID ->
+        protected(this) { serverId ->
             validate<PlayerLoginRequest>(this) { data ->
                 val now = Date().time
                 val ip = hashSHA256(data.ip)
                 val activeSession =
                     Session(
                         player = data.player,
-                        serverId = serverID!!,
+                        serverId = serverId!!,
                         createdAt = now,
                         endedAt = null,
                         _id = UUID.randomUUID().toString()

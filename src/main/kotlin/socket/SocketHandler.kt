@@ -19,12 +19,12 @@ import java.util.*
 fun Application.initSocketHandler() {
     routing {
         webSocket("/minecraft") {
-            val serverID = call.request.queryParameters["id"] ?: throw UnauthorizedException()
+            val serverId = call.request.queryParameters["id"] ?: throw UnauthorizedException()
             val serverToken = call.request.queryParameters["token"] ?: throw UnauthorizedException()
 
             if (serverToken != Config.apiToken) throw UnauthorizedException()
 
-            val server = ServerContext(serverID, this)
+            val server = ServerContext(serverId, this)
             ConnectedServers += server
             println("Server '${server.id}' connected to socket server")
 
@@ -44,7 +44,7 @@ fun Application.initSocketHandler() {
                     val eventType = EventType.valueOf(eventName)
 
                     router.route(eventType, data)
-                    Redis.set("server:$serverID:last_alive_time", Date().time)
+                    Redis.set("server:$serverId:last_alive_time", Date().time)
                 }
             } catch (err: Exception) {
                 log.error(err)

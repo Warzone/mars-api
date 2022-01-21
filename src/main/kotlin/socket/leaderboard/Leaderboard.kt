@@ -39,7 +39,7 @@ enum class LeaderboardPeriod {
     YEARLY,
     ALL_TIME;
 
-    fun getTodayID(): String {
+    fun getTodayId(): String {
         val cal = getCalendar()
         when (this) {
             DAILY -> {
@@ -193,7 +193,7 @@ object GamePlaytimeLeaderboard : Leaderboard(ScoreType.GAME_PLAYTIME)
 abstract class Leaderboard(private val type: ScoreType) {
     fun flushAllTime() {
         Redis.pool.resource.use {
-            it.del(getID(LeaderboardPeriod.ALL_TIME))
+            it.del(getId(LeaderboardPeriod.ALL_TIME))
         }
     }
 
@@ -207,12 +207,12 @@ abstract class Leaderboard(private val type: ScoreType) {
         val sorted = players.sortedByDescending { it.stats.getScore(type) }
         val members = sorted.associateBy({ it.idName }, { it.stats.getScore(type).toDouble() })
         Redis.pool.resource.use {
-            it.zadd(getID(LeaderboardPeriod.ALL_TIME), members)
+            it.zadd(getId(LeaderboardPeriod.ALL_TIME), members)
         }
     }
 
-    fun getID(period: LeaderboardPeriod): String {
-        return "lb:$type:${period.getTodayID()}"
+    fun getId(period: LeaderboardPeriod): String {
+        return "lb:$type:${period.getTodayId()}"
     }
 
     /**
@@ -223,7 +223,7 @@ abstract class Leaderboard(private val type: ScoreType) {
         Redis.pool.resource.use { redis ->
             // Set value on every leaderboard period
             LeaderboardPeriod.values().forEach { period ->
-                redis.zadd(getID(period), double, id)
+                redis.zadd(getId(period), double, id)
             }
         }
     }
@@ -236,14 +236,14 @@ abstract class Leaderboard(private val type: ScoreType) {
         Redis.pool.resource.use { redis ->
             // Increment on every leaderboard period
             LeaderboardPeriod.values().forEach { period ->
-                redis.zincrby(getID(period), double, id)
+                redis.zincrby(getId(period), double, id)
             }
         }
     }
 
     fun fetchTop(period: LeaderboardPeriod, limit: Int): List<LeaderboardEntry> {
         Redis.pool.resource.use { redis ->
-            val top = redis.zrevrangeWithScores(getID(period), 0, (limit - 1).toLong())
+            val top = redis.zrevrangeWithScores(getId(period), 0, (limit - 1).toLong())
             return top.map {
                 val split = it.element.split("/")
                 return@map LeaderboardEntry(split.first(), split.last(), it.score.toInt())
@@ -254,7 +254,7 @@ abstract class Leaderboard(private val type: ScoreType) {
     fun setIfHigher(id: String, new: Int) {
         Redis.pool.resource.use { redis ->
             LeaderboardPeriod.values().forEach { period ->
-                val key = getID(period)
+                val key = getId(period)
                 val current = redis.zscore(key, id)?.toInt() ?: 0
                 if (new > current)
                     redis.zadd(key, new.toDouble(), id)

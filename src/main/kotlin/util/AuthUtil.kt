@@ -11,17 +11,17 @@ enum class TokenType(val id: String) {
     API_TOKEN("API-Token")
 }
 
-suspend fun protected(context: PipelineContext<Unit, ApplicationCall>, fn: suspend (serverID: String?) -> Unit) {
+suspend fun protected(context: PipelineContext<Unit, ApplicationCall>, fn: suspend (serverId: String?) -> Unit) {
     val call = context.call
     val authHeader = call.request.header("Authorization") ?: throw UnauthorizedException()
-    val serverIDHeader = call.request.header("Mars-Server-ID")
+    val serverIdHeader = call.request.header("Mars-Server-ID")
     val split = authHeader.split(' ')
     if (split.size < 2) throw UnauthorizedException()
     val (tokenType, token) = split
     if (tokenType == TokenType.API_TOKEN.id) { // Request is using an API Token (originating from a trusted source)
-        if (serverIDHeader == null) throw UnauthorizedException()
+        if (serverIdHeader == null) throw UnauthorizedException()
         if (Config.apiToken != token) throw UnauthorizedException()
-        fn(serverIDHeader)
+        fn(serverIdHeader)
     } else if (tokenType == TokenType.BEARER.id) { // Request is using a user token
         throw UnauthorizedException()
     } else throw UnauthorizedException()

@@ -24,20 +24,20 @@ fun Route.manageServers() {
      *
      * Used to save/resolve any pending stats, matches or sessions (if the server previously crashed)
      */
-    post("/{serverID}/startup") {
-        protected(this) { serverID ->
-            serverID ?: throw ValidationException()
-            if (serverID != call.parameters["serverID"]) throw UnauthorizedException()
+    post("/{serverId}/startup") {
+        protected(this) { serverId ->
+            serverId ?: throw ValidationException()
+            if (serverId != call.parameters["serverId"]) throw UnauthorizedException()
 
             val lastAliveTime =
-                Redis.get<Long>("server:$serverID:last_alive_time") ?: return@protected call.respond(Unit)
+                Redis.get<Long>("server:$serverId:last_alive_time") ?: return@protected call.respond(Unit)
 
-            val lastMatchID =
-                Redis.get<String>("server:$serverID:current_match_id") ?: return@protected call.respond(Unit)
-            val match = Redis.get<Match>("match:$lastMatchID") ?: throw InternalServerErrorException()
+            val lastMatchId =
+                Redis.get<String>("server:$serverId:current_match_id") ?: return@protected call.respond(Unit)
+            val match = Redis.get<Match>("match:$lastMatchId") ?: throw InternalServerErrorException()
 
             val hangingSessions =
-                Database.sessions.find(Session::serverId eq serverID, Session::endedAt eq null).toList()
+                Database.sessions.find(Session::serverId eq serverId, Session::endedAt eq null).toList()
 
             val sessionsToWrite = mutableListOf<Session>()
             val playersToWrite = mutableListOf<Player>()
@@ -67,7 +67,7 @@ fun Route.manageServers() {
                 )
             })
 
-            println("Saved ${playersToWrite.size} players, ${sessionsToWrite.size} sessions on startup '$serverID'")
+            println("Saved ${playersToWrite.size} players, ${sessionsToWrite.size} sessions on startup '$serverId'")
             call.respond(Unit)
         }
     }
