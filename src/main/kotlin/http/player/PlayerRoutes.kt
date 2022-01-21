@@ -23,13 +23,14 @@ import java.util.*
 
 fun Route.playerSessions() {
     post("/login") {
-        protected(this) { _ ->
+        protected(this) { serverID ->
             validate<PlayerLoginRequest>(this) { data ->
                 val now = Date().time
                 val ip = hashSHA256(data.ip)
                 val activeSession =
                     Session(
-                        playerId = data.player.id,
+                        player = data.player,
+                        serverId = serverID!!,
                         createdAt = now,
                         endedAt = null,
                         _id = UUID.randomUUID().toString()
@@ -41,7 +42,7 @@ fun Route.playerSessions() {
                 if (returningPlayer != null) {
                     // todo: account for multi-server. kick player from server if they're joining a diff server.
                     // Delete any active sessions the player may have. Sessions should always be ended when the player leaves.
-                    Database.sessions.deleteMany(Session::endedAt eq null, Session::playerId eq data.player.id)
+                    Database.sessions.deleteMany(Session::endedAt eq null, Session::player eq data.player)
 
                     returningPlayer.name = data.player.name
                     returningPlayer.nameLower = returningPlayer.name.lowercase()

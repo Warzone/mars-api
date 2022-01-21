@@ -9,10 +9,12 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import network.warzone.api.Config
+import network.warzone.api.database.Redis
 import network.warzone.api.http.UnauthorizedException
 import network.warzone.api.socket.server.ConnectedServers
 import network.warzone.api.socket.server.ServerContext
 import network.warzone.api.util.zlibDecompress
+import java.util.*
 
 fun Application.initSocketHandler() {
     routing {
@@ -42,6 +44,7 @@ fun Application.initSocketHandler() {
                     val eventType = EventType.valueOf(eventName)
 
                     router.route(eventType, data)
+                    Redis.set("server:$serverID:last_alive_time", Date().time)
                 }
             } catch (err: Exception) {
                 log.error(err)

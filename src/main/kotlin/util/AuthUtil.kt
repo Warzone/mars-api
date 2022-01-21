@@ -11,7 +11,7 @@ enum class TokenType(val id: String) {
     API_TOKEN("API-Token")
 }
 
-suspend fun protected(context: PipelineContext<Unit, ApplicationCall>, fn: suspend (serverId: String?) -> Unit) {
+suspend fun protected(context: PipelineContext<Unit, ApplicationCall>, fn: suspend (serverID: String?) -> Unit) {
     val call = context.call
     val authHeader = call.request.header("Authorization") ?: throw UnauthorizedException()
     val serverIDHeader = call.request.header("Mars-Server-ID")

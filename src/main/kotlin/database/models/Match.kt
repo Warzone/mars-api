@@ -15,7 +15,7 @@ data class Match(
     val goals: GoalCollection, // todo: consider storing this in level rather than match
     var parties: Map<String, Party>,
     val participants: HashMap<String, Participant>,
-    val serverId: String,
+    val serverID: String,
     var firstBlood: FirstBlood?
 ) {
     val state: MatchState
@@ -33,7 +33,7 @@ data class Match(
         }
 
     val server: ServerContext
-    get() { return ConnectedServers.find { serverId == it.id }!! }
+    get() { return ConnectedServers.find { serverID == it.id }!! }
 
     fun saveParticipants(vararg participants: Participant): Match {
         participants.forEach {

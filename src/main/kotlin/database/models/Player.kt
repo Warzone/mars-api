@@ -23,7 +23,7 @@ data class Player(
     val gamemodeStats: HashMap<LevelGamemode, GamemodeStats>
 ) {
     suspend fun getActiveSession(): Session? {
-        return Database.sessions.findOne(Session::endedAt eq null, Session::playerId eq _id)
+        return Database.sessions.findOne(Session::endedAt eq null, Session::player / SimplePlayer::id eq _id)
     }
 
     suspend fun getPunishments(): List<Punishment> {

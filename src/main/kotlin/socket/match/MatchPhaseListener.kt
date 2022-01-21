@@ -6,8 +6,8 @@ import network.warzone.api.database.models.Match
 import network.warzone.api.database.models.MatchState
 import network.warzone.api.database.models.Participant
 import network.warzone.api.database.models.Party
-import network.warzone.api.socket.server.ServerContext
 import network.warzone.api.socket.server.MatchLoadData
+import network.warzone.api.socket.server.ServerContext
 import java.util.*
 
 class MatchPhaseListener(val server: ServerContext) {
@@ -24,7 +24,7 @@ class MatchPhaseListener(val server: ServerContext) {
             level = level,
             parties = hashMapOf(),
             participants = hashMapOf(),
-            serverId = server.id,
+            serverID = server.id,
             goals = data.goals,
             firstBlood = null
         )
