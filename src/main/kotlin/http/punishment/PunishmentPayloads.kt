@@ -11,7 +11,7 @@ data class PunishmentIssueRequest(
     val offence: Int,
     val action: PunishmentAction,
     val note: String? = null,
-    val punisher: SimplePlayer,
+    val punisher: SimplePlayer? = null,
     val targetName: String,
     val targetIps: List<String>,
     val silent: Boolean

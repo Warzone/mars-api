@@ -32,7 +32,8 @@ fun Route.manageServers() {
             val lastAliveTime =
                 Redis.get<Long>("server:$serverID:last_alive_time") ?: return@protected call.respond(Unit)
 
-            val lastMatchID = Redis.get<String>("server:$serverID:current_match_id") ?: return@protected call.respond(Unit)
+            val lastMatchID =
+                Redis.get<String>("server:$serverID:current_match_id") ?: return@protected call.respond(Unit)
             val match = Redis.get<Match>("match:$lastMatchID") ?: throw InternalServerErrorException()
 
             val hangingSessions =
@@ -53,8 +54,18 @@ fun Route.manageServers() {
                 playersToWrite.add(cachedPlayer)
             }
 
-            Database.players.bulkWrite(playersToWrite.map { replaceOne(Player::_id eq it._id, it) })
-            Database.sessions.bulkWrite(sessionsToWrite.map { replaceOne(Session::_id eq it._id, it) })
+            if (playersToWrite.isNotEmpty()) Database.players.bulkWrite(playersToWrite.map {
+                replaceOne(
+                    Player::_id eq it._id,
+                    it
+                )
+            })
+            if (sessionsToWrite.isNotEmpty()) Database.sessions.bulkWrite(sessionsToWrite.map {
+                replaceOne(
+                    Session::_id eq it._id,
+                    it
+                )
+            })
 
             println("Saved ${playersToWrite.size} players, ${sessionsToWrite.size} sessions on startup '$serverID'")
             call.respond(Unit)
