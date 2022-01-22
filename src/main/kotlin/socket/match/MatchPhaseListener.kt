@@ -6,18 +6,23 @@ import network.warzone.api.database.models.Match
 import network.warzone.api.database.models.MatchState
 import network.warzone.api.database.models.Participant
 import network.warzone.api.database.models.Party
+import network.warzone.api.socket.InvalidMatchStateException
 import network.warzone.api.socket.server.MatchLoadData
 import network.warzone.api.socket.server.ServerContext
 import java.util.*
 
 class MatchPhaseListener(val server: ServerContext) {
     suspend fun onLoad(data: MatchLoadData) {
-        val level = Database.levels.findOneById(data.mapId) ?: return // todo: force cycle
+        val level = Database.levels.findOneById(data.mapId) ?: throw InvalidMatchStateException()
 
         val now = Date().time
 
+        val matchId = UUID.randomUUID().toString()
+        level.goals = data.goals
+        level.lastMatchId = matchId
+
         val match = Match(
-            _id = UUID.randomUUID().toString(),
+            _id = matchId,
             loadedAt = now,
             startedAt = null,
             endedAt = null,
@@ -45,8 +50,8 @@ class MatchPhaseListener(val server: ServerContext) {
         server.currentMatchId = match._id
     }
 
-    suspend fun onStart(data: MatchStartData, match: Match): Match? {
-        if (match.state != MatchState.PRE) return null // todo: force cycle
+    suspend fun onStart(data: MatchStartData, match: Match): Match {
+        if (match.state != MatchState.PRE) throw InvalidMatchStateException()
 
         match.startedAt = Date().time
 
@@ -56,8 +61,8 @@ class MatchPhaseListener(val server: ServerContext) {
         return match
     }
 
-    suspend fun onEnd(data: MatchEndData, match: Match): Match? {
-        if (match.state != MatchState.IN_PROGRESS) return null // todo: force cycle
+    suspend fun onEnd(data: MatchEndData, match: Match): Match {
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         match.endedAt = Date().time
         return match
     }

@@ -139,9 +139,7 @@ data class PlayerStats(
 
 @Serializable
 data class PlayerRecords(
-//    var highestKillstreak: Int = 0, -- this can be calculated from profile
     var longestSession: Session? = null,
-//    var longestProjectileHit: ProjectileRecord? = null,
     var longestProjectileKill: ProjectileRecord? = null,
     var fastestWoolCapture: LongRecord? = null,
     var fastestFlagCapture: LongRecord? = null,
@@ -151,16 +149,16 @@ data class PlayerRecords(
 )
 
 @Serializable
-data class ProjectileRecord(val matchId: String, val distance: Int)
+data class ProjectileRecord(val matchId: String, val player: SimplePlayer, val distance: Int)
 
 @Serializable
-data class FirstBloodRecord(val matchId: String, val victim: SimplePlayer, val time: Long)
+data class FirstBloodRecord(val matchId: String, val attacker: SimplePlayer, val victim: SimplePlayer, val time: Long)
 
 @Serializable
-data class IntRecord(val matchId: String, val value: Int)
+data class IntRecord(val matchId: String, val player: SimplePlayer, val value: Int)
 
 @Serializable
-data class LongRecord(val matchId: String, val value: Long)
+data class LongRecord(val matchId: String, val player: SimplePlayer, val value: Long)
 
 @Serializable
 data class PlayerObjectiveStatistics(

@@ -6,14 +6,29 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Level(
     val _id: String,
+    val loadedAt: Long,
     var name: String,
     var nameLower: String,
     var version: String,
     var gamemodes: List<LevelGamemode>,
-    val loadedAt: Long,
     var updatedAt: Long,
     var authors: List<LevelContributor>,
-    var contributors: List<LevelContributor>
+    var contributors: List<LevelContributor>,
+    var goals: GoalCollection? = null,
+    var lastMatchId: String? = null,
+    val records: LevelRecords
+)
+
+
+@Serializable
+data class LevelRecords(
+    var highestKillstreak: IntRecord? = null,
+    var longestProjectileKill: ProjectileRecord? = null,
+    var fastestWoolCapture: LongRecord? = null,
+    var fastestFlagCapture: LongRecord? = null,
+    var fastestFirstBlood: FirstBloodRecord? = null,
+    var killsInMatch: IntRecord? = null,
+    var deathsInMatch: IntRecord? = null,
 )
 
 @Serializable

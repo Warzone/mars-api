@@ -6,6 +6,7 @@ import io.ktor.routing.*
 import network.warzone.api.database.Database
 import network.warzone.api.database.findById
 import network.warzone.api.database.models.Level
+import network.warzone.api.database.models.LevelRecords
 import network.warzone.api.http.MapMissingException
 import network.warzone.api.http.ValidationException
 import network.warzone.api.util.protected
@@ -41,7 +42,8 @@ fun Route.manageMaps() {
                                 loadedAt = now,
                                 updatedAt = now,
                                 authors = map.authors,
-                                contributors = map.contributors
+                                contributors = map.contributors,
+                                records = LevelRecords()
                             )
                         )
                     }

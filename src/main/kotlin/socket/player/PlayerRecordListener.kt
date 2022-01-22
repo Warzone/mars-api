@@ -17,14 +17,15 @@ object PlayerRecordListener : PlayerListener<PlayerContext>() {
 
             val recordTime = profile.stats.records.fastestFirstBlood?.time
             if (recordTime == null || time < recordTime)  // The record was beat (or set)
-                profile.stats.records.fastestFirstBlood = FirstBloodRecord(context.match._id, data.victim, time)
+                profile.stats.records.fastestFirstBlood =
+                    FirstBloodRecord(context.match._id, profile.simple, data.victim, time)
 
         }
 
-        if (data.distance != null) {
+        if (data.distance != null && context.match.participants.size >= 6) {
             val recordDistance = profile.stats.records.longestProjectileKill?.distance
             if (recordDistance == null || data.distance > recordDistance)
-                profile.stats.records.longestProjectileKill = ProjectileRecord(context.match._id, data.distance)
+                profile.stats.records.longestProjectileKill = ProjectileRecord(context.match._id, context.profile.simple, data.distance)
         }
 
         return context
@@ -35,7 +36,7 @@ object PlayerRecordListener : PlayerListener<PlayerContext>() {
 
         val recordTime = profile.stats.records.fastestWoolCapture?.value
         if (recordTime == null || heldTime < recordTime) profile.stats.records.fastestWoolCapture =
-            LongRecord(context.match._id, heldTime)
+            LongRecord(context.match._id, context.profile.simple, heldTime)
 
         return context
     }
@@ -45,7 +46,7 @@ object PlayerRecordListener : PlayerListener<PlayerContext>() {
 
         val recordTime = profile.stats.records.fastestFlagCapture?.value
         if (recordTime == null || heldTime < recordTime) profile.stats.records.fastestFlagCapture =
-            LongRecord(context.match._id, heldTime)
+            LongRecord(context.match._id, context.profile.simple, heldTime)
 
         return context
     }
@@ -61,11 +62,11 @@ object PlayerRecordListener : PlayerListener<PlayerContext>() {
 
         val kills = participant.stats.kills
         val recordKills = profile.stats.records.killsInMatch?.value ?: 0
-        if (kills > recordKills) profile.stats.records.killsInMatch = IntRecord(context.match._id, kills)
+        if (kills > recordKills) profile.stats.records.killsInMatch = IntRecord(context.match._id, context.profile.simple, kills)
 
         val deaths = participant.stats.deaths
         val recordDeaths = profile.stats.records.deathsInMatch?.value ?: 0
-        if (deaths > recordDeaths) profile.stats.records.deathsInMatch = IntRecord(context.match._id, deaths)
+        if (deaths > recordDeaths) profile.stats.records.deathsInMatch = IntRecord(context.match._id, context.profile.simple, deaths)
 
         return context
     }

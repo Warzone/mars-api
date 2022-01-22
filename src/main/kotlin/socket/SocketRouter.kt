@@ -9,6 +9,7 @@ import network.warzone.api.database.MatchCache
 import network.warzone.api.database.PlayerCache
 import network.warzone.api.database.models.*
 import network.warzone.api.socket.leaderboard.LeaderboardListener
+import network.warzone.api.socket.map.MapRecordListener
 import network.warzone.api.socket.match.MatchEndData
 import network.warzone.api.socket.match.MatchPhaseListener
 import network.warzone.api.socket.match.MatchStartData
@@ -24,7 +25,7 @@ import org.litote.kmongo.replaceOne
 import redis.clients.jedis.params.SetParams
 import java.util.*
 
-val participantListeners = listOf(ParticipantStatListener, ParticipantPartyListener)
+val participantListeners = listOf(ParticipantStatListener, ParticipantPartyListener, MapRecordListener)
 val playerListeners =
     listOf(PlayerStatListener, PlayerGamemodeStatListener, PlayerXPListener, PlayerRecordListener, LeaderboardListener)
 
@@ -67,14 +68,14 @@ class SocketRouter(val server: ServerContext) {
     private suspend fun onMatchStart(data: MatchStartData) {
         var match = server.match ?: throw InvalidMatchStateException()
         if (match.state != MatchState.PRE) throw InvalidMatchStateException()
-        match = MatchPhaseListener(server).onStart(data, match) ?: return
+        match = MatchPhaseListener(server).onStart(data, match)
         MatchCache.set(match._id, match)
     }
 
     private suspend fun onMatchEnd(data: MatchEndData) {
         var match = server.match ?: throw InvalidMatchStateException()
         if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
-        match = MatchPhaseListener(server).onEnd(data, match) ?: return
+        match = MatchPhaseListener(server).onEnd(data, match)
 
         val profiles = mutableListOf<Player>()
 
@@ -103,6 +104,7 @@ class SocketRouter(val server: ServerContext) {
         // Only players who participated in the match at any point. Players who observed the entire match will not be affected.
         if (profiles.isNotEmpty()) Database.players.bulkWrite(profiles.map { replaceOne(Player::_id eq it._id, it) })
 
+        Database.levels.save(match.level)
         MatchCache.set(match._id, match, true, SetParams().px(3600000L)) // cache expires one hour after end
     }
 
