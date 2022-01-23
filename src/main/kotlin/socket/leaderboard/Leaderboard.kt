@@ -43,29 +43,30 @@ enum class LeaderboardPeriod {
         val cal = getCalendar()
         when (this) {
             DAILY -> {
-                val date = cal.get(Calendar.DAY_OF_YEAR)
+                val date = cal.get(Calendar.DAY_OF_MONTH)
+                val month = cal.get(Calendar.MONTH)
                 val year = cal.get(Calendar.YEAR)
-                return "d-$date-$year"
+                return "$year:d:$month:$date"
             }
             WEEKLY -> {
                 val week = cal.get(Calendar.WEEK_OF_YEAR)
                 val year = cal.get(Calendar.YEAR)
-                return "w-$week-$year"
+                return "$year:w:$week"
             }
             MONTHLY -> {
                 val month = cal.get(Calendar.MONTH)
                 val year = cal.get(Calendar.YEAR)
-                return "m-$month-$year"
+                return "$year:m:$month"
             }
             SEASONALLY -> {
                 val month = cal.get(Calendar.MONTH)
-                val season = Season.ofNorthern(Month.of(month + 1))
+                val season = Season.ofNorthern(Month.of(month + 1)).toString().lowercase()
                 val year = cal.get(Calendar.YEAR)
-                return "s-$season-$year"
+                return "$year:s:$season"
             }
             YEARLY -> {
                 val year = cal.get(Calendar.YEAR)
-                return "y-$year"
+                return "$year:y"
             }
             ALL_TIME -> {
                 return "all"
