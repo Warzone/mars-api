@@ -20,9 +20,8 @@ fun Route.manageMaps() {
                 val now = Date().time
                 val mapsToSave = mutableListOf<Level>()
                 mapList.forEach { map ->
-                    println(map)
                     val existingMap = Database.levels.findById(map._id)
-                    if (existingMap !== null) { // Updating existing map (e.g. new version)
+                    if (existingMap != null) { // Updating existing map (e.g. new version)
                         existingMap.name = map.name
                         existingMap.nameLower = existingMap.name.lowercase()
                         existingMap.version = map.version

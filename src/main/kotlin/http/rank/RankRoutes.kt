@@ -21,7 +21,7 @@ fun Route.manageRanks() {
         protected(this) { _ ->
             validate<RankCreateRequest>(this) { data ->
                 val conflict = Database.ranks.findByName(data.name)
-                if (conflict !== null) throw RankConflictException()
+                if (conflict != null) throw RankConflictException()
 
                 val rank = Rank(
                     _id = UUID.randomUUID().toString(),

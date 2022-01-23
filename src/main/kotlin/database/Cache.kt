@@ -7,7 +7,7 @@ abstract class Cache(val resourceName: String, val lifetimeMs: Long? = null) {
     suspend inline fun <reified T : Any> get(_key: String): T? {
         val key = _key.lowercase()
         val cachedValue = Redis.get<T>("$resourceName:$key")
-        if (cachedValue !== null) return cachedValue
+        if (cachedValue != null) return cachedValue
 
         return Database.database.getCollection<T>()
             .findOne("{ \$or: [ { nameLower: ${key.lowercase().json} }, { _id: ${key.json} } ] }")

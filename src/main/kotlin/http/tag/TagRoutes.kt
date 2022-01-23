@@ -20,7 +20,7 @@ fun Route.manageTags() {
         protected(this) { _ ->
             validate<TagCreateRequest>(this) { data ->
                 val conflict = Database.tags.findByName(data.name)
-                if (conflict !== null) throw TagConflictException()
+                if (conflict != null) throw TagConflictException()
 
                 val tag = Tag(
                     _id = UUID.randomUUID().toString(),
