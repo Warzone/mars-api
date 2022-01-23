@@ -13,6 +13,7 @@ data class Death(
     val key: String,
     val cause: DamageCause,
     val serverId: String,
+    val matchId: String,
     val createdAt: Long
 )
 
