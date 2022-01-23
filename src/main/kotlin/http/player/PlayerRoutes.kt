@@ -143,7 +143,7 @@ fun Route.playerSessions() {
 
 fun Route.playerModeration() {
     post("/{playerId}/punishments") {
-        protected(this) { _ ->
+        protected(this) { serverId ->
             validate<PunishmentIssueRequest>(this) { data ->
                 val id = UUID.randomUUID().toString()
                 val now = Date().time
@@ -158,7 +158,8 @@ fun Route.playerModeration() {
                     punisher = data.punisher,
                     target = target.simple,
                     targetIps = data.targetIps,
-                    silent = data.silent
+                    silent = data.silent,
+                    serverId = serverId
                 )
                 Database.punishments.insertOne(punishment)
                 call.respond(punishment)

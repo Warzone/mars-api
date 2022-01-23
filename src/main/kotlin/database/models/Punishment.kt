@@ -15,7 +15,8 @@ data class Punishment(
     val punisher: SimplePlayer? = null,
     val target: SimplePlayer,
     val targetIps: List<String>,
-    var reversion: PunishmentReversion? = null
+    var reversion: PunishmentReversion? = null,
+    val serverId: String?
 ) {
     val expiresAt: Long
         get() {
