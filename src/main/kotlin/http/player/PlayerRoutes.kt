@@ -280,7 +280,7 @@ fun Route.playerRanks() {
             val rankId = call.parameters["rankId"] ?: throw ValidationException()
 
             val player: Player = PlayerCache.get(playerId) ?: throw PlayerMissingException()
-            val rank = Database.ranks.findById(rankId) ?: throw RankMissingException()
+            val rank = Database.ranks.findByIdOrName(rankId) ?: throw RankMissingException()
 
             if (rank._id in player.rankIds) throw RankAlreadyPresentException()
             player.rankIds = player.rankIds + rank._id
@@ -296,7 +296,7 @@ fun Route.playerRanks() {
             val rankId = call.parameters["rankId"] ?: throw ValidationException()
 
             val player: Player = PlayerCache.get(playerId) ?: throw PlayerMissingException()
-            val rank = Database.ranks.findById(rankId) ?: throw RankMissingException()
+            val rank = Database.ranks.findByIdOrName(rankId) ?: throw RankMissingException()
 
             if (rank._id !in player.rankIds) throw RankNotPresentException()
             player.rankIds = player.rankIds.filterNot { it == rank._id }
