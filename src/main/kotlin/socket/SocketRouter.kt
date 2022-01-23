@@ -21,6 +21,7 @@ import network.warzone.api.socket.player.*
 import network.warzone.api.socket.server.MatchLoadData
 import network.warzone.api.socket.server.ServerContext
 import org.litote.kmongo.eq
+import org.litote.kmongo.json
 import org.litote.kmongo.replaceOne
 import redis.clients.jedis.params.SetParams
 import java.util.*
@@ -152,7 +153,8 @@ class SocketRouter(val server: ServerContext) {
                 distance = data.distance,
                 key = data.key,
                 cause = data.cause,
-                serverId = server.id
+                serverId = server.id,
+                createdAt = Date().time
             )
         )
 
