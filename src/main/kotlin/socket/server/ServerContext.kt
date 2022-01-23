@@ -21,6 +21,10 @@ class ServerContext(val id: String, val session: DefaultWebSocketServerSession) 
         get() = Redis.get("server:$id:current_match_id")
         set(matchId) = Redis.set("server:$id:current_match_id", matchId)
 
+    var lastAliveTime: Long?
+        get() = Redis.get("server:$id:last_alive_time")
+        set(value) = Redis.set("server:$id:last_alive_time", value)
+
     suspend inline fun <reified T> call(type: EventType, data: T) {
         val packet = Packet(type, data)
         val body = Json.encodeToString(packet).zlibCompress()

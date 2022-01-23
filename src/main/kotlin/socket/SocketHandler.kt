@@ -9,7 +9,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import network.warzone.api.Config
-import network.warzone.api.database.Redis
 import network.warzone.api.http.UnauthorizedException
 import network.warzone.api.socket.server.ConnectedServers
 import network.warzone.api.socket.server.ServerContext
@@ -23,6 +22,17 @@ fun Application.initSocketHandler() {
             val serverToken = call.request.queryParameters["token"] ?: throw UnauthorizedException()
 
             if (serverToken != Config.apiToken) throw UnauthorizedException()
+
+            // Server ID already connected
+            if (ConnectedServers.any { it.id == serverId }) {
+                println("Server ID '$serverId' attempting to connect twice! Closing new connection...")
+                return@webSocket this.close(
+                    CloseReason(
+                        CloseReason.Codes.VIOLATED_POLICY,
+                        "Server with ID '$serverId' is already connected"
+                    )
+                )
+            }
 
             val server = ServerContext(serverId, this)
             ConnectedServers += server
@@ -44,13 +54,13 @@ fun Application.initSocketHandler() {
                     val eventType = EventType.valueOf(eventName)
 
                     router.route(eventType, data)
-                    Redis.set("server:$serverId:last_alive_time", Date().time)
+                    server.lastAliveTime = Date().time
                 }
             } catch (err: Exception) {
                 log.error(err)
             } finally {
                 ConnectedServers -= server
-                println("Server ${server.id} disconnected from socket server")
+                println("Server '${server.id}' disconnected from socket server")
             }
         }
     }
