@@ -141,6 +141,21 @@ class SocketRouter(val server: ServerContext) {
         playerListeners.forEach { playerContext = it.onDeath(playerContext, data, isFirstBlood) }
         victim.setPlayer(playerContext.profile)
 
+        // Save Death DB object
+        Database.deaths.insertOne(
+            Death(
+                _id = UUID.randomUUID().toString(),
+                victim = data.victim,
+                attacker = data.attacker,
+                weapon = data.weapon,
+                entity = data.entity,
+                distance = data.distance,
+                key = data.key,
+                cause = data.cause,
+                serverId = server.id
+            )
+        )
+
         // Save
         MatchCache.set(match._id, match)
     }

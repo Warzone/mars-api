@@ -11,7 +11,8 @@ data class Death(
     val entity: String?,
     val distance: Int?,
     val key: String,
-    val cause: DamageCause
+    val cause: DamageCause,
+    val serverId: String
 )
 
 @Serializable
