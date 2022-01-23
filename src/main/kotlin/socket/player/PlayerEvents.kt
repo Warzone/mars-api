@@ -18,7 +18,7 @@ data class PlayerDeathData(
     get() = attacker != null && attacker != victim
 
     val safeWeapon: String
-    get() = if (distance == null) weapon ?: "NONE" else "PROJECTILE"
+    get() = if (distance != null && cause != DamageCause.FALL) "PROJECTILE" else weapon ?: "NONE"
 }
 
 @Serializable

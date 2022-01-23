@@ -1,10 +1,7 @@
 package network.warzone.api.socket.map
 
 import network.warzone.api.database.MatchCache
-import network.warzone.api.database.models.FirstBloodRecord
-import network.warzone.api.database.models.IntRecord
-import network.warzone.api.database.models.LongRecord
-import network.warzone.api.database.models.ProjectileRecord
+import network.warzone.api.database.models.*
 import network.warzone.api.socket.match.MatchEndData
 import network.warzone.api.socket.participant.ParticipantContext
 import network.warzone.api.socket.participant.PlayerMatchResult
@@ -31,7 +28,7 @@ object MapRecordListener : PlayerListener<ParticipantContext>() {
                     FirstBloodRecord(context.match._id, context.profile.simplePlayer, data.victim, time)
         }
 
-        if (data.distance != null && context.match.participants.size >= 6) {
+        if (data.distance != null && context.match.participants.size >= 6 && data.cause != DamageCause.FALL) {
             val recordDistance = map.records.longestProjectileKill?.distance
             if (recordDistance == null || data.distance > recordDistance)
                 map.records.longestProjectileKill =

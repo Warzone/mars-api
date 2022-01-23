@@ -1,9 +1,6 @@
 package network.warzone.api.socket.player
 
-import network.warzone.api.database.models.FirstBloodRecord
-import network.warzone.api.database.models.IntRecord
-import network.warzone.api.database.models.LongRecord
-import network.warzone.api.database.models.ProjectileRecord
+import network.warzone.api.database.models.*
 import network.warzone.api.socket.match.MatchEndData
 import network.warzone.api.socket.participant.PlayerMatchResult
 import java.util.*
@@ -22,7 +19,7 @@ object PlayerRecordListener : PlayerListener<PlayerContext>() {
 
         }
 
-        if (data.distance != null && context.match.participants.size >= 6) {
+        if (data.distance != null && context.match.participants.size >= 6 && data.cause != DamageCause.FALL) {
             val recordDistance = profile.stats.records.longestProjectileKill?.distance
             if (recordDistance == null || data.distance > recordDistance)
                 profile.stats.records.longestProjectileKill = ProjectileRecord(context.match._id, context.profile.simple, data.distance)
