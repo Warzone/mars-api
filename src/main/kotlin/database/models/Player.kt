@@ -12,6 +12,7 @@ data class Player(
     val _id: String,
     var name: String,
     var nameLower: String,
+    var lastSessionId: String,
     var firstJoinedAt: Long,
     var lastJoinedAt: Long,
     var ips: List<String>,

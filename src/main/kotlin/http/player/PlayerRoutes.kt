@@ -49,9 +49,6 @@ fun Route.playerSessions() {
                     returningPlayer.ips =
                         if (ip in returningPlayer.ips) returningPlayer.ips else returningPlayer.ips + ip
 
-                    val ranksWithDefault = returningPlayer.rankIds + Rank.findDefault().map { it._id }
-                    returningPlayer.rankIds = ranksWithDefault.distinct()
-
                     val playerPunishments = returningPlayer.getActivePunishments()
                     val playerBan = playerPunishments.firstOrNull { it.action.isBan }
                     val ipPunishments = if (playerBan != null) Database.punishments.find(
@@ -63,7 +60,11 @@ fun Route.playerSessions() {
                     val banned = playerBan != null || ipBan != null
 
                     if (!banned) {
+                        val ranksWithDefault = returningPlayer.rankIds + Rank.findDefault().map { it._id }
+                        returningPlayer.rankIds = ranksWithDefault.distinct()
+
                         returningPlayer.lastJoinedAt = now
+                        returningPlayer.lastSessionId = activeSession._id
                         Database.sessions.save(activeSession)
                     }
 
@@ -92,7 +93,8 @@ fun Route.playerSessions() {
                         activeTagId = null,
                         stats = PlayerStats(),
                         gamemodeStats = hashMapOf(),
-                        notes = emptyList()
+                        notes = emptyList(),
+                        lastSessionId = activeSession._id
                     )
 
                     PlayerCache.set(player.name, player, persist = true)
