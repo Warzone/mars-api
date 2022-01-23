@@ -12,7 +12,6 @@ data class Match(
     var startedAt: Long?,
     var endedAt: Long?,
     val level: Level,
-    val goals: GoalCollection, // todo: consider storing this in level rather than match
     var parties: Map<String, Party>,
     val participants: HashMap<String, Participant>,
     val serverId: String,

@@ -30,7 +30,6 @@ class MatchPhaseListener(val server: ServerContext) {
             parties = hashMapOf(),
             participants = hashMapOf(),
             serverId = server.id,
-            goals = data.goals,
             firstBlood = null
         )
 
