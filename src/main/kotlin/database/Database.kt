@@ -1,6 +1,9 @@
 package network.warzone.api.database
 
+import com.mongodb.client.model.IndexOptions
+import com.mongodb.client.model.Indexes
 import com.mongodb.client.result.DeleteResult
+import kotlinx.coroutines.runBlocking
 import network.warzone.api.Config
 import network.warzone.api.database.models.*
 import org.litote.kmongo.coroutine.CoroutineCollection
@@ -21,8 +24,6 @@ object Database {
     val punishments: CoroutineCollection<Punishment>
 
     init {
-        // todo: index
-
         val client = KMongo.createClient(Config.mongoUrl).coroutine
         database = client.getDatabase("mars-api")
         players = database.getCollection()
@@ -33,6 +34,26 @@ object Database {
         matches = database.getCollection()
         deaths = database.getCollection()
         punishments = database.getCollection()
+
+        runBlocking {
+            // remove if indexes are problematic later...
+            players.createIndex(Indexes.text("name"), IndexOptions().name("name").unique(true))
+            ranks.createIndex(Indexes.text("name"), IndexOptions().name("name").unique(true))
+            tags.createIndex(Indexes.text("name"), IndexOptions().name("name").unique(true))
+            levels.createIndex(Indexes.text("name"), IndexOptions().name("name"))
+
+            players.createIndex(Indexes.descending("nameLower"), IndexOptions().name("lowercase name (not text)").unique(true))
+            sessions.createIndex(Indexes.descending("player.id"), IndexOptions().name("player ID"))
+            matches.createIndex(Indexes.descending("serverId"), IndexOptions().name("server ID"))
+            deaths.createIndex(
+                Indexes.descending("victim.id", "attacker.id"),
+                IndexOptions().name("attacker ID & victim ID")
+            )
+            punishments.createIndex(
+                Indexes.descending("target.id", "issuedAt"),
+                IndexOptions().name("target ID & issued time")
+            )
+        }
     }
 }
 
