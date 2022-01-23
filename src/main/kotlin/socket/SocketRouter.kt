@@ -141,7 +141,7 @@ class SocketRouter(val server: ServerContext) {
         playerListeners.forEach { playerContext = it.onDeath(playerContext, data, isFirstBlood) }
         victim.setPlayer(playerContext.profile)
 
-        // Save Death DB object
+        // Save Death DB object (move to future Match Listener ideally)
         Database.deaths.insertOne(
             Death(
                 _id = UUID.randomUUID().toString(),
