@@ -11,8 +11,8 @@ data class SimpleParticipant(val name: String, val id: String, var partyName: St
 data class Participant(
     val name: String,
     val id: String,
-    var partyName: String?,
-    var lastPartyName: String?,
+    var partyName: String? = null,
+    var lastPartyName: String? = null,
     var firstJoinedMatchAt: Long,
     var joinedPartyAt: Long? = null,
     var lastLeftPartyAt: Long? = null,

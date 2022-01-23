@@ -9,8 +9,8 @@ import java.util.*
 data class Match(
     val _id: String,
     val loadedAt: Long,
-    var startedAt: Long?,
-    var endedAt: Long?,
+    var startedAt: Long? = null,
+    var endedAt: Long? = null,
     val level: Level,
     var parties: Map<String, Party>,
     val participants: HashMap<String, Participant>,
