@@ -4,6 +4,7 @@ import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import network.warzone.api.Config
 import network.warzone.api.database.Database
 import network.warzone.api.database.PlayerCache
 import network.warzone.api.database.findById
@@ -31,7 +32,7 @@ fun Route.playerSessions() {
                 if (call.parameters["playerId"] != data.player.id) throw ValidationException("Player ID in URL does not match body")
 
                 val now = Date().time
-                val ip = hashSHA256(data.ip)
+                val ip = hashIp(data.ip)
 
                 val returningPlayer = Database.players.findById(data.player.id)
 
@@ -112,7 +113,7 @@ fun Route.playerSessions() {
                 if (playerId != player._id || playerId != data.player.id) throw ValidationException()
 
                 val now = Date().time
-                val ip = hashSHA256(data.ip)
+                val ip = hashIp(data.ip)
 
                 val activeSession =
                     Session(
@@ -348,6 +349,8 @@ fun Application.playerRoutes() {
         }
     }
 }
+
+fun hashIp(ip: String): String = if (Config.enableIpHashing) hashSHA256(ip) else ip
 
 fun hashSHA256(ip: String) =
     MessageDigest.getInstance("SHA-256").digest(ip.toByteArray()).fold("") { str, it -> str + "%02x".format(it) }

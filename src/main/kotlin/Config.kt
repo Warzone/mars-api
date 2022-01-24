@@ -50,6 +50,8 @@ object Config {
         System.getenv("MARS_API_TOKEN") ?: throw Exception("MARS_API_TOKEN is a required env variable")
         private set
 
+    var enableIpHashing: Boolean = System.getenv("MARS_IP_HASHING").toBoolean()
+
     var punishmentTypes: List<PunishmentType> = emptyList()
         private set
 
