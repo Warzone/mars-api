@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Session(
     val _id: String,
+    val ip: String,
     val player: SimplePlayer,
     val serverId: String,
     val createdAt: Long,

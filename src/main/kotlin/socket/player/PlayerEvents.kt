@@ -51,3 +51,6 @@ data class MessageData(val message: String, val sound: String?, val playerIds: L
 
 @Serializable
 data class PlayerXPGainData(val playerId: String, val gain: Int, val reason: String, val notify: Boolean)
+
+@Serializable
+data class DisconnectPlayerData(val playerId: String, val reason: String)

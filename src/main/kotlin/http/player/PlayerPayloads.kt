@@ -7,17 +7,22 @@ import network.warzone.api.database.models.Session
 import network.warzone.api.database.models.SimplePlayer
 
 @Serializable
-data class PlayerLoginRequest(
+data class PlayerPreLoginRequest(
     val player: SimplePlayer,
     val ip: String
 )
 
 @Serializable
-data class PlayerLoginResponse(
+data class PlayerPreLoginResponse(
     val new: Boolean,
+    val allowed: Boolean,
     val player: Player,
-    val activeSession: Session?,
-    val activePunishments: List<Punishment>,
+    val activePunishments: List<Punishment>
+)
+
+@Serializable
+data class PlayerLoginResponse(
+    val activeSession: Session,
 )
 
 @Serializable

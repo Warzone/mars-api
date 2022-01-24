@@ -12,14 +12,14 @@ data class Player(
     val _id: String,
     var name: String,
     var nameLower: String,
-    var lastSessionId: String,
+    var lastSessionId: String? = null,
     var firstJoinedAt: Long,
     var lastJoinedAt: Long,
     var ips: List<String>,
     var notes: List<StaffNote>,
     var rankIds: List<String>,
     var tagIds: List<String>,
-    var activeTagId: String?,
+    var activeTagId: String? = null,
     val stats: PlayerStats,
     val gamemodeStats: HashMap<LevelGamemode, GamemodeStats>
 ) {

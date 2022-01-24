@@ -12,7 +12,10 @@ import network.warzone.api.database.models.*
 import network.warzone.api.http.*
 import network.warzone.api.http.player.*
 import network.warzone.api.http.punishment.PunishmentIssueRequest
+import network.warzone.api.socket.EventType
 import network.warzone.api.socket.leaderboard.ServerPlaytimeLeaderboard
+import network.warzone.api.socket.player.DisconnectPlayerData
+import network.warzone.api.socket.server.ConnectedServers
 import network.warzone.api.util.protected
 import network.warzone.api.util.validate
 import org.litote.kmongo.contains
@@ -22,27 +25,27 @@ import java.security.MessageDigest
 import java.util.*
 
 fun Route.playerSessions() {
-    post("/login") {
-        protected(this) { serverId ->
-            validate<PlayerLoginRequest>(this) { data ->
+    post("/{playerId}/prelogin") {
+        protected(this) { _ ->
+            validate<PlayerPreLoginRequest>(this) { data ->
+                if (call.parameters["playerId"] != data.player.id) throw ValidationException("Player ID in URL does not match body")
+
                 val now = Date().time
                 val ip = hashSHA256(data.ip)
-                val activeSession =
-                    Session(
-                        player = data.player,
-                        serverId = serverId!!,
-                        createdAt = now,
-                        endedAt = null,
-                        _id = UUID.randomUUID().toString()
-                    )
 
                 val returningPlayer = Database.players.findById(data.player.id)
 
                 // Player has joined before
                 if (returningPlayer != null) {
-                    // todo: account for multi-server. kick player from server if they're joining a diff server.
-                    // Delete any active sessions the player may have. Sessions should always be ended when the player leaves.
-                    Database.sessions.deleteMany(Session::endedAt eq null, Session::player eq data.player)
+                    val activeSession = returningPlayer.getActiveSession()
+                    if (activeSession != null) {
+                        // Disconnect player from server they're already on
+                        val server = ConnectedServers.find { it.id == activeSession.serverId }
+                        server?.call(
+                            EventType.DISCONNECT_PLAYER,
+                            DisconnectPlayerData(returningPlayer._id, "You logged into another server.")
+                        )
+                    }
 
                     returningPlayer.name = data.player.name
                     returningPlayer.nameLower = returningPlayer.name.lowercase()
@@ -59,22 +62,13 @@ fun Route.playerSessions() {
 
                     val banned = playerBan != null || ipBan != null
 
-                    if (!banned) {
-                        val ranksWithDefault = returningPlayer.rankIds + Rank.findDefault().map { it._id }
-                        returningPlayer.rankIds = ranksWithDefault.distinct()
-
-                        returningPlayer.lastJoinedAt = now
-                        returningPlayer.lastSessionId = activeSession._id
-                        Database.sessions.save(activeSession)
-                    }
-
                     PlayerCache.set(returningPlayer.name, returningPlayer, persist = true)
 
                     call.respond(
-                        PlayerLoginResponse(
+                        PlayerPreLoginResponse(
                             new = false,
+                            allowed = !banned,
                             player = returningPlayer,
-                            if (!banned) activeSession else null,
                             playerPunishments + ipPunishments
                         )
                     )
@@ -88,25 +82,59 @@ fun Route.playerSessions() {
                         ips = listOf(ip),
                         firstJoinedAt = now,
                         lastJoinedAt = now,
-                        rankIds = Rank.findDefault().map { it._id },
+                        rankIds = emptyList(),
                         tagIds = emptyList(),
                         activeTagId = null,
                         stats = PlayerStats(),
                         gamemodeStats = hashMapOf(),
                         notes = emptyList(),
-                        lastSessionId = activeSession._id
+                        lastSessionId = null
                     )
 
                     PlayerCache.set(player.name, player, persist = true)
-                    Database.sessions.save(activeSession)
 
                     call.respond(
                         HttpStatusCode.Created,
-                        PlayerLoginResponse(new = true, player, activeSession, emptyList())
+                        PlayerPreLoginResponse(new = true, allowed = true, player, emptyList())
                     )
 
                     Player.ensureNameUniqueness(data.player.name, data.player.id)
                 }
+            }
+        }
+    }
+
+    post("/{playerId}/login") {
+        protected(this) { serverId ->
+            validate<PlayerPreLoginRequest>(this) { data ->
+                val playerId = call.parameters["playerId"] ?: throw ValidationException()
+                val player: Player = PlayerCache.get(data.player.name) ?: throw PlayerMissingException()
+                if (playerId != player._id || playerId != data.player.id) throw ValidationException()
+
+                val now = Date().time
+                val ip = hashSHA256(data.ip)
+
+                val activeSession =
+                    Session(
+                        _id = UUID.randomUUID().toString(),
+                        player = player.simple,
+                        ip = ip,
+                        serverId = serverId!!,
+                        createdAt = now,
+                        endedAt = null,
+                    )
+
+                Database.sessions.save(activeSession)
+
+                val defaultRanks = player.rankIds + Rank.findDefault().map { it._id }
+                player.rankIds = defaultRanks.distinct()
+
+                player.lastJoinedAt = now
+                player.lastSessionId = activeSession._id
+
+                PlayerCache.set(player.name, player, persist = true)
+
+                call.respond(HttpStatusCode.Created, PlayerLoginResponse(activeSession))
             }
         }
     }
