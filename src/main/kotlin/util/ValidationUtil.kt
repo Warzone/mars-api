@@ -21,7 +21,7 @@ suspend inline fun <reified T : Any> validate(context: PipelineContext<Unit, App
         val violation = ex.constraintViolations.first()
         throw ValidationException("Validation failed for '${violation.property}' (value: ${violation.value})")
     } catch (ex: ApiException) {
-        context.application.log.error(ex)
+        context.application.log.warn(ex.message)
         throw ex
     } catch (ex: Exception) {
         context.application.log.error(ex)
