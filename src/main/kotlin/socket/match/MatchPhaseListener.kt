@@ -7,6 +7,7 @@ import network.warzone.api.database.models.MatchState
 import network.warzone.api.database.models.Participant
 import network.warzone.api.database.models.Party
 import network.warzone.api.socket.InvalidMatchStateException
+import network.warzone.api.socket.logger
 import network.warzone.api.socket.server.MatchLoadData
 import network.warzone.api.socket.server.ServerContext
 import java.util.*
@@ -47,6 +48,7 @@ class MatchPhaseListener(val server: ServerContext) {
 
         MatchCache.set(match._id, match, true)
         server.currentMatchId = match._id
+        logger.debug("(${server.id}) Match loaded: ${match._id}")
     }
 
     suspend fun onStart(data: MatchStartData, match: Match): Match {
@@ -57,12 +59,15 @@ class MatchPhaseListener(val server: ServerContext) {
         val participants = data.participants.map { Participant(it) }.toTypedArray()
         match.saveParticipants(*participants)
 
+        logger.debug("(${server.id}) Match started: ${match._id}")
+
         return match
     }
 
     suspend fun onEnd(data: MatchEndData, match: Match): Match {
         if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         match.endedAt = Date().time
+        logger.debug("(${server.id}) Match ended: ${match._id}")
         return match
     }
 }

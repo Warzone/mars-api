@@ -51,7 +51,7 @@ fun Route.manageTags() {
     delete("/{tagId}") {
         protected(this) { _ ->
             val id = call.parameters["tagId"] ?: throw ValidationException()
-            val result = Database.ranks.deleteById(id)
+            val result = Database.tags.deleteById(id)
             if (result.deletedCount == 0L) throw TagMissingException()
             call.respond(Unit)
 
@@ -61,6 +61,11 @@ fun Route.manageTags() {
                 if (it.activeTagId == id) it.activeTagId = null
                 PlayerCache.set(it.name, it, persist = true)
             }
+            application.log.info(
+                "Tag '$id' was deleted. Affected players: ${
+                    playersWithTag.joinToString(", ") { "${it._id} (${it.name})" }
+                }"
+            )
         }
     }
 

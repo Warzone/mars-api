@@ -66,6 +66,11 @@ fun Route.manageRanks() {
                 it.rankIds = it.rankIds.filterNot { rankId -> rankId == id }
                 PlayerCache.set(it.name, it, persist = true)
             }
+            application.log.info(
+                "Rank '$id' was deleted. Affected players: ${
+                    playersWithRank.joinToString(", ") { "${it._id} (${it.name})" }
+                }"
+            )
         }
     }
 
