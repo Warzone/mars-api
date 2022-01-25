@@ -53,7 +53,7 @@ fun Application.initSocketHandler() {
                     val eventName = json["e"]?.jsonPrimitive?.content ?: throw RuntimeException("Invalid event name")
                     val data = json["d"]?.jsonObject ?: throw RuntimeException("Invalid event data")
 
-                    log.debug("[$serverId:$eventName] $data")
+                    log.info("[$serverId:$eventName] $data")
 
                     val eventType = EventType.valueOf(eventName)
 

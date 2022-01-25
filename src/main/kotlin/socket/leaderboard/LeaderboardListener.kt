@@ -34,6 +34,7 @@ object LeaderboardListener : PlayerListener<PlayerContext>() {
         LossesLeaderboard.set(profile.idName, profile.stats.losses)
         TiesLeaderboard.set(profile.idName, profile.stats.ties)
 
+        // If a player sends messages without playing, their profile stats will be updated but their leaderboard score will only update the next time they play a match
         MessagesSentLeaderboard.set(profile.idName, profile.stats.messages.total)
 
         MatchesPlayedLeaderboard.set(profile.idName, profile.stats.matches)

@@ -48,7 +48,7 @@ class MatchPhaseListener(val server: ServerContext) {
 
         MatchCache.set(match._id, match, true)
         server.currentMatchId = match._id
-        logger.debug("(${server.id}) Match loaded: ${match._id}")
+        logger.info("(${server.id}) Match loaded: ${match._id}")
     }
 
     suspend fun onStart(data: MatchStartData, match: Match): Match {
@@ -59,7 +59,7 @@ class MatchPhaseListener(val server: ServerContext) {
         val participants = data.participants.map { Participant(it) }.toTypedArray()
         match.saveParticipants(*participants)
 
-        logger.debug("(${server.id}) Match started: ${match._id}")
+        logger.info("(${server.id}) Match started: ${match._id}")
 
         return match
     }
@@ -67,7 +67,7 @@ class MatchPhaseListener(val server: ServerContext) {
     suspend fun onEnd(data: MatchEndData, match: Match): Match {
         if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         match.endedAt = Date().time
-        logger.debug("(${server.id}) Match ended: ${match._id}")
+        logger.info("(${server.id}) Match ended: ${match._id}")
         return match
     }
 }
