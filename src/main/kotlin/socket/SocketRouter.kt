@@ -52,12 +52,12 @@ class SocketRouter(val server: ServerContext) {
                 EventType.WOOL_DROP -> onWoolDrop(Json.decodeFromJsonElement(data))
                 EventType.WOOL_DEFEND -> onWoolDefend(Json.decodeFromJsonElement(data))
                 EventType.CONTROL_POINT_CAPTURE -> onControlPointCapture(Json.decodeFromJsonElement(data))
-                else -> println("Event (srv ${server.id}) fell through router: $event - $data")
+                else -> logger.warn("Event (srv ${server.id}) fell through router: $event - $data")
             }
         } catch (e: InvalidMatchStateException) {
             // Automatically end the match and force Mars to load a new match to sync state
             server.call(EventType.FORCE_MATCH_END, Unit)
-            println("$e - Match ID: ${server.match?._id}")
+            logger.warn("Match ID: ${server.match?._id}", e)
         }
     }
 

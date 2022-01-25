@@ -13,9 +13,13 @@ import network.warzone.api.http.UnauthorizedException
 import network.warzone.api.socket.server.ConnectedServers
 import network.warzone.api.socket.server.ServerContext
 import network.warzone.api.util.zlibDecompress
+import org.slf4j.Logger
 import java.util.*
 
+lateinit var logger: Logger
+
 fun Application.initSocketHandler() {
+    logger = log
     routing {
         webSocket("/minecraft") {
             val serverId = call.request.queryParameters["id"] ?: throw UnauthorizedException()
@@ -25,7 +29,7 @@ fun Application.initSocketHandler() {
 
             // Server ID already connected
             if (ConnectedServers.any { it.id == serverId }) {
-                println("Server ID '$serverId' attempting to connect twice! Closing new connection...")
+                log.warn("Server ID '$serverId' attempting to connect twice! Closing new connection...")
                 return@webSocket this.close(
                     CloseReason(
                         CloseReason.Codes.VIOLATED_POLICY,
@@ -36,7 +40,7 @@ fun Application.initSocketHandler() {
 
             val server = ServerContext(serverId, this)
             ConnectedServers += server
-            println("Server '${server.id}' connected to socket server")
+            log.info("Server '${server.id}' connected to socket server")
 
             val router = SocketRouter(server)
 
@@ -49,7 +53,7 @@ fun Application.initSocketHandler() {
                     val eventName = json["e"]?.jsonPrimitive?.content ?: throw RuntimeException("Invalid event name")
                     val data = json["d"]?.jsonObject ?: throw RuntimeException("Invalid event data")
 
-                    println("$eventName : $data")
+                    log.debug("[$serverId:$eventName] $data")
 
                     val eventType = EventType.valueOf(eventName)
 
@@ -60,7 +64,7 @@ fun Application.initSocketHandler() {
                 log.error(err)
             } finally {
                 ConnectedServers -= server
-                println("Server '${server.id}' disconnected from socket server")
+                log.info("Server '${server.id}' disconnected from socket server")
             }
         }
     }

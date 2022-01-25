@@ -67,7 +67,7 @@ fun Route.manageServers() {
                 )
             })
 
-            println("Saved ${playersToWrite.size} players, ${sessionsToWrite.size} sessions on startup '$serverId'")
+            application.log.info("Saved ${playersToWrite.size} players, ${sessionsToWrite.size} sessions on startup '$serverId'")
             call.respond(Unit)
         }
     }

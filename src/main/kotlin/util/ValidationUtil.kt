@@ -2,6 +2,7 @@ package network.warzone.api.util
 
 import io.ktor.application.*
 import io.ktor.request.*
+import io.ktor.util.*
 import io.ktor.util.pipeline.*
 import network.warzone.api.http.ApiException
 import network.warzone.api.http.ValidationException
@@ -15,16 +16,15 @@ val IP_V4_REGEX = Regex("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]
 suspend inline fun <reified T : Any> validate(context: PipelineContext<Unit, ApplicationCall>, fn: (data: T) -> Unit) {
     try {
         val data = context.call.receive<T>()
-        println(data)
         fn(data)
     } catch (ex: ConstraintViolationException) {
         val violation = ex.constraintViolations.first()
         throw ValidationException("Validation failed for '${violation.property}' (value: ${violation.value})")
     } catch (ex: ApiException) {
-        println(ex)
+        context.application.log.error(ex)
         throw ex
     } catch (ex: Exception) {
-        println(ex)
+        context.application.log.error(ex)
         throw ValidationException("Validation failed. Ensure the JSON body only contains relevant keys.")
     }
 }
