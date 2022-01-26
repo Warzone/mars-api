@@ -50,7 +50,8 @@ object Config {
         System.getenv("MARS_API_TOKEN") ?: throw Exception("MARS_API_TOKEN is a required env variable")
         private set
 
-    var enableIpHashing: Boolean = System.getenv("MARS_IP_HASHING").toBoolean()
+    var enableIpHashing: Boolean = false
+        private set
 
     var punishmentTypes: List<PunishmentType> = emptyList()
         private set
@@ -59,6 +60,12 @@ object Config {
         private set
 
     var levelColors: List<LevelColor> = emptyList()
+        private set
+
+    var punishmentsWebhookUrl: String? = null
+        private set
+
+    var reportsWebhookUrl: String? = null
         private set
 
     init {
@@ -74,10 +81,13 @@ object Config {
         config.load(configFile.inputStream())
 
         config.propertyNames().toList().forEach {
-            when (it) {
-                "listenPort" -> this.listenPort = config.getProperty("listenPort").toInt()
-                "listenHost" -> this.listenHost = config.getProperty("listenHost")
-                "mongoUrl" -> this.mongoUrl = config.getProperty("mongoUrl")
+            when (it as String) {
+                "listen-port" -> this.listenPort = config.getProperty(it).toInt()
+                "listen-host" -> this.listenHost = config.getProperty(it)
+                "mongo-url" -> this.mongoUrl = config.getProperty(it)
+                "enable-ip-hashing" -> this.enableIpHashing = config.getProperty(it).toBoolean()
+                "webhooks.punishments" -> this.punishmentsWebhookUrl = config.getProperty(it)
+                "webhooks.reports" -> this.reportsWebhookUrl = config.getProperty(it)
             }
         }
     }
