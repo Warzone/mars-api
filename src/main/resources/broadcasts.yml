@@ -1,10 +1,10 @@
-- id: demo
+- name: demo
   message: &6This is a broadcast!
 
-- id: secret
+- name: secret
   message: This is an exclusive message.
   permission: pgm.donor
 
-- id: odd
+- name: odd
   message: The other messages are wrapped with newlines, but this?
   newline: false
