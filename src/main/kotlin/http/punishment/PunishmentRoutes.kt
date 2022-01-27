@@ -9,6 +9,7 @@ import network.warzone.api.database.findById
 import network.warzone.api.database.models.PunishmentReversion
 import network.warzone.api.http.PunishmentMissingException
 import network.warzone.api.http.ValidationException
+import network.warzone.api.util.WebhookUtil
 import network.warzone.api.util.protected
 import network.warzone.api.util.validate
 import java.util.*
@@ -36,6 +37,7 @@ fun Route.managePunishments() {
                 punishment.reversion = PunishmentReversion(Date().time, data.reverter, data.reason)
                 Database.punishments.save(punishment)
                 call.respond(punishment)
+                WebhookUtil.sendPunishmentReversionWebhook(punishment)
             }
         }
     }

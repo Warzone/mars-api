@@ -17,6 +17,7 @@ import network.warzone.api.socket.EventType
 import network.warzone.api.socket.leaderboard.ServerPlaytimeLeaderboard
 import network.warzone.api.socket.player.DisconnectPlayerData
 import network.warzone.api.socket.server.ConnectedServers
+import network.warzone.api.util.WebhookUtil
 import network.warzone.api.util.protected
 import network.warzone.api.util.validate
 import org.litote.kmongo.contains
@@ -194,6 +195,7 @@ fun Route.playerModeration() {
                 )
                 Database.punishments.insertOne(punishment)
                 call.respond(punishment)
+                WebhookUtil.sendPunishmentWebhook(punishment)
             }
         }
     }

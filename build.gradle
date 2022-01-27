@@ -29,6 +29,8 @@ dependencies {
 
     implementation 'org.slf4j:slf4j-simple:1.7.32'
     implementation 'org.jetbrains.kotlin:kotlin-reflect:1.5.21'
+
+    implementation 'club.minnced:discord-webhooks:0.7.5'
 }
 
 jar {

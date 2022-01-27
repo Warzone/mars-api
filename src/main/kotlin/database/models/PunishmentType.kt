@@ -23,10 +23,10 @@ data class PunishmentAction(val kind: PunishmentKind, val length: Long = 0) {
 }
 
 @Serializable
-enum class PunishmentKind {
-    WARN,
-    KICK,
-    MUTE,
-    BAN,
-    IP_BAN
+enum class PunishmentKind(val verb: String) {
+    WARN("Warn"),
+    KICK("Kick"),
+    MUTE("Mute"),
+    BAN("Ban"),
+    IP_BAN("IP Ban")
 }

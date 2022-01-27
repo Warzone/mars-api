@@ -10,7 +10,6 @@ import network.warzone.api.database.Redis
 import network.warzone.api.database.models.Match
 import network.warzone.api.database.models.Player
 import network.warzone.api.database.models.Session
-import network.warzone.api.http.InternalServerErrorException
 import network.warzone.api.http.UnauthorizedException
 import network.warzone.api.http.ValidationException
 import network.warzone.api.util.protected
@@ -34,16 +33,17 @@ fun Route.manageServers() {
 
             val lastMatchId =
                 Redis.get<String>("server:$serverId:current_match_id") ?: return@protected call.respond(Unit)
-            val match = Redis.get<Match>("match:$lastMatchId") ?: throw InternalServerErrorException()
+            val match = Redis.get<Match>("match:$lastMatchId")
+            if (match != null) {
+                match.endedAt = lastAliveTime
+                MatchCache.set(match._id, match, true, SetParams().px(3600000L)) // expire cache after 1 hour
+            }
 
             val hangingSessions =
                 Database.sessions.find(Session::serverId eq serverId, Session::endedAt eq null).toList()
 
             val sessionsToWrite = mutableListOf<Session>()
             val playersToWrite = mutableListOf<Player>()
-
-            match.endedAt = lastAliveTime
-            MatchCache.set(match._id, match, true, SetParams().px(3600000L)) // expire cache after 1 hour
 
             hangingSessions.forEach {
                 it.endedAt = lastAliveTime
