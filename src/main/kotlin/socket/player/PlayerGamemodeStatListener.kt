@@ -182,9 +182,7 @@ object PlayerGamemodeStatListener : PlayerListener<PlayerContext>() {
                     LOSE -> stats.losses++
                     else -> Unit
                 }
-            } else context.sendMessage(
-                "&Your stats were not affected by the outcome of this match as you did not participate for long enough."
-            )
+            }
 
             val timeElapsedBeforeJoining = max(participant.firstJoinedMatchAt - context.match.startedAt!!, 0)
             val wasPresentAtStart = timeElapsedBeforeJoining < minimumPlaytime
