@@ -41,6 +41,14 @@ data class Player(
         return Database.players.find(Player::ips `in` this.ips, Player::_id ne this._id).toList()
     }
 
+    fun sanitise(): Player {
+        val sanitised = this.copy()
+        sanitised.ips = emptyList()
+        sanitised.notes = emptyList()
+        sanitised.lastSessionId = null
+        return sanitised
+    }
+
     companion object {
         suspend fun ensureNameUniqueness(name: String, keepId: String) {
             val tempName = ">WZPlayer${(0..1000).random()}"
@@ -140,7 +148,7 @@ data class PlayerStats(
 
 @Serializable
 data class PlayerRecords(
-    var longestSession: Session? = null,
+    var longestSession: SessionRecord? = null,
     var longestProjectileKill: ProjectileRecord? = null,
     var fastestWoolCapture: LongRecord? = null,
     var fastestFlagCapture: LongRecord? = null,
@@ -148,6 +156,9 @@ data class PlayerRecords(
     var killsInMatch: IntRecord? = null,
     var deathsInMatch: IntRecord? = null,
 )
+
+@Serializable
+data class SessionRecord(val sessionId: String, val length: Long)
 
 @Serializable
 data class ProjectileRecord(val matchId: String, val player: SimplePlayer, val distance: Int)

@@ -155,7 +155,7 @@ fun Route.playerSessions() {
                 // Longest Session Record
                 val recordSession = player.stats.records.longestSession?.length
                 if (recordSession == null || data.playtime > recordSession) player.stats.records.longestSession =
-                    activeSession
+                    SessionRecord(activeSession._id, data.playtime)
 
                 Database.sessions.save(activeSession)
                 PlayerCache.set(player.name, player, persist = true)
@@ -169,7 +169,7 @@ fun Route.playerSessions() {
         val playerId = call.parameters["playerId"]?.lowercase() ?: throw ValidationException()
         val player: Player = PlayerCache.get(playerId) ?: throw PlayerMissingException()
 
-        call.respond(player)
+        call.respond(player.sanitise())
     }
 }
 
