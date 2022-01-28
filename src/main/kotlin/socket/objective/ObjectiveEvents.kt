@@ -12,6 +12,9 @@ data class ControlPointCaptureData(val pointId: String, val playerIds: List<Stri
 data class CoreLeakData(val coreId: String, val contributions: Set<GoalContribution>)
 
 @Serializable
+data class DestroyableDamageData(val destroyableId: String, val damage: Int, val playerId: String)
+
+@Serializable
 data class DestroyableDestroyData(val destroyableId: String, val contributions: Set<GoalContribution>)
 
 @Serializable

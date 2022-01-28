@@ -1,5 +1,6 @@
 package network.warzone.api.socket.player
 
+import network.warzone.api.database.models.DestroyableGoal
 import network.warzone.api.socket.match.MatchEndData
 import network.warzone.api.socket.participant.PlayerMatchResult
 
@@ -32,7 +33,16 @@ open class PlayerListener<T> {
         return context
     }
 
-    open suspend fun onMatchEnd(context: T, data: MatchEndData, bigStats: MatchEndData.BigStats, result: PlayerMatchResult): T {
+    open suspend fun onMatchEnd(
+        context: T,
+        data: MatchEndData,
+        bigStats: MatchEndData.BigStats,
+        result: PlayerMatchResult
+    ): T {
+        return context
+    }
+
+    open suspend fun onDestroyableDamage(context: T, destroyable: DestroyableGoal, blockCount: Int): T {
         return context
     }
 

@@ -32,7 +32,9 @@ data class Match(
         }
 
     val server: ServerContext
-    get() { return ConnectedServers.find { serverId == it.id }!! }
+        get() {
+            return ConnectedServers.find { serverId == it.id }!!
+        }
 
     fun saveParticipants(vararg participants: Participant): Match {
         participants.forEach {
@@ -70,7 +72,13 @@ data class GoalCollection(
 )
 
 @Serializable
-data class CoreGoal(val id: String, val name: String, val ownerName: String, val material: String)
+data class CoreGoal(
+    val id: String,
+    val name: String,
+    val ownerName: String,
+    val material: String,
+    val contributors: Set<SimplePlayer> = emptySet()
+)
 
 @Serializable
 data class DestroyableGoal(
@@ -78,7 +86,9 @@ data class DestroyableGoal(
     val name: String,
     val ownerName: String,
     val material: String,
-    val blockCount: Int
+    val blockCount: Int,
+    val breaksRequired: Int,
+    val contributors: Set<SimplePlayer> = emptySet()
 )
 
 @Serializable

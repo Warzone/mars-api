@@ -13,7 +13,7 @@ enum class EventType {
     PARTY_JOIN,
     PARTY_LEAVE,
     DESTROYABLE_DESTROY,
-    DESTROYABLE_DAMAGE, // unused
+    DESTROYABLE_DAMAGE,
     CORE_LEAK,
     CORE_DAMAGE, // unused
     FLAG_CAPTURE,

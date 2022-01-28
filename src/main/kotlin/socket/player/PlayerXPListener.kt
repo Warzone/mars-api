@@ -1,5 +1,6 @@
 package network.warzone.api.socket.player
 
+import network.warzone.api.database.models.DestroyableGoal
 import network.warzone.api.socket.match.MatchEndData
 import network.warzone.api.socket.participant.PlayerMatchResult
 import kotlin.math.max
@@ -83,13 +84,13 @@ object PlayerXPListener : PlayerListener<PlayerContext>() {
         return context
     }
 
-    override suspend fun onDestroyableDestroy(
+    override suspend fun onDestroyableDamage(
         context: PlayerContext,
-        percentage: Float,
+        destroyable: DestroyableGoal,
         blockCount: Int
     ): PlayerContext {
-        val xp = percentage * XP_DESTROYABLE_WHOLE
-        context.addXP(xp.toInt(), "Destroyed objective")
+        val xp = XP_DESTROYABLE_WHOLE / (destroyable.breaksRequired * blockCount)
+        context.addXP(xp, "Damaged objective")
         return context
     }
 

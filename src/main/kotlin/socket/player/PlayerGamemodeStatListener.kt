@@ -1,6 +1,7 @@
 package network.warzone.api.socket.player
 
 import network.warzone.api.database.models.DamageCause
+import network.warzone.api.database.models.DestroyableGoal
 import network.warzone.api.socket.match.MatchEndData
 import network.warzone.api.socket.participant.PlayerMatchResult
 import network.warzone.api.socket.participant.PlayerMatchResult.*
@@ -76,6 +77,17 @@ object PlayerGamemodeStatListener : PlayerListener<PlayerContext>() {
         }
     }
 
+    override suspend fun onDestroyableDamage(
+        context: PlayerContext,
+        destroyable: DestroyableGoal,
+        blockCount: Int
+    ): PlayerContext {
+        return context.modifyGamemodeStats { stats ->
+            stats.objectives.destroyableBlockDestroys += blockCount
+            return@modifyGamemodeStats stats
+        }
+    }
+
     override suspend fun onDestroyableDestroy(
         context: PlayerContext,
         percentage: Float,
@@ -83,7 +95,6 @@ object PlayerGamemodeStatListener : PlayerListener<PlayerContext>() {
     ): PlayerContext {
         return context.modifyGamemodeStats { stats ->
             stats.objectives.destroyableDestroys++
-            stats.objectives.destroyableBlockDestroys += blockCount
             return@modifyGamemodeStats stats
         }
     }

@@ -42,6 +42,7 @@ class SocketRouter(val server: ServerContext) {
                 EventType.PARTY_JOIN -> onPartyJoin(Json.decodeFromJsonElement(data))
                 EventType.PARTY_LEAVE -> onPartyLeave(Json.decodeFromJsonElement(data))
                 EventType.DESTROYABLE_DESTROY -> onDestroyableDestroy(Json.decodeFromJsonElement(data))
+                EventType.DESTROYABLE_DAMAGE -> onDestroyableDamage(Json.decodeFromJsonElement(data))
                 EventType.CORE_LEAK -> onCoreLeak(Json.decodeFromJsonElement(data))
                 EventType.FLAG_CAPTURE -> onFlagPlace(Json.decodeFromJsonElement(data))
                 EventType.FLAG_PICKUP -> onFlagPickup(Json.decodeFromJsonElement(data))
@@ -234,6 +235,28 @@ class SocketRouter(val server: ServerContext) {
 
         var playerContext = participantContext.getPlayerContext()
         playerListeners.forEach { playerContext = it.onPartyLeave(playerContext) }
+        participant.setPlayer(playerContext.profile)
+
+        match.saveParticipants(participantContext.profile)
+        MatchCache.set(match._id, match)
+    }
+
+    private suspend fun onDestroyableDamage(data: DestroyableDamageData) {
+        val match =
+            server.match ?: throw InvalidMatchStateException()
+        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
+
+        val participant = match.participants[data.playerId]!!
+        val destroyable = match.level.goals?.destroyables?.find { it.id == data.destroyableId } ?: return
+
+        var participantContext = ParticipantContext(participant, match)
+        participantListeners.forEach {
+            participantContext = it.onDestroyableDamage(participantContext, destroyable, data.damage)
+        }
+        match.saveParticipants(participantContext.profile)
+
+        var playerContext = participantContext.getPlayerContext()
+        playerListeners.forEach { playerContext = it.onDestroyableDamage(playerContext, destroyable, data.damage) }
         participant.setPlayer(playerContext.profile)
 
         match.saveParticipants(participantContext.profile)
