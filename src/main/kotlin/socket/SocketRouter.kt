@@ -244,7 +244,6 @@ class SocketRouter(val server: ServerContext) {
     private suspend fun onDestroyableDamage(data: DestroyableDamageData) {
         val match =
             server.match ?: throw InvalidMatchStateException()
-        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
 
         val participant = match.participants[data.playerId]!!
         val destroyable = match.level.goals?.destroyables?.find { it.id == data.destroyableId } ?: return
