@@ -48,10 +48,6 @@ object Config {
 
     var redisHost = "localhost"
         private set
-        get() {
-            println(field)
-            return field
-        }
 
     var apiToken: String =
         System.getenv("MARS_API_TOKEN") ?: throw Exception("MARS_API_TOKEN is a required env variable")
