@@ -89,7 +89,7 @@ object PlayerXPListener : PlayerListener<PlayerContext>() {
         destroyable: DestroyableGoal,
         blockCount: Int
     ): PlayerContext {
-        val xp = XP_DESTROYABLE_WHOLE / (destroyable.breaksRequired * blockCount)
+        val xp = (XP_DESTROYABLE_WHOLE / destroyable.breaksRequired) * blockCount
         context.addXP(xp, "Damaged objective")
         return context
     }
