@@ -4,7 +4,7 @@ on: [push]
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: mars_api
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build:
