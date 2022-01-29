@@ -82,8 +82,8 @@ fun Route.playerSessions() {
                         name = data.player.name,
                         nameLower = data.player.name.lowercase(),
                         ips = listOf(ip),
-                        firstJoinedAt = now,
-                        lastJoinedAt = now,
+                        firstJoinedAt = now.toDouble(),
+                        lastJoinedAt = now.toDouble(),
                         rankIds = emptyList(),
                         tagIds = emptyList(),
                         activeTagId = null,
@@ -131,7 +131,7 @@ fun Route.playerSessions() {
                 val defaultRanks = player.rankIds + Rank.findDefault().map { it._id }
                 player.rankIds = defaultRanks.distinct()
 
-                player.lastJoinedAt = now
+                player.lastJoinedAt = now.toDouble()
                 player.lastSessionId = activeSession._id
 
                 PlayerCache.set(player.name, player, persist = true)
