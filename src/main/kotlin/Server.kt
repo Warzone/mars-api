@@ -30,6 +30,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.util.*
 import io.ktor.websocket.*
+import network.warzone.api.database.Database
 import network.warzone.api.http.ApiException
 import network.warzone.api.http.InternalServerErrorException
 import network.warzone.api.http.broadcast.broadcastRoutes
@@ -42,6 +43,8 @@ import network.warzone.api.http.report.reportRoutes
 import network.warzone.api.http.server.serverRoutes
 import network.warzone.api.http.tag.tagRoutes
 import network.warzone.api.socket.initSocketHandler
+import org.slf4j.event.Level
+import java.util.*
 
 fun main() {
     embeddedServer(Netty, host = Config.listenHost, port = Config.listenPort) {
@@ -69,6 +72,13 @@ class Server {
             }
 
         }
+
+
+
+        // Connect to database
+        Database.database
+
+
 
         install(WebSockets)
 
