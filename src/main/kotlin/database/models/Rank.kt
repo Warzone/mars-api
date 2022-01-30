@@ -15,7 +15,7 @@ data class Rank(
     var permissions: List<String>,
     var staff: Boolean,
     var applyOnJoin: Boolean,
-    val createdAt: Long
+    val createdAt: Double
 ) {
     companion object {
         suspend fun findDefault(): List<Rank> {

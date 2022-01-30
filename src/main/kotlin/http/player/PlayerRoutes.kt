@@ -183,7 +183,7 @@ fun Route.playerModeration() {
                 val punishment = Punishment(
                     _id = id,
                     reason = data.reason,
-                    issuedAt = now,
+                    issuedAt = now.toDouble(),
                     offence = data.offence,
                     action = data.action,
                     note = data.note,

@@ -7,7 +7,7 @@ import java.util.*
 data class Punishment(
     val _id: String,
     val reason: PunishmentReason,
-    val issuedAt: Long,
+    val issuedAt: Double,
     val silent: Boolean,
     val offence: Int,
     val action: PunishmentAction,
@@ -20,7 +20,7 @@ data class Punishment(
 ) {
     val expiresAt: Long
         get() {
-            return if (action.length == -1L) -1L else issuedAt + action.length
+            return if (action.length == -1L) -1L else issuedAt.toLong() + action.length
         }
 
     val isActive: Boolean
