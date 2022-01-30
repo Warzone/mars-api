@@ -32,6 +32,7 @@ enum class DamageCause {
     STARVE,
     SUFFOCATE,
     SHOCK,
+    SPLEEF,
     VOID,
     UNKNOWN
 }

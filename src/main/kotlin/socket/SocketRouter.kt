@@ -226,7 +226,6 @@ class SocketRouter(val server: ServerContext) {
 
     private suspend fun onPartyLeave(data: PartyLeaveData) {
         val match = server.match ?: throw InvalidMatchStateException()
-        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         val participant = match.participants[data.player.id]!!
 
         var participantContext = ParticipantContext(participant, match)
@@ -265,7 +264,6 @@ class SocketRouter(val server: ServerContext) {
     private suspend fun onDestroyableDestroy(data: DestroyableDestroyData) {
         val match =
             server.match ?: throw InvalidMatchStateException()
-        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
 
         data.contributions.forEach { contribution ->
             val participant = match.participants[contribution.playerId] ?: return
@@ -289,7 +287,6 @@ class SocketRouter(val server: ServerContext) {
 
     private suspend fun onCoreLeak(data: CoreLeakData) {
         val match = server.match ?: throw InvalidMatchStateException()
-        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
 
         data.contributions.forEach { contribution ->
             val participant = match.participants[contribution.playerId] ?: return
@@ -312,7 +309,6 @@ class SocketRouter(val server: ServerContext) {
 
     private suspend fun onFlagPlace(data: FlagDropData) {
         val match = server.match ?: throw InvalidMatchStateException()
-        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
@@ -376,7 +372,6 @@ class SocketRouter(val server: ServerContext) {
 
     private suspend fun onWoolPlace(data: WoolDropData) {
         val match = server.match ?: throw InvalidMatchStateException()
-        if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         val participant = match.participants[data.playerId]!!
 
         var participantContext = ParticipantContext(participant, match)
