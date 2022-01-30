@@ -33,7 +33,7 @@ fun Route.manageRanks() {
                     permissions = data.permissions.distinct(),
                     staff = data.staff,
                     applyOnJoin = data.applyOnJoin,
-                    createdAt = Date().time
+                    createdAt = Date().time.toDouble()
                 )
 
                 Database.ranks.save(rank)

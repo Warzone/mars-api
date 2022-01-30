@@ -37,12 +37,12 @@ object Database {
 
         runBlocking {
             // remove if indexes are problematic later...
-            players.createIndex(Indexes.text("name"), IndexOptions().name("name").unique(true))
-            ranks.createIndex(Indexes.text("name"), IndexOptions().name("name").unique(true))
-            tags.createIndex(Indexes.text("name"), IndexOptions().name("name").unique(true))
+            players.createIndex(Indexes.text("name"), IndexOptions().name("name"))
+            ranks.createIndex(Indexes.text("name"), IndexOptions().name("name"))
+            tags.createIndex(Indexes.text("name"), IndexOptions().name("name"))
             levels.createIndex(Indexes.text("name"), IndexOptions().name("name"))
 
-            players.createIndex(Indexes.descending("nameLower"), IndexOptions().name("lowercase name (not text)").unique(true))
+            players.createIndex(Indexes.descending("nameLower"), IndexOptions().name("lowercase name (not text)"))
             sessions.createIndex(Indexes.descending("player.id"), IndexOptions().name("player ID"))
             matches.createIndex(Indexes.descending("serverId"), IndexOptions().name("server ID"))
             deaths.createIndex(
