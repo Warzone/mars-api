@@ -20,6 +20,7 @@
 
 package network.warzone.api
 
+import com.korrit.kotlin.ktor.features.logging.Logging
 import http.player.playerRoutes
 import io.ktor.application.*
 import io.ktor.features.*
@@ -43,8 +44,9 @@ import network.warzone.api.http.report.reportRoutes
 import network.warzone.api.http.server.serverRoutes
 import network.warzone.api.http.tag.tagRoutes
 import network.warzone.api.socket.initSocketHandler
-import org.slf4j.event.Level
 import java.util.*
+
+//import com.koriit.kotlin
 
 fun main() {
     embeddedServer(Netty, host = Config.listenHost, port = Config.listenPort) {
@@ -73,7 +75,22 @@ class Server {
 
         }
 
+        install(CallId) {
+            header(HttpHeaders.XRequestId)
+            generate { UUID.randomUUID().toString() }
+            verify { it.isNotBlank() }
+        }
 
+        install(DoubleReceive) {
+            receiveEntireContent = true
+        }
+
+        install(Logging) {
+            logRequests = true
+            logResponses = true
+            logBody = false
+            logHeaders = false
+        }
 
         // Connect to database
         Database.database
