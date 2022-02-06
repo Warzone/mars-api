@@ -43,6 +43,13 @@ data class Participant(
         null,
         ParticipantStats()
     )
+
+    /**
+     * If name is Notch & ID is 069a79f4-44e9-4726-a5be-fca90e38aaf5
+     * Encoded string is 069a79f4-44e9-4726-a5be-fca90e38aaf5/Notch
+     */
+    val idName: String
+        get() = "${id}/${name}"
 }
 
 @Serializable

@@ -25,9 +25,10 @@ import org.litote.kmongo.replaceOne
 import redis.clients.jedis.params.SetParams
 import java.util.*
 
-val participantListeners = listOf(ParticipantStatListener, ParticipantPartyListener, MapRecordListener)
+val participantListeners =
+    listOf(ParticipantStatListener, ParticipantPartyListener, MapRecordListener, LeaderboardListener)
 val playerListeners =
-    listOf(PlayerStatListener, PlayerGamemodeStatListener, PlayerXPListener, PlayerRecordListener, LeaderboardListener)
+    listOf(PlayerStatListener, PlayerGamemodeStatListener, PlayerXPListener, PlayerRecordListener)
 
 class SocketRouter(val server: ServerContext) {
     suspend fun route(event: EventType, data: JsonObject) {
