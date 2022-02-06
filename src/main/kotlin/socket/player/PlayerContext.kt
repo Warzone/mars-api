@@ -1,6 +1,7 @@
 package network.warzone.api.socket.player
 
 import network.warzone.api.database.models.GamemodeStats
+import network.warzone.api.database.models.LevelGamemode
 import network.warzone.api.database.models.Match
 import network.warzone.api.database.models.Player
 import network.warzone.api.socket.EventType
@@ -13,6 +14,9 @@ data class PlayerContext(val profile: Player, val match: Match) {
         return ParticipantContext(profile, match)
     }
 
+    val isTrackingStats: Boolean
+        get() = match.isTrackingStats
+
     /**
      * Calls the provided lambda for every gamemode of the match level, with the player's current gamemode stats as the parameter
      *
@@ -20,7 +24,9 @@ data class PlayerContext(val profile: Player, val match: Match) {
      *
      */
     suspend fun modifyGamemodeStats(modify: suspend (gamemodeStats: GamemodeStats) -> GamemodeStats): PlayerContext {
-        match.level.gamemodes.forEach {
+        var gamemodes = match.level.gamemodes
+        if (!match.isTrackingStats) gamemodes = listOf(LevelGamemode.ARCADE)
+        gamemodes.forEach {
             profile.gamemodeStats[it] = modify(profile.gamemodeStats[it] ?: GamemodeStats())
         }
 

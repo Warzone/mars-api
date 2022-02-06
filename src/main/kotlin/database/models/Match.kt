@@ -42,6 +42,9 @@ data class Match(
         }
         return this
     }
+
+    val isTrackingStats: Boolean
+        get() = !level.gamemodes.contains(LevelGamemode.ARCADE)
 }
 
 enum class MatchState {

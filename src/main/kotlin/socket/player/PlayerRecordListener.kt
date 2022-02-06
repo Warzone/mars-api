@@ -7,6 +7,7 @@ import java.util.*
 
 object PlayerRecordListener : PlayerListener<PlayerContext>() {
     override suspend fun onKill(context: PlayerContext, data: PlayerDeathData, firstBlood: Boolean): PlayerContext {
+        if (!context.isTrackingStats) return context
         val (profile) = context
         if (firstBlood) {
             // How long the match has been in progress before the first blood
@@ -29,6 +30,7 @@ object PlayerRecordListener : PlayerListener<PlayerContext>() {
     }
 
     override suspend fun onWoolPlace(context: PlayerContext, heldTime: Long): PlayerContext {
+        if (!context.isTrackingStats) return context
         val (profile) = context
 
         val recordTime = profile.stats.records.fastestWoolCapture?.value
@@ -39,6 +41,7 @@ object PlayerRecordListener : PlayerListener<PlayerContext>() {
     }
 
     override suspend fun onFlagPlace(context: PlayerContext, heldTime: Long): PlayerContext {
+        if (!context.isTrackingStats) return context
         val (profile) = context
 
         val recordTime = profile.stats.records.fastestFlagCapture?.value
@@ -54,6 +57,7 @@ object PlayerRecordListener : PlayerListener<PlayerContext>() {
         bigStats: MatchEndData.BigStats,
         result: PlayerMatchResult
     ): PlayerContext {
+        if (!context.isTrackingStats) return context
         val (profile) = context
         val participant = context.getParticipant().profile
 

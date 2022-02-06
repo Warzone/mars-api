@@ -14,6 +14,7 @@ object PlayerStatListener : PlayerListener<PlayerContext>() {
         data: PlayerDeathData,
         firstBlood: Boolean
     ): PlayerContext {
+        if (!context.isTrackingStats) return context
         val (profile) = context
 
         profile.stats.deaths++
@@ -35,6 +36,7 @@ object PlayerStatListener : PlayerListener<PlayerContext>() {
         data: PlayerDeathData,
         firstBlood: Boolean
     ): PlayerContext {
+        if (!context.isTrackingStats) return context
         val (profile) = context
 
         profile.stats.kills++
@@ -49,6 +51,7 @@ object PlayerStatListener : PlayerListener<PlayerContext>() {
     }
 
     override suspend fun onKillstreak(context: PlayerContext, amount: Int): PlayerContext {
+        if (!context.isTrackingStats) return context
         val (profile) = context
         val prevAmount = profile.stats.killstreaks[amount] ?: 0
         profile.stats.killstreaks[amount] = prevAmount + 1
@@ -56,6 +59,7 @@ object PlayerStatListener : PlayerListener<PlayerContext>() {
     }
 
     override suspend fun onKillstreakEnd(context: PlayerContext, amount: Int): PlayerContext {
+        if (!context.isTrackingStats) return context
         val (profile) = context
         val prevAmount = profile.stats.killstreaksEnded[amount] ?: 0
         profile.stats.killstreaksEnded[amount] = prevAmount + 1
@@ -67,12 +71,14 @@ object PlayerStatListener : PlayerListener<PlayerContext>() {
         percentage: Float,
         blockCount: Int
     ): PlayerContext {
+        if (!context.isTrackingStats) return context
         context.profile.stats.objectives.coreLeaks++
         context.profile.stats.objectives.coreBlockDestroys += blockCount
         return context
     }
 
     override suspend fun onControlPointCapture(context: PlayerContext, contributors: Int): PlayerContext {
+        if (!context.isTrackingStats) return context
         context.profile.stats.objectives.controlPointCaptures++
         return context
     }
@@ -82,6 +88,7 @@ object PlayerStatListener : PlayerListener<PlayerContext>() {
         destroyable: DestroyableGoal,
         blockCount: Int
     ): PlayerContext {
+        if (!context.isTrackingStats) return context
         context.profile.stats.objectives.destroyableBlockDestroys += blockCount
         return context
     }
@@ -91,53 +98,63 @@ object PlayerStatListener : PlayerListener<PlayerContext>() {
         percentage: Float,
         blockCount: Int
     ): PlayerContext {
+        if (!context.isTrackingStats) return context
         context.profile.stats.objectives.destroyableDestroys++
         return context
     }
 
     override suspend fun onFlagPlace(context: PlayerContext, heldTime: Long): PlayerContext {
+        if (!context.isTrackingStats) return context
         context.profile.stats.objectives.flagCaptures++
         context.profile.stats.objectives.totalFlagHoldTime += heldTime
         return context
     }
 
     override suspend fun onFlagPickup(context: PlayerContext): PlayerContext {
+        if (!context.isTrackingStats) return context
         context.profile.stats.objectives.flagPickups++
         return context
     }
 
     override suspend fun onFlagDrop(context: PlayerContext, heldTime: Long): PlayerContext {
+        if (!context.isTrackingStats) return context
         context.profile.stats.objectives.flagDrops++
         context.profile.stats.objectives.totalFlagHoldTime += heldTime
         return context
     }
 
     override suspend fun onFlagDefend(context: PlayerContext): PlayerContext {
+        if (!context.isTrackingStats) return context
         context.profile.stats.objectives.flagDefends++
         return context
     }
 
     override suspend fun onWoolPlace(context: PlayerContext, heldTime: Long): PlayerContext {
+        if (!context.isTrackingStats) return context
         context.profile.stats.objectives.woolCaptures++
         return context
     }
 
     override suspend fun onWoolPickup(context: PlayerContext): PlayerContext {
+        if (!context.isTrackingStats) return context
         context.profile.stats.objectives.woolPickups++
         return context
     }
 
     override suspend fun onWoolDrop(context: PlayerContext, heldTime: Long): PlayerContext {
+        if (!context.isTrackingStats) return context
         context.profile.stats.objectives.woolDrops++
         return context
     }
 
     override suspend fun onWoolDefend(context: PlayerContext): PlayerContext {
+        if (!context.isTrackingStats) return context
         context.profile.stats.objectives.woolDefends++
         return context
     }
 
     override suspend fun onChat(context: PlayerContext, data: PlayerChatData): PlayerContext {
+        if (!context.isTrackingStats) return context
         when (data.channel) {
             PlayerChatData.ChatChannel.GLOBAL -> context.profile.stats.messages.global++
             PlayerChatData.ChatChannel.TEAM -> context.profile.stats.messages.team++
@@ -152,6 +169,10 @@ object PlayerStatListener : PlayerListener<PlayerContext>() {
         bigStats: MatchEndData.BigStats,
         result: PlayerMatchResult
     ): PlayerContext {
+        if (!context.isTrackingStats) {
+            context.sendMessage("&aYour stats were not affected by this match since stat tracking is disabled, however you still gained XP.")
+            return context
+        }
         val (profile) = context
 
         val blocks = bigStats.blocks
