@@ -7,6 +7,9 @@ import network.warzone.api.socket.match.MatchEndData
 import network.warzone.api.socket.player.PlayerContext
 
 data class ParticipantContext(val profile: Participant, val match: Match) {
+    val isTrackingStats: Boolean
+        get() = match.isTrackingStats
+
     fun getMatchResult(end: MatchEndData): PlayerMatchResult {
         val isPlaying = profile.partyName != null
         if (!isPlaying) return PlayerMatchResult.INDETERMINATE
