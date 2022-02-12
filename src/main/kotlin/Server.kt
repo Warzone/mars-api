@@ -42,6 +42,7 @@ import network.warzone.api.http.punishment.punishmentRoutes
 import network.warzone.api.http.rank.rankRoutes
 import network.warzone.api.http.report.reportRoutes
 import network.warzone.api.http.server.serverRoutes
+import network.warzone.api.http.status.statusRoutes
 import network.warzone.api.http.tag.tagRoutes
 import network.warzone.api.socket.initSocketHandler
 import java.util.*
@@ -101,6 +102,7 @@ class Server {
 
         initSocketHandler()
 
+        statusRoutes()
         playerRoutes()
         rankRoutes()
         tagRoutes()
