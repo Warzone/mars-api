@@ -59,7 +59,7 @@ class SocketRouter(val server: ServerContext) {
         } catch (e: InvalidMatchStateException) {
             // Automatically end the match and force Mars to load a new match to sync state
             server.call(EventType.FORCE_MATCH_END, Unit)
-            logger.warn("Match ID: ${server.match?._id}", e)
+            logger.warn("Forcing match end for Match ID: ${server.match?._id}. Caused by ${event.name}: ${e.message}")
         }
     }
 
