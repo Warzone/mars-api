@@ -5,6 +5,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import network.warzone.api.database.Database
 import network.warzone.api.database.findById
+import network.warzone.api.database.findByName
 import network.warzone.api.database.models.Level
 import network.warzone.api.database.models.LevelRecords
 import network.warzone.api.http.MapMissingException
@@ -17,19 +18,22 @@ fun Route.manageMaps() {
     post {
         protected(this) { _ ->
             validate<List<MapLoadOneRequest>>(this) { mapList ->
+                println("Received ${mapList.size} maps.")
                 val now = Date().time
                 val mapsToSave = mutableListOf<Level>()
                 mapList.forEach { map ->
-                    val existingMap = Database.levels.findById(map._id)
-                    if (existingMap != null) { // Updating existing map (e.g. new version)
-                        existingMap.name = map.name
-                        existingMap.nameLower = existingMap.name.lowercase()
-                        existingMap.version = map.version
-                        existingMap.gamemodes = map.gamemodes
-                        existingMap.authors = map.authors
-                        existingMap.updatedAt = now
-                        existingMap.contributors = map.contributors
-                        mapsToSave.add(existingMap)
+                    val existingMap = Database.levels.findByName(map.name) // Find by name since IDs are arbitrary
+                    if (existingMap != null) {
+                        if (!map.isSimilar(existingMap)) { // Only update if a field has changed
+                            existingMap.name = map.name
+                            existingMap.nameLower = existingMap.name.lowercase()
+                            existingMap.version = map.version
+                            existingMap.gamemodes = map.gamemodes
+                            existingMap.authors = map.authors
+                            existingMap.updatedAt = now
+                            existingMap.contributors = map.contributors
+                            mapsToSave.add(existingMap)
+                        }
                     } else { // Map is new
                         mapsToSave.add(
                             Level(
