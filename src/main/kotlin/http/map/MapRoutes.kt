@@ -18,22 +18,19 @@ fun Route.manageMaps() {
     post {
         protected(this) { _ ->
             validate<List<MapLoadOneRequest>>(this) { mapList ->
-                println("Received ${mapList.size} maps.")
                 val now = Date().time
                 val mapsToSave = mutableListOf<Level>()
                 mapList.forEach { map ->
                     val existingMap = Database.levels.findByName(map.name) // Find by name since IDs are arbitrary
                     if (existingMap != null) {
-                        if (!map.isSimilar(existingMap)) { // Only update if a field has changed
-                            existingMap.name = map.name
-                            existingMap.nameLower = existingMap.name.lowercase()
-                            existingMap.version = map.version
-                            existingMap.gamemodes = map.gamemodes
-                            existingMap.authors = map.authors
-                            existingMap.updatedAt = now
-                            existingMap.contributors = map.contributors
-                            mapsToSave.add(existingMap)
-                        }
+                        existingMap.name = map.name
+                        existingMap.nameLower = existingMap.name.lowercase()
+                        existingMap.version = map.version
+                        existingMap.gamemodes = map.gamemodes
+                        existingMap.authors = map.authors
+                        existingMap.updatedAt = now
+                        existingMap.contributors = map.contributors
+                        mapsToSave.add(existingMap)
                     } else { // Map is new
                         mapsToSave.add(
                             Level(
@@ -52,7 +49,7 @@ fun Route.manageMaps() {
                     }
                 }
                 mapsToSave.forEach { Database.levels.save(it) }
-
+                println("Received ${mapList.size} maps. Updating ${mapsToSave.size} maps.")
                 val maps = Database.levels.find().toList()
                 call.respond(maps)
             }
