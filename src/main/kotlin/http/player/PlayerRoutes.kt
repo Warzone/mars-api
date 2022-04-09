@@ -13,10 +13,7 @@ import network.warzone.api.database.models.*
 import network.warzone.api.http.*
 import network.warzone.api.http.player.*
 import network.warzone.api.http.punishment.PunishmentIssueRequest
-import network.warzone.api.socket.EventType
 import network.warzone.api.socket.leaderboard.ServerPlaytimeLeaderboard
-import network.warzone.api.socket.player.DisconnectPlayerData
-import network.warzone.api.socket.server.ConnectedServers
 import network.warzone.api.util.WebhookUtil
 import network.warzone.api.util.protected
 import network.warzone.api.util.validate
@@ -39,15 +36,15 @@ fun Route.playerSessions() {
 
                 // Player has joined before
                 if (returningPlayer != null) {
-                    val activeSession = returningPlayer.getActiveSession()
-                    if (activeSession != null) {
-                        // Disconnect player from server they're already on
-                        val server = ConnectedServers.find { it.id == activeSession.serverId }
-                        server?.call(
-                            EventType.DISCONNECT_PLAYER,
-                            DisconnectPlayerData(returningPlayer._id, "You logged into another server.")
-                        )
-                    }
+//                    val activeSession = returningPlayer.getActiveSession()
+//                    if (activeSession != null) {
+//                        // Disconnect player from server they're already on
+//                        val server = ConnectedServers.find { it.id == activeSession.serverId }
+//                        server?.call(
+//                            EventType.DISCONNECT_PLAYER,
+//                            DisconnectPlayerData(returningPlayer._id, "You logged into another server.")
+//                        )
+//                    }
 
                     returningPlayer.name = data.player.name
                     returningPlayer.nameLower = returningPlayer.name.lowercase()
@@ -145,9 +142,10 @@ fun Route.playerSessions() {
         protected(this) { _ ->
             validate<PlayerLogoutRequest>(this) { data ->
                 val player: Player = PlayerCache.get(data.player.name) ?: throw PlayerMissingException()
-                val activeSession = player.getActiveSession() ?: throw SessionInactiveException()
+                val session = player.findSession(data.sessionId) ?: throw SessionNotFoundException()
+                session.isActive() || throw SessionInactiveException()
 
-                activeSession.endedAt = Date().time
+                session.endedAt = Date().time
                 player.stats.serverPlaytime += data.playtime
 
                 ServerPlaytimeLeaderboard.increment(player.idName, data.playtime.toInt()) // Will break in 2038
@@ -155,9 +153,9 @@ fun Route.playerSessions() {
                 // Longest Session Record
                 val recordSession = player.stats.records.longestSession?.length
                 if (recordSession == null || data.playtime > recordSession) player.stats.records.longestSession =
-                    SessionRecord(activeSession._id, data.playtime)
+                    SessionRecord(session._id, data.playtime)
 
-                Database.sessions.save(activeSession)
+                Database.sessions.save(session)
                 PlayerCache.set(player.name, player, persist = true)
 
                 call.respond(Unit)

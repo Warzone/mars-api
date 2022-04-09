@@ -20,6 +20,9 @@ open class ApiException(
 class ValidationException(message: String = "Validation failed") :
     ApiException(HttpStatusCode.BadRequest, ApiExceptionType.VALIDATION_ERROR, message)
 
+class SessionNotFoundException :
+    ApiException(HttpStatusCode.NotFound, ApiExceptionType.SESSION_MISSING, "The session does not exist")
+
 class SessionInactiveException :
     ApiException(HttpStatusCode.NotFound, ApiExceptionType.SESSION_INACTIVE, "The session is not active")
 
@@ -83,6 +86,7 @@ enum class ApiExceptionType {
     INTERNAL_SERVER_ERROR,
     UNAUTHORIZED_EXCEPTION,
     VALIDATION_ERROR,
+    SESSION_MISSING,
     SESSION_INACTIVE,
     PLAYER_MISSING,
     RANK_CONFLICT,

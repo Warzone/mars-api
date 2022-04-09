@@ -13,4 +13,6 @@ data class Session(
 ) {
     val length: Long?
     get() = if (endedAt == null) null else endedAt!! - createdAt
+
+    fun isActive(): Boolean = endedAt == null
 }

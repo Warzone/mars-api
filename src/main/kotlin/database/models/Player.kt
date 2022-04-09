@@ -27,6 +27,10 @@ data class Player(
         return Database.sessions.findOne(Session::endedAt eq null, Session::player / SimplePlayer::id eq _id)
     }
 
+    suspend fun findSession(id: String): Session? {
+        return Database.sessions.findOne(Session::_id eq id, Session::player / SimplePlayer::id eq _id)
+    }
+
     suspend fun getPunishments(): List<Punishment> {
         return Database.punishments.find(Punishment::target / SimplePlayer::id eq this._id).toList()
             .sortedBy { it.issuedAt }
