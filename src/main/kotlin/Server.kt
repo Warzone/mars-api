@@ -20,17 +20,18 @@
 
 package network.warzone.api
 
-import com.korrit.kotlin.ktor.features.logging.Logging
 import http.player.playerRoutes
-import io.ktor.application.*
-import io.ktor.features.*
 import io.ktor.http.*
-import io.ktor.response.*
-import io.ktor.serialization.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import io.ktor.util.*
-import io.ktor.websocket.*
+import io.ktor.server.plugins.callid.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.doublereceive.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
+import io.ktor.server.websocket.*
 import network.warzone.api.database.Database
 import network.warzone.api.http.ApiException
 import network.warzone.api.http.InternalServerErrorException
@@ -47,8 +48,6 @@ import network.warzone.api.http.tag.tagRoutes
 import network.warzone.api.socket.initSocketHandler
 import java.util.*
 
-//import com.koriit.kotlin
-
 fun main() {
     embeddedServer(Netty, host = Config.listenHost, port = Config.listenPort) {
         Server().apply { main() }
@@ -62,16 +61,17 @@ class Server {
         }
 
         install(StatusPages) {
-            exception<ApiException> { ex ->
+            exception<ApiException> { call, ex ->
                 call.respond(ex.statusCode, ex.response)
             }
 
-            exception<Throwable> { cause ->
+            exception<Throwable> { call, cause ->
                 call.respond(
                     HttpStatusCode.InternalServerError,
                     InternalServerErrorException().response
                 )
-                log.error(cause)
+//                log.error(cause)
+                cause.printStackTrace()
             }
 
         }
@@ -83,20 +83,18 @@ class Server {
         }
 
         install(DoubleReceive) {
-            receiveEntireContent = true
+            cacheRawRequest = false
         }
 
-        install(Logging) {
-            logRequests = true
-            logResponses = true
-            logBody = false
-            logHeaders = false
-        }
+//        install(Logging) {
+//            logRequests = true
+//            logResponses = true
+//            logBody = false
+//            logHeaders = false
+//        }
 
         // Connect to database
         Database.database
-
-
 
         install(WebSockets)
 
