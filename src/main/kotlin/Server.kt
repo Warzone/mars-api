@@ -27,6 +27,7 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.callid.*
+import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.doublereceive.*
 import io.ktor.server.plugins.statuspages.*
@@ -60,6 +61,8 @@ class Server {
             json()
         }
 
+        install(CallLogging)
+
         install(StatusPages) {
             exception<ApiException> { call, ex ->
                 call.respond(ex.statusCode, ex.response)
@@ -70,7 +73,6 @@ class Server {
                     HttpStatusCode.InternalServerError,
                     InternalServerErrorException().response
                 )
-//                log.error(cause)
                 cause.printStackTrace()
             }
 
@@ -85,13 +87,6 @@ class Server {
         install(DoubleReceive) {
             cacheRawRequest = false
         }
-
-//        install(Logging) {
-//            logRequests = true
-//            logResponses = true
-//            logBody = false
-//            logHeaders = false
-//        }
 
         // Connect to database
         Database.database
