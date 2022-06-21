@@ -15,15 +15,18 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.ktor:ktor-server-netty:1.6.7'
-    implementation 'io.ktor:ktor-websockets:1.6.7'
-    implementation 'io.ktor:ktor-serialization:1.6.7'
+    implementation 'io.ktor:ktor-server-netty:2.0.2'
+    implementation 'io.ktor:ktor-server-websockets:2.0.2'
+    implementation 'io.ktor:ktor-server-content-negotiation:2.0.2'
+    implementation 'io.ktor:ktor-serialization-kotlinx-json:2.0.2'
+    implementation 'io.ktor:ktor-server-status-pages:2.0.2'
+    implementation 'io.ktor:ktor-server-call-id:2.0.2'
+    implementation 'io.ktor:ktor-server-double-receive:2.0.2'
+    implementation 'io.ktor:ktor-server-call-logging:2.0.2'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2'
     implementation "com.charleskorn.kaml:kaml:0.36.0"
     implementation 'org.valiktor:valiktor-core:0.12.0'
-
-    implementation 'com.koriit.kotlin:ktor-logging:0.4.0'
 
     implementation 'org.litote.kmongo:kmongo-coroutine-serialization:4.2.8'
     implementation 'org.litote.kmongo:kmongo-id:4.2.8'

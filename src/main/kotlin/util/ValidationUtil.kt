@@ -1,8 +1,7 @@
 package network.warzone.api.util
 
-import io.ktor.application.*
-import io.ktor.request.*
-import io.ktor.util.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.util.pipeline.*
 import network.warzone.api.http.ApiException
 import network.warzone.api.http.ValidationException
@@ -24,7 +23,7 @@ suspend inline fun <reified T : Any> validate(context: PipelineContext<Unit, App
         context.application.log.warn(ex.message)
         throw ex
     } catch (ex: Exception) {
-        context.application.log.error(ex)
+        context.application.log.error(ex.toString())
         throw ValidationException("Validation failed. Ensure the JSON body only contains relevant keys.")
     }
 }
