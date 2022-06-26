@@ -1,6 +1,6 @@
 package network.warzone.api.socket.server
 
-import io.ktor.server.websocket.*
+import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

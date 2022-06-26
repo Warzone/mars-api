@@ -1,8 +1,8 @@
 package network.warzone.api.http.rank
 
-import io.ktor.server.application.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.application.*
+import io.ktor.response.*
+import io.ktor.routing.*
 import network.warzone.api.database.*
 import network.warzone.api.database.models.Player
 import network.warzone.api.database.models.Rank

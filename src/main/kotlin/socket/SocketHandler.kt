@@ -1,8 +1,9 @@
 package network.warzone.api.socket
 
-import io.ktor.server.application.*
-import io.ktor.server.routing.*
-import io.ktor.server.websocket.*
+import io.ktor.application.*
+import io.ktor.http.cio.websocket.*
+import io.ktor.routing.*
+import io.ktor.util.*
 import io.ktor.websocket.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -28,7 +29,7 @@ fun Application.initSocketHandler() {
 
             // Server ID already connected
             if (ConnectedServers.any { it.id == serverId }) {
-                println("Server ID '$serverId' attempting to connect twice! Closing new connection...")
+                log.warn("Server ID '$serverId' attempting to connect twice! Closing new connection...")
                 return@webSocket this.close(
                     CloseReason(
                         CloseReason.Codes.VIOLATED_POLICY,
@@ -39,7 +40,7 @@ fun Application.initSocketHandler() {
 
             val server = ServerContext(serverId, this)
             ConnectedServers += server
-            println("Server '${server.id}' connected to socket server")
+            log.info("Server '${server.id}' connected to socket server")
 
             val router = SocketRouter(server)
 
@@ -52,7 +53,7 @@ fun Application.initSocketHandler() {
                     val eventName = json["e"]?.jsonPrimitive?.content ?: throw RuntimeException("Invalid event name")
                     val data = json["d"]?.jsonObject ?: throw RuntimeException("Invalid event data")
 
-                    println("[$serverId:$eventName] $data")
+                    log.info("[$serverId:$eventName] $data")
 
                     val eventType = EventType.valueOf(eventName)
 
@@ -60,10 +61,10 @@ fun Application.initSocketHandler() {
                     server.lastAliveTime = Date().time
                 }
             } catch (err: Exception) {
-                err.printStackTrace()
+                log.error(err)
             } finally {
                 ConnectedServers -= server
-                println("Server '${server.id}' disconnected from socket server")
+                log.info("Server '${server.id}' disconnected from socket server")
             }
         }
     }
