@@ -28,7 +28,7 @@ import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.serialization.*
 import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import io.ktor.server.tomcat.*
 import io.ktor.util.*
 import io.ktor.websocket.*
 import network.warzone.api.database.Database
@@ -50,7 +50,7 @@ import java.util.*
 //import com.koriit.kotlin
 
 fun main() {
-    embeddedServer(Netty, host = Config.listenHost, port = Config.listenPort) {
+    embeddedServer(Tomcat, host = Config.listenHost, port = Config.listenPort) {
         Server().apply { main() }
     }.start(wait = true)
 }

@@ -2,6 +2,7 @@ package network.warzone.api.socket
 
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
+import io.ktor.request.*
 import io.ktor.routing.*
 import io.ktor.util.*
 import io.ktor.websocket.*
@@ -22,8 +23,11 @@ fun Application.initSocketHandler() {
     logger = log
     routing {
         webSocket("/minecraft") {
-            val serverId = call.request.queryParameters["id"] ?: throw UnauthorizedException()
-            val serverToken = call.request.queryParameters["token"] ?: throw UnauthorizedException()
+            // Mars WS query string format: ?id=<ID>&token=<SECRET>
+            // queryParameters list provided by Tomcat/ktor is empty here, so query string needs to be parsed
+            val qs = call.request.queryString()
+            val serverId = qs.split('&').first().split('=')[1]
+            val serverToken = qs.split('&')[1].split('=')[1]
 
             if (serverToken != Config.apiToken) throw UnauthorizedException()
 
