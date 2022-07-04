@@ -2,7 +2,6 @@ package network.warzone.api.socket
 
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
-import io.ktor.request.*
 import io.ktor.routing.*
 import io.ktor.util.*
 import io.ktor.websocket.*
@@ -11,7 +10,6 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import network.warzone.api.Config
 import network.warzone.api.http.UnauthorizedException
-import network.warzone.api.http.ValidationException
 import network.warzone.api.socket.server.ConnectedServers
 import network.warzone.api.socket.server.ServerContext
 import network.warzone.api.util.zlibDecompress
@@ -24,12 +22,8 @@ fun Application.initSocketHandler() {
     logger = log
     routing {
         webSocket("/minecraft") {
-            // Mars WS query string format: ?id=<ID>&token=<SECRET>
-            // queryParameters list provided by Tomcat/ktor is empty here, so query string needs to be parsed
-            val params = call.request.queryString().split("&").map { it.split("=") }
-                    .associate { (k, v) -> (k to v) }
-            val serverId = params["id"] ?: throw ValidationException("Missing server ID")
-            val serverToken = params["token"]  ?: throw ValidationException("Missing server token")
+            val serverId = call.request.queryParameters["id"] ?: throw UnauthorizedException()
+            val serverToken = call.request.queryParameters["token"] ?: throw UnauthorizedException()
 
             if (serverToken != Config.apiToken) throw UnauthorizedException()
 

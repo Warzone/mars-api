@@ -3,7 +3,6 @@ package network.warzone.api.http.leaderboard
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.util.*
 import network.warzone.api.http.UnauthorizedException
 import network.warzone.api.http.ValidationException
 import network.warzone.api.socket.leaderboard.LeaderboardPeriod
