@@ -1,0 +1,6 @@
+- id: 'ender-dragon'
+  name: 'Ender Dragon'
+  sound: 'ENDERDRAGON_GROWL'
+  permission: 'join.sound.enderdragon'
+  guiIcon: 'dragon egg'
+  guiSlot: 10

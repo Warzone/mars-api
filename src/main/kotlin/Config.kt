@@ -3,6 +3,7 @@ package network.warzone.api
 import com.charleskorn.kaml.Yaml
 import kotlinx.serialization.decodeFromString
 import network.warzone.api.database.models.Broadcast
+import network.warzone.api.database.models.JoinSound
 import network.warzone.api.database.models.LevelColor
 import network.warzone.api.database.models.PunishmentType
 import java.io.File
@@ -13,6 +14,7 @@ object Config {
     private val punTypesPath: String? = System.getenv("MARS_PUNTYPES_PATH")
     private val broadcastsPath: String? = System.getenv("MARS_BROADCASTS_PATH")
     private val levelColorsPath: String? = System.getenv("MARS_LEVEL_COLORS_PATH")
+    private val joinSoundsPath: String? = System.getenv("MARS_JOIN_SOUNDS_PATH")
 
     private val configFile: File? =
         if (configPath != null) {
@@ -36,6 +38,11 @@ object Config {
         val file = File(levelColorsPath)
         if (file.exists()) file.readText() else throw RuntimeException("Invalid MARS_LEVEL_COLORS_PATH provided")
     } else getResource("level_colors.yml")
+
+    private val joinSoundsRaw: String = if (joinSoundsPath != null) {
+        val file = File(joinSoundsPath)
+        if (file.exists()) file.readText() else throw RuntimeException("Invalid MARS_LEVEL_COLORS_PATH provided")
+    } else getResource("join_sounds.yml")
 
     var listenPort = 3000
         private set
@@ -65,6 +72,9 @@ object Config {
     var levelColors: List<LevelColor> = emptyList()
         private set
 
+    var joinSounds: List<JoinSound> = emptyList()
+        private set
+
     var punishmentsWebhookUrl: String? = null
         private set
 
@@ -76,6 +86,7 @@ object Config {
         loadPunishmentTypes()
         loadBroadcasts()
         loadLevelColors()
+        loadJoinSounds()
     }
 
     private fun loadConfig() {
@@ -104,6 +115,10 @@ object Config {
     private fun loadBroadcasts() {
         val result = Yaml.default.decodeFromString<List<Broadcast>>(broadcastsRaw)
         broadcasts = result
+    }
+
+    private fun loadJoinSounds() {
+        joinSounds = Yaml.default.decodeFromString(joinSoundsRaw)
     }
 
     private fun loadLevelColors() {
