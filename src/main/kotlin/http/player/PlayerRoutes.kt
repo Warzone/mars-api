@@ -182,10 +182,10 @@ fun Route.playerSessions() {
                     PunishmentProtectionCache.set(player.name, true)
                 }
 
-                val status = PunishmentProtectionCache
-                    .get(player.name) ?: false
-
-                call.respond(PlayerPunishmentProtectionResponse(status))
+                call.respond(
+                    PunishmentProtectionCache
+                        .get(player.name) ?: false
+                )
             }
         }
     }
