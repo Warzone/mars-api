@@ -171,7 +171,7 @@ fun Route.playerSessions() {
         call.respond(player.sanitise())
     }
 
-    get("/{playerId}/punishmentProtection") {
+    post("/{playerId}/punishmentProtection") {
         protected(this) {
             validate<PlayerPunishmentProtectionRequest>(this) { data ->
                 val playerId = call.parameters["playerId"] ?: throw ValidationException()
