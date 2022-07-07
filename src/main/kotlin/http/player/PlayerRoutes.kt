@@ -139,25 +139,6 @@ fun Route.playerSessions() {
         }
     }
 
-    post("/{playerId}/punishmentProtection") {
-        protected(this) { serverId ->
-            validate<PlayerPunishmentProtectionRequest>(this) { data ->
-                val playerId = call.parameters["playerId"] ?: throw ValidationException()
-                val player: Player = PlayerCache.get(data.target.name) ?: throw PlayerMissingException()
-                if (playerId != player._id || playerId != data.target.id) throw ValidationException()
-
-                if (data.apply) {
-                    PunishmentProtectionCache.set(player.name, true)
-                }
-
-                val status = PunishmentProtectionCache
-                    .get(player.name) ?: false
-
-                call.respond(HttpStatusCode.Created, PlayerPunishmentProtectionResponse(status))
-            }
-        }
-    }
-
     post("/logout") {
         protected(this) { _ ->
             validate<PlayerLogoutRequest>(this) { data ->
@@ -188,6 +169,25 @@ fun Route.playerSessions() {
         val player: Player = PlayerCache.get(playerId) ?: throw PlayerMissingException()
 
         call.respond(player.sanitise())
+    }
+
+    get("/{playerId}/punishmentProtection") {
+        protected(this) {
+            validate<PlayerPunishmentProtectionRequest>(this) { data ->
+                val playerId = call.parameters["playerId"] ?: throw ValidationException()
+                val player: Player = PlayerCache.get(data.target.name) ?: throw PlayerMissingException()
+                if (playerId != player._id || playerId != data.target.id) throw ValidationException()
+
+                if (data.apply) {
+                    PunishmentProtectionCache.set(player.name, true)
+                }
+
+                val status = PunishmentProtectionCache
+                    .get(player.name) ?: false
+
+                call.respond(PlayerPunishmentProtectionResponse(status))
+            }
+        }
     }
 }
 
