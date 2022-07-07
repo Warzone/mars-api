@@ -39,3 +39,9 @@ data class PlayerLookupResponse(val player: Player, val alts: List<PlayerAltResp
 
 @Serializable
 data class PlayerAddNoteRequest(val author: SimplePlayer, val content: String)
+
+@Serializable
+data class PlayerPunishmentProtectionRequest(val target: SimplePlayer, val apply: Boolean = false)
+
+@Serializable
+data class PlayerPunishmentProtectionResponse(val active: Boolean)

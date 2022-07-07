@@ -39,5 +39,10 @@ const val MATCH_LIFETIME = 86_400_000L // MS
 // Player expires after three hours
 const val PLAYER_LIFETIME = 10_800_000L // MS
 
+// Punishment protection expires after ten seconds
+const val PLAYER_PROTECTION_LIFETIME = 10_000L // MS
+
 object PlayerCache : Cache("player", PLAYER_LIFETIME)
 object MatchCache : Cache("match", MATCH_LIFETIME)
+
+object PunishmentProtectionCache : Cache("playerPunishProtect", PLAYER_PROTECTION_LIFETIME)

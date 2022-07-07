@@ -7,6 +7,7 @@ import io.ktor.routing.*
 import network.warzone.api.Config
 import network.warzone.api.database.Database
 import network.warzone.api.database.PlayerCache
+import network.warzone.api.database.PunishmentProtectionCache
 import network.warzone.api.database.findById
 import network.warzone.api.database.findByIdOrName
 import network.warzone.api.database.models.*
@@ -134,6 +135,25 @@ fun Route.playerSessions() {
                 PlayerCache.set(player.name, player, persist = true)
 
                 call.respond(HttpStatusCode.Created, PlayerLoginResponse(activeSession))
+            }
+        }
+    }
+
+    post("/{playerId}/punishmentProtection") {
+        protected(this) { serverId ->
+            validate<PlayerPunishmentProtectionRequest>(this) { data ->
+                val playerId = call.parameters["playerId"] ?: throw ValidationException()
+                val player: Player = PlayerCache.get(data.target.name) ?: throw PlayerMissingException()
+                if (playerId != player._id || playerId != data.target.id) throw ValidationException()
+
+                if (data.apply) {
+                    PunishmentProtectionCache.set(player.name, true)
+                }
+
+                val status = PunishmentProtectionCache
+                    .get(player.name) ?: false
+
+                call.respond(HttpStatusCode.Created, PlayerPunishmentProtectionResponse(status))
             }
         }
     }
