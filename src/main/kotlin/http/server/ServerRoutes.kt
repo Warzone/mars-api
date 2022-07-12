@@ -89,8 +89,7 @@ fun Route.manageServers() {
             Redis.get<Long>("server:$serverId:last_alive_time") ?: return@get call.respond(HttpStatusCode.NotFound, "Last alive time unknown")
         val currentMatchId = Redis.get<String>("server:$serverId:current_match_id") ?: return@get call.respond(HttpStatusCode.NotFound, "No current match")
         val match = Redis.get<Match>("match:$currentMatchId") ?: return@get call.respond(HttpStatusCode.NotFound, "No current match")
-        val onlinePlayers = Database.sessions.find(Session::serverId eq serverId, Session::endedAt eq null).toList().map { it.player }
-        call.respond(ServerStatusResponse(lastAliveTime, match, onlinePlayers, match.isTrackingStats))
+        call.respond(ServerStatusResponse(lastAliveTime, match, match.isTrackingStats))
     }
 }
 
