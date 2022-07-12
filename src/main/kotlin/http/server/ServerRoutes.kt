@@ -1,6 +1,7 @@
 package network.warzone.api.http.server
 
 import io.ktor.application.*
+import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import network.warzone.api.database.Database
@@ -16,6 +17,7 @@ import network.warzone.api.util.protected
 import org.litote.kmongo.eq
 import org.litote.kmongo.replaceOne
 import redis.clients.jedis.params.SetParams
+import java.util.*
 
 fun Route.manageServers() {
     /**
@@ -29,7 +31,13 @@ fun Route.manageServers() {
             if (serverId != call.parameters["serverId"]) throw UnauthorizedException()
 
             val lastAliveTime =
-                Redis.get<Long>("server:$serverId:last_alive_time") ?: return@protected call.respond(Unit)
+                Redis.get<Long>("server:$serverId:last_alive_time")
+            if (lastAliveTime == null) {
+                // Set new alive time
+                Redis.set("server:$serverId:last_alive_time", Date().time)
+
+                return@protected call.respond(Unit)
+            }
 
             val lastMatchId =
                 Redis.get<String>("server:$serverId:current_match_id") ?: return@protected call.respond(Unit)
@@ -67,9 +75,22 @@ fun Route.manageServers() {
                 )
             })
 
+            // Set new alive time
+            Redis.set("server:$serverId:last_alive_time", Date().time)
+
             application.log.info("Saved ${playersToWrite.size} players, ${sessionsToWrite.size} sessions on startup '$serverId'")
             call.respond(Unit)
         }
+    }
+
+    get("/{serverId}/status") {
+        val serverId = call.parameters["serverId"]?.lowercase() ?: throw ValidationException("Server ID parameter is required")
+        val lastAliveTime =
+            Redis.get<Long>("server:$serverId:last_alive_time") ?: return@get call.respond(HttpStatusCode.NotFound, "Last alive time unknown")
+        val currentMatchId = Redis.get<String>("server:$serverId:current_match_id") ?: return@get call.respond(HttpStatusCode.NotFound, "No current match")
+        val match = Redis.get<Match>("match:$currentMatchId") ?: return@get call.respond(HttpStatusCode.NotFound, "No current match")
+        val onlinePlayers = Database.sessions.find(Session::serverId eq serverId, Session::endedAt eq null).toList().map { it.player }
+        call.respond(ServerStatusResponse(lastAliveTime, match, onlinePlayers, match.isTrackingStats))
     }
 }
 
