@@ -198,7 +198,7 @@ fun Route.playerSessions() {
             )
             val positions = mutableMapOf<ScoreType, Long>()
             includedLeaderboards.forEach { positions[it.type] = it.getPosition(player.idName, LeaderboardPeriod.ALL_TIME) }
-            call.respond(PlayerProfileResponse(player, positions.filterNot { it.value.toInt() == -1 }))
+            call.respond(PlayerProfileResponse(profile, positions.filterNot { it.value.toInt() == -1 }))
         }
     }
 }
