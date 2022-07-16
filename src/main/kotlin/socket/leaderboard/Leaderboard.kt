@@ -191,7 +191,7 @@ object HighestKillstreakLeaderboard : Leaderboard(ScoreType.HIGHEST_KILLSTREAK)
 object ServerPlaytimeLeaderboard : Leaderboard(ScoreType.SERVER_PLAYTIME)
 object GamePlaytimeLeaderboard : Leaderboard(ScoreType.GAME_PLAYTIME)
 
-abstract class Leaderboard(private val type: ScoreType) {
+abstract class Leaderboard(val type: ScoreType) {
     fun flushAllTime() {
         Redis.pool.resource.use {
             it.del(getId(LeaderboardPeriod.ALL_TIME))
@@ -260,6 +260,12 @@ abstract class Leaderboard(private val type: ScoreType) {
                 if (new > current)
                     redis.zadd(key, new.toDouble(), id)
             }
+        }
+    }
+
+    fun getPosition(id: String, period: LeaderboardPeriod): Long {
+        Redis.pool.resource.use { redis ->
+            return redis.zrevrank(getId(period), id) ?: -1
         }
     }
 }

@@ -13,7 +13,7 @@ import network.warzone.api.database.models.*
 import network.warzone.api.http.*
 import network.warzone.api.http.player.*
 import network.warzone.api.http.punishment.PunishmentIssueRequest
-import network.warzone.api.socket.leaderboard.ServerPlaytimeLeaderboard
+import network.warzone.api.socket.leaderboard.*
 import network.warzone.api.util.WebhookUtil
 import network.warzone.api.util.protected
 import network.warzone.api.util.validate
@@ -166,8 +166,40 @@ fun Route.playerSessions() {
     get("/{playerId}") {
         val playerId = call.parameters["playerId"]?.lowercase() ?: throw ValidationException()
         val player: Player = PlayerCache.get(playerId) ?: throw PlayerMissingException()
-
-        call.respond(player.sanitise())
+        val profile = player.sanitise()
+        val includeLeaderboardPositions = call.request.queryParameters["include_leaderboard_positions"] == "true"
+        if (!includeLeaderboardPositions) call.respond(profile)
+        else {
+            // omitted: messages sent, server + game playtime
+            val includedLeaderboards = listOf(
+                KillsLeaderboard,
+                DeathsLeaderboard,
+                FirstBloodsLeaderboard,
+                WinsLeaderboard,
+                LossesLeaderboard,
+                TiesLeaderboard,
+                XPLeaderboard,
+                MatchesPlayedLeaderboard,
+                CoreLeaksLeaderboard,
+                CoreBlockDestroysLeaderboard,
+                DestroyableDestroysLeaderboard,
+                DestroyableBlockDestroysLeaderboard,
+                FlagCapturesLeaderboard,
+                FlagPickupsLeaderboard,
+                FlagDropsLeaderboard,
+                FlagDefendsLeaderboard,
+                FlagHoldTimeLeaderboard,
+                WoolCapturesLeaderboard,
+                WoolPickupsLeaderboard,
+                WoolDropsLeaderboard,
+                WoolDefendsLeaderboard,
+                ControlPointCapturesLeaderboard,
+                HighestKillstreakLeaderboard
+            )
+            val positions = mutableMapOf<ScoreType, Long>()
+            includedLeaderboards.forEach { positions[it.type] = it.getPosition(player.idName, LeaderboardPeriod.ALL_TIME) }
+            call.respond(PlayerProfileResponse(player, positions.filterNot { it.value.toInt() == -1 }))
+        }
     }
 }
 

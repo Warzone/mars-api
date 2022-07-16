@@ -5,6 +5,7 @@ import network.warzone.api.database.models.Player
 import network.warzone.api.database.models.Punishment
 import network.warzone.api.database.models.Session
 import network.warzone.api.database.models.SimplePlayer
+import network.warzone.api.socket.leaderboard.ScoreType
 
 @Serializable
 data class PlayerPreLoginRequest(
@@ -39,3 +40,6 @@ data class PlayerLookupResponse(val player: Player, val alts: List<PlayerAltResp
 
 @Serializable
 data class PlayerAddNoteRequest(val author: SimplePlayer, val content: String)
+
+@Serializable
+data class PlayerProfileResponse(val player: Player, val leaderboardPositions: Map<ScoreType, Long>)
