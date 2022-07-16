@@ -10,9 +10,26 @@ import network.warzone.api.socket.leaderboard.ScoreType
 
 val publicScoreTypes = listOf(
     ScoreType.KILLS,
-    ScoreType.WINS,
+    ScoreType.DEATHS,
     ScoreType.FIRST_BLOODS,
+    ScoreType.WINS,
+    ScoreType.LOSSES,
+    ScoreType.TIES,
     ScoreType.XP,
+    ScoreType.CORE_LEAKS,
+    ScoreType.CORE_BLOCK_DESTROYS,
+    ScoreType.DESTROYABLE_DESTROYS,
+    ScoreType.DESTROYABLE_BLOCK_DESTROYS,
+    ScoreType.FLAG_CAPTURES,
+    ScoreType.FLAG_DROPS,
+    ScoreType.FLAG_PICKUPS,
+    ScoreType.FLAG_DEFENDS,
+    ScoreType.FLAG_HOLD_TIME,
+    ScoreType.WOOL_CAPTURES,
+    ScoreType.WOOL_DROPS,
+    ScoreType.WOOL_PICKUPS,
+    ScoreType.WOOL_DEFENDS,
+    ScoreType.CONTROL_POINT_CAPTURES,
     ScoreType.HIGHEST_KILLSTREAK
 )
 
