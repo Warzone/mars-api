@@ -6,14 +6,18 @@ import club.minnced.discord.webhook.send.WebhookEmbedBuilder
 import network.warzone.api.Config
 import network.warzone.api.database.models.Punishment
 import network.warzone.api.database.models.SimplePlayer
+import network.warzone.api.database.models.StaffNote
 
 object WebhookUtil {
     private const val COLOR_NEW_PUNISHMENT = 0x0077FF
     private const val COLOR_PUNISHMENT_REVERTED = 0x00FF4C
     private const val COLOR_NEW_REPORT = 0xFFEE00
+    private const val COLOR_NEW_NOTE = 0xFF77FF
+    private const val COLOR_DEL_NOTE = 0xFF4F55
 
     private var punishmentsClient: WebhookClient? = null
     private var reportsClient: WebhookClient? = null
+    private var notesClient: WebhookClient? = null
 
     init {
         val punishmentsUrl = Config.punishmentsWebhookUrl
@@ -21,6 +25,9 @@ object WebhookUtil {
 
         val reportsUrl = Config.reportsWebhookUrl
         if (reportsUrl != null) reportsClient = WebhookClient.withUrl(reportsUrl)
+
+        val notesUrl = Config.notesWebhookUrl
+        if (notesUrl != null) notesClient = WebhookClient.withUrl(notesUrl)
     }
 
     // potential todo: add # of times reported recently
@@ -83,6 +90,36 @@ object WebhookUtil {
                     )
                 )
                 .addField(WebhookEmbed.EmbedField(true, "Reversion reason", reversion.reason.escapeMarkdown()))
+
+            client.send(embed.build())
+        }
+    }
+
+    fun sendNewNoteWebhook(player: SimplePlayer, note: StaffNote) {
+        notesClient?.let { client ->
+            val embed = WebhookEmbedBuilder()
+                .setColor(COLOR_NEW_NOTE)
+                .setTitle(WebhookEmbed.EmbedTitle("Note added", null))
+                .setFooter(WebhookEmbed.EmbedFooter("Player note ID: ${note.id}", null))
+                .setThumbnailUrl(player.miniIconUrl())
+                .addField(WebhookEmbed.EmbedField(true, "Target", player.name.escapeMarkdown()))
+                .addField(WebhookEmbed.EmbedField(true, "Staff", note.author.name.escapeMarkdown()))
+                .addField(WebhookEmbed.EmbedField(false, "Note", note.content.escapeMarkdown()))
+
+            client.send(embed.build())
+        }
+    }
+
+    fun sendDeletedNoteWebhook(player: SimplePlayer, note: StaffNote) {
+        notesClient?.let { client ->
+            val embed = WebhookEmbedBuilder()
+                .setColor(COLOR_DEL_NOTE)
+                .setTitle(WebhookEmbed.EmbedTitle("Note deleted", null))
+                .setFooter(WebhookEmbed.EmbedFooter("Player note ID: ${note.id}", null))
+                .setThumbnailUrl(player.miniIconUrl())
+                .addField(WebhookEmbed.EmbedField(true, "Target", player.name.escapeMarkdown()))
+                .addField(WebhookEmbed.EmbedField(true, "Staff", note.author.name.escapeMarkdown()))
+                .addField(WebhookEmbed.EmbedField(false, "Note", note.content.escapeMarkdown()))
 
             client.send(embed.build())
         }

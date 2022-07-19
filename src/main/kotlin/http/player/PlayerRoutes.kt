@@ -262,6 +262,7 @@ fun Route.playerModeration() {
                 player.notes += note
                 PlayerCache.set(playerId, player, true)
                 call.respond(player)
+                WebhookUtil.sendNewNoteWebhook(player.simple, note)
             }
         }
     }
@@ -275,6 +276,7 @@ fun Route.playerModeration() {
             player.notes -= note
             PlayerCache.set(playerId, player, true)
             call.respond(player)
+            WebhookUtil.sendDeletedNoteWebhook(player.simple, note)
         }
     }
 }

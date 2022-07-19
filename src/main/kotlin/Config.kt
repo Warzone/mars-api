@@ -71,6 +71,9 @@ object Config {
     var reportsWebhookUrl: String? = null
         private set
 
+    var notesWebhookUrl: String? = null
+        private set
+
     init {
         loadConfig()
         loadPunishmentTypes()
@@ -92,6 +95,7 @@ object Config {
                 "enable-ip-hashing" -> this.enableIpHashing = config.getProperty(it).toBoolean()
                 "webhooks.punishments" -> this.punishmentsWebhookUrl = config.getProperty(it)
                 "webhooks.reports" -> this.reportsWebhookUrl = config.getProperty(it)
+                "webhooks.notes" -> this.notesWebhookUrl = config.getProperty(it)
             }
         }
     }
