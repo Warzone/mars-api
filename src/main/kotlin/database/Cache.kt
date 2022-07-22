@@ -1,5 +1,6 @@
 package network.warzone.api.database
 
+import network.warzone.api.database.models.Match
 import org.litote.kmongo.json
 import redis.clients.jedis.params.SetParams
 
@@ -23,7 +24,11 @@ abstract class Cache(val resourceName: String, val lifetimeMs: Long? = null) {
 //        val name =
 //            "${Thread.currentThread().stackTrace[1].className}-${Thread.currentThread().stackTrace[1].methodName}"
         Redis.set("$resourceName:$key", value, options)
-        if (persist) Database.database.getCollection<T>().save(value)
+        if (persist) {
+            val result = Database.database.getCollection<T>().save(value)
+            if (value !is Match) return
+            println("DB Set(Persist) - Match: ${value._id} - Map: ${value.level.name} (${value.level._id}) - Save Result: matched=${result?.matchedCount} modified=${result?.modifiedCount} upsertedId=${result?.upsertedId} ack=${result?.wasAcknowledged()}")
+        }
     }
 
     suspend inline fun <reified T : Any> persist(_key: String) {
