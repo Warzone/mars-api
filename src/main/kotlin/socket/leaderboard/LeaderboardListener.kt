@@ -33,9 +33,14 @@ object LeaderboardListener : PlayerListener<ParticipantContext>() {
     ): ParticipantContext {
         if (!context.isTrackingStats) return context
         val (profile) = context
-        WinsLeaderboard.increment(profile.idName)
-        LossesLeaderboard.increment(profile.idName)
-        TiesLeaderboard.increment(profile.idName)
+
+        when (result) {
+            PlayerMatchResult.WIN -> WinsLeaderboard.increment(profile.idName)
+            PlayerMatchResult.LOSE -> LossesLeaderboard.increment(profile.idName)
+            PlayerMatchResult.TIE -> TiesLeaderboard.increment(profile.idName)
+            else -> {}
+        }
+
         MatchesPlayedLeaderboard.increment(profile.idName)
 
         // If a player sends messages without playing, their profile stats will be updated but their leaderboard score will only update the next time they play a match
