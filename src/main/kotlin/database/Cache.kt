@@ -1,6 +1,7 @@
 package network.warzone.api.database
 
 import network.warzone.api.database.models.Match
+import network.warzone.api.util.WebhookUtil
 import org.litote.kmongo.json
 import redis.clients.jedis.params.SetParams
 
@@ -25,9 +26,11 @@ abstract class Cache(val resourceName: String, val lifetimeMs: Long? = null) {
 //            "${Thread.currentThread().stackTrace[1].className}-${Thread.currentThread().stackTrace[1].methodName}"
         Redis.set("$resourceName:$key", value, options)
         if (persist) {
+            println("persist is true")
             val result = Database.database.getCollection<T>().save(value)
-            if (value !is Match) return
+            if (value !is Match) return println("value set is not Match")
             println("DB Set(Persist) - Match: ${value._id} - Map: ${value.level.name} (${value.level._id}) - Save Result: matched=${result?.matchedCount} modified=${result?.modifiedCount} upsertedId=${result?.upsertedId} ack=${result?.wasAcknowledged()}")
+            WebhookUtil.sendDebugLogWebhook("DB Set(Persist) - Match: ${value._id} - Map: ${value.level.name} (${value.level._id}) - Save Result: matched=${result?.matchedCount} modified=${result?.modifiedCount} upsertedId=${result?.upsertedId} ack=${result?.wasAcknowledged()}")
         }
     }
 
