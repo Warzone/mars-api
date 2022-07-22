@@ -74,6 +74,9 @@ object Config {
     var notesWebhookUrl: String? = null
         private set
 
+    var debugLogWebhookUrl: String? = null
+        private set
+
     init {
         loadConfig()
         loadPunishmentTypes()
@@ -96,6 +99,7 @@ object Config {
                 "webhooks.punishments" -> this.punishmentsWebhookUrl = config.getProperty(it)
                 "webhooks.reports" -> this.reportsWebhookUrl = config.getProperty(it)
                 "webhooks.notes" -> this.notesWebhookUrl = config.getProperty(it)
+                "webhooks.debug" -> this.debugLogWebhookUrl = config.getProperty(it)
             }
         }
     }

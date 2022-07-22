@@ -20,6 +20,7 @@ import network.warzone.api.socket.participant.ParticipantStatListener
 import network.warzone.api.socket.player.*
 import network.warzone.api.socket.server.MatchLoadData
 import network.warzone.api.socket.server.ServerContext
+import network.warzone.api.util.WebhookUtil
 import org.litote.kmongo.eq
 import org.litote.kmongo.replaceOne
 import redis.clients.jedis.params.SetParams
@@ -60,6 +61,7 @@ class SocketRouter(val server: ServerContext) {
             // Automatically end the match and force Mars to load a new match to sync state
             server.call(EventType.FORCE_MATCH_END, Unit)
             logger.warn("Forcing match end for Match ID: ${server.match?._id}. Caused by ${event.name}: ${e.message}")
+            WebhookUtil.sendDebugLogWebhook("(${server.id}) INVALID MATCH STATE. Last known match ID: ${server.match?._id} - Map: ${server.match?.level?.name} (`${server.match?.level?._id}`). Caused by event ${event.name}. Stats are not being tracked as a result of this. Ending match is recommended.")
         }
     }
 

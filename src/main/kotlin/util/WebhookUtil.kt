@@ -18,6 +18,7 @@ object WebhookUtil {
     private var punishmentsClient: WebhookClient? = null
     private var reportsClient: WebhookClient? = null
     private var notesClient: WebhookClient? = null
+    private var debugLogClient: WebhookClient? = null
 
     init {
         val punishmentsUrl = Config.punishmentsWebhookUrl
@@ -28,6 +29,9 @@ object WebhookUtil {
 
         val notesUrl = Config.notesWebhookUrl
         if (notesUrl != null) notesClient = WebhookClient.withUrl(notesUrl)
+
+        val debugLogUrl = Config.debugLogWebhookUrl
+        if (debugLogUrl != null) debugLogClient = WebhookClient.withUrl(debugLogUrl)
     }
 
     // potential todo: add # of times reported recently
@@ -122,6 +126,13 @@ object WebhookUtil {
                 .addField(WebhookEmbed.EmbedField(false, "Note", note.content.escapeMarkdown()))
 
             client.send(embed.build())
+        }
+    }
+
+    fun sendDebugLogWebhook(content: String) {
+        debugLogClient?.let {
+            println("Sending debug log: $content")
+            it.send(content)
         }
     }
 

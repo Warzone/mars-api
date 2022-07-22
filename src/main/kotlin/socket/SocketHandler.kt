@@ -12,6 +12,7 @@ import network.warzone.api.Config
 import network.warzone.api.http.UnauthorizedException
 import network.warzone.api.socket.server.ConnectedServers
 import network.warzone.api.socket.server.ServerContext
+import network.warzone.api.util.WebhookUtil
 import network.warzone.api.util.zlibDecompress
 import org.slf4j.Logger
 import java.util.*
@@ -41,6 +42,7 @@ fun Application.initSocketHandler() {
             val server = ServerContext(serverId, this)
             ConnectedServers += server
             log.info("Server '${server.id}' connected to socket server")
+            WebhookUtil.sendDebugLogWebhook("Socket connection established with server '${server.id}'")
 
             val router = SocketRouter(server)
 
@@ -62,9 +64,11 @@ fun Application.initSocketHandler() {
                 }
             } catch (err: Exception) {
                 log.error(err)
+                WebhookUtil.sendDebugLogWebhook("(${server.id}) [match: ${server.match?._id} (${server.match?.state}), map: ${server.match?.level?.name} (`${server.match?.level?._id}`)] Exception occurred (SH): $err - ${err.message}")
             } finally {
                 ConnectedServers -= server
                 log.info("Server '${server.id}' disconnected from socket server")
+                WebhookUtil.sendDebugLogWebhook("Socket connection with server '${server.id}' has been destroyed")
             }
         }
     }
