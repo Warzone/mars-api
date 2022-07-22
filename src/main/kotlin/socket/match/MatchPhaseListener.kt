@@ -10,6 +10,7 @@ import network.warzone.api.socket.InvalidMatchStateException
 import network.warzone.api.socket.logger
 import network.warzone.api.socket.server.MatchLoadData
 import network.warzone.api.socket.server.ServerContext
+import network.warzone.api.util.WebhookUtil
 import java.util.*
 
 class MatchPhaseListener(val server: ServerContext) {
@@ -49,6 +50,7 @@ class MatchPhaseListener(val server: ServerContext) {
         MatchCache.set(match._id, match, true)
         server.currentMatchId = match._id
         logger.info("(${server.id}) Match loaded: ${match._id}")
+        WebhookUtil.sendDebugLogWebhook("(${server.id}) Match loaded: ${match._id} - Map: ${match.level.name} (`${match.level._id}`)")
     }
 
     suspend fun onStart(data: MatchStartData, match: Match): Match {
@@ -60,6 +62,7 @@ class MatchPhaseListener(val server: ServerContext) {
         match.saveParticipants(*participants)
 
         logger.info("(${server.id}) Match started: ${match._id}")
+        WebhookUtil.sendDebugLogWebhook("(${server.id}) Match start packet received: ${match._id} - Map: ${match.level.name} (`${match.level._id}`)")
 
         return match
     }
@@ -68,6 +71,7 @@ class MatchPhaseListener(val server: ServerContext) {
         if (match.state != MatchState.IN_PROGRESS) throw InvalidMatchStateException()
         match.endedAt = Date().time
         logger.info("(${server.id}) Match ended: ${match._id}")
+        WebhookUtil.sendDebugLogWebhook("(${server.id}) Match end packet received: ${match._id} - Map: ${match.level.name} (`${match.level._id}`)")
         return match
     }
 }
