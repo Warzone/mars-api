@@ -62,6 +62,10 @@ class SocketRouter(val server: ServerContext) {
             server.call(EventType.FORCE_MATCH_END, Unit)
             logger.warn("Forcing match end for Match ID: ${server.match?._id}. Caused by ${event.name}: ${e.message}")
             WebhookUtil.sendDebugLogWebhook("(${server.id}) INVALID MATCH STATE. Last known match ID: ${server.match?._id} - Map: ${server.match?.level?.name} (`${server.match?.level?._id}`). Caused by event ${event.name}. Stats are not being tracked as a result of this. Ending match is recommended.")
+        } catch (ex: Exception) {
+            logger.warn("Exception occurred (match id: ${server.match?._id}) – caused by ${event.name}: $ex ${ex.message}")
+            ex.printStackTrace()
+            WebhookUtil.sendDebugLogWebhook("[${server.id}, ${server.match?._id}, ${server.match?.level?.name}] Exception occurred (SR) $ex ${ex.message}")
         }
     }
 
