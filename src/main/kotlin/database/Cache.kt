@@ -22,16 +22,16 @@ abstract class Cache(val resourceName: String, val lifetimeMs: Long? = null) {
         options: SetParams? = if (lifetimeMs != null) SetParams().px(lifetimeMs) else SetParams()
     ) {
         val key = _key.lowercase()
-//        val name =
-//            "${Thread.currentThread().stackTrace[1].className}-${Thread.currentThread().stackTrace[1].methodName}"
-        Redis.set("$resourceName:$key", value, options)
+        println("[$key] persist: $persist")
         if (persist) {
             println("persist is true")
             val result = Database.database.getCollection<T>().save(value)
-            if (value !is Match) return println("value set is not Match")
-            println("DB Set(Persist) - Match: ${value._id} - Map: ${value.level.name} (${value.level._id}) - Save Result: matched=${result?.matchedCount} modified=${result?.modifiedCount} upsertedId=${result?.upsertedId} ack=${result?.wasAcknowledged()}")
-            WebhookUtil.sendDebugLogWebhook("DB Set(Persist) - Match: ${value._id} - Map: ${value.level.name} (${value.level._id}) - Save Result: matched=${result?.matchedCount} modified=${result?.modifiedCount} upsertedId=${result?.upsertedId} ack=${result?.wasAcknowledged()}")
+            if (value is Match) {
+                println("DB Set(Persist) - Match: ${value._id} - Map: ${value.level.name} (${value.level._id}) - Save Result: matched=${result?.matchedCount} modified=${result?.modifiedCount} upsertedId=${result?.upsertedId} ack=${result?.wasAcknowledged()}")
+                WebhookUtil.sendDebugLogWebhook("DB Set(Persist) - Match: ${value._id} - Map: ${value.level.name} (${value.level._id}) - Save Result: matched=${result?.matchedCount} modified=${result?.modifiedCount} upsertedId=${result?.upsertedId} ack=${result?.wasAcknowledged()}")
+            } else println("value set is not Match")
         }
+        Redis.set("$resourceName:$key", value, options)
     }
 
     suspend inline fun <reified T : Any> persist(_key: String) {
