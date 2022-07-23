@@ -1,0 +1,10 @@
+- id: 'ender-dragon'
+  name: '&dEnder Dragon'
+  description:
+    - '&7Growl!'
+  sound: 'ENDERDRAGON_GROWL'
+  permission: 'join.sound.enderdragon'
+  guiIcon: 'dragon egg'
+  guiSlot: 10
+  volume: 0.5
+  pitch: 1.0

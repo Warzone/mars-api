@@ -38,6 +38,7 @@ import network.warzone.api.http.broadcast.broadcastRoutes
 import network.warzone.api.http.leaderboard.leaderboardRoutes
 import network.warzone.api.http.level.levelRoutes
 import network.warzone.api.http.map.mapRoutes
+import network.warzone.api.http.perks.perkRoutes
 import network.warzone.api.http.punishment.punishmentRoutes
 import network.warzone.api.http.rank.rankRoutes
 import network.warzone.api.http.report.reportRoutes
@@ -113,5 +114,6 @@ class Server {
         leaderboardRoutes()
         serverRoutes()
         reportRoutes()
+        perkRoutes()
     }
 }

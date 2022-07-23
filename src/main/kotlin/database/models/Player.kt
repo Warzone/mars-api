@@ -21,7 +21,8 @@ data class Player(
     var tagIds: List<String>,
     var activeTagId: String? = null,
     val stats: PlayerStats,
-    val gamemodeStats: HashMap<LevelGamemode, GamemodeStats>
+    val gamemodeStats: HashMap<LevelGamemode, GamemodeStats>,
+    var activeJoinSoundId: String? = null
 ) {
     suspend fun getActiveSession(): Session? {
         return Database.sessions.findOne(Session::endedAt eq null, Session::player / SimplePlayer::id eq _id)
