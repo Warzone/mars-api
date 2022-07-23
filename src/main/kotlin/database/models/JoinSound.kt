@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class JoinSound(
     val id: String,
     val name: String,
-    val description: List<String>,
+    val description: List<String> = emptyList(),
     val sound: String,
     val permission: String,
     val guiIcon: String,
