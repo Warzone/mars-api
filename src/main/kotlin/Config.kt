@@ -56,6 +56,9 @@ object Config {
     var redisHost = "localhost"
         private set
 
+    var redisPassword: String? = null
+        private set
+
     var apiToken: String =
         System.getenv("MARS_API_TOKEN") ?: throw Exception("MARS_API_TOKEN is a required env variable")
         private set
@@ -106,6 +109,7 @@ object Config {
                 "listen-host" -> this.listenHost = config.getProperty(it)
                 "mongo-url" -> this.mongoUrl = config.getProperty(it)
                 "redis-host" -> this.redisHost = config.getProperty(it)
+                "redis-password" -> this.redisPassword = config.getProperty(it)
                 "enable-ip-hashing" -> this.enableIpHashing = config.getProperty(it).toBoolean()
                 "webhooks.punishments" -> this.punishmentsWebhookUrl = config.getProperty(it)
                 "webhooks.reports" -> this.reportsWebhookUrl = config.getProperty(it)

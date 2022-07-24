@@ -9,7 +9,12 @@ import redis.clients.jedis.JedisPoolConfig
 import redis.clients.jedis.params.SetParams
 
 object Redis {
-    val pool: JedisPool = JedisPool(JedisPoolConfig(), Config.redisHost)
+    val pool: JedisPool
+
+    init {
+        pool = JedisPool(JedisPoolConfig(), Config.redisHost)
+        if (Config.redisPassword != null) pool.resource.auth(Config.redisPassword)
+    }
 
     inline fun <reified T> get(key: String): T? {
         pool.resource.use {
