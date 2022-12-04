@@ -8,6 +8,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import network.warzone.api.database.Redis
 import network.warzone.api.database.models.Match
+import network.warzone.api.database.models.ServerEvents
 import network.warzone.api.socket.EventType
 import network.warzone.api.util.zlibCompress
 
@@ -24,6 +25,10 @@ class ServerContext(val id: String, val session: DefaultWebSocketServerSession) 
     var lastAliveTime: Long?
         get() = Redis.get("server:$id:last_alive_time")
         set(value) = Redis.set("server:$id:last_alive_time", value)
+
+    var events: ServerEvents?
+        get() = Redis.get("server:$id:events")
+        set(value) = Redis.set("server:$id:events", value)
 
     suspend inline fun <reified T> call(type: EventType, data: T) {
         val packet = Packet(type, data)
