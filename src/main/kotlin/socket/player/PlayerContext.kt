@@ -7,6 +7,7 @@ import network.warzone.api.database.models.Player
 import network.warzone.api.socket.EventType
 import network.warzone.api.socket.leaderboard.XPLeaderboard
 import network.warzone.api.socket.participant.ParticipantContext
+import kotlin.math.max
 
 data class PlayerContext(val profile: Player, val match: Match) {
     fun getParticipant(): ParticipantContext {
@@ -42,12 +43,17 @@ data class PlayerContext(val profile: Player, val match: Match) {
 
     suspend fun addXP(rawXP: Int, reason: String, notify: Boolean = true, rawOnly: Boolean = false): PlayerContext {
         val originalLevel = profile.stats.level
+        val multiplier = match.server.events?.xpMultiplier?.value ?: 1f
 
-        val xp = if (rawOnly) rawXP else gain(rawXP, originalLevel)
+        val multiplied = (rawXP.toFloat() * multiplier).toInt()
+
+        val xp = if (rawOnly) multiplied else max(gain(rawXP, originalLevel), multiplied)
         profile.stats.xp += xp
 
+        val usedMultiplier = xp == multiplied
+
         // Notify the MC server of the XP gain
-        match.server.call(EventType.PLAYER_XP_GAIN, PlayerXPGainData(profile._id, xp, reason, notify))
+        match.server.call(EventType.PLAYER_XP_GAIN, PlayerXPGainData(profile._id, xp, reason, notify, multiplier = if (usedMultiplier) multiplier else null))
 
         // Update XP leaderboard score
         XPLeaderboard.increment(profile.idName, xp)

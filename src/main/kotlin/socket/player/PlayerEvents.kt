@@ -50,7 +50,7 @@ data class PartyLeaveData(val player: SimplePlayer)
 data class MessageData(val message: String, val sound: String?, val playerIds: List<String>)
 
 @Serializable
-data class PlayerXPGainData(val playerId: String, val gain: Int, val reason: String, val notify: Boolean)
+data class PlayerXPGainData(val playerId: String, val gain: Int, val reason: String, val notify: Boolean, val multiplier: Float?)
 
 @Serializable
 data class DisconnectPlayerData(val playerId: String, val reason: String)

@@ -24,9 +24,8 @@ const val XP_KILLSTREAK_COEFFICIENT = 10
 const val XP_KILLSTREAK_END_COEFFICIENT = 2
 
 fun gain(xp: Int, level: Int): Int {
-    val rawMultiplier = XP_BEGINNER_ASSIST_MAX - level
-    val multiplier = if (rawMultiplier >= 1) rawMultiplier else 1
-    return xp * multiplier
+    val startMultiplier = max(XP_BEGINNER_ASSIST_MAX - level, 1)
+    return xp * startMultiplier
 }
 
 object PlayerXPListener : PlayerListener<PlayerContext>() {
