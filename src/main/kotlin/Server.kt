@@ -66,7 +66,6 @@ class Server {
             method(HttpMethod.Delete)
             header(HttpHeaders.ContentType)
             header(HttpHeaders.Authorization)
-            allowCredentials = true
         }
 
         install(ContentNegotiation) {
