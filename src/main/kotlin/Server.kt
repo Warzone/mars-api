@@ -58,6 +58,17 @@ fun main() {
 
 class Server {
     fun Application.main() {
+        install(CORS) {
+            anyHost()
+            method(HttpMethod.Options)
+            method(HttpMethod.Put)
+            method(HttpMethod.Patch)
+            method(HttpMethod.Delete)
+            header(HttpHeaders.ContentType)
+            header(HttpHeaders.Authorization)
+            allowCredentials = true
+        }
+
         install(ContentNegotiation) {
             json()
         }
