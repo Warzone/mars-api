@@ -67,6 +67,8 @@ class MapMissingException :
 class PunishmentMissingException :
     ApiException(HttpStatusCode.NotFound, ApiExceptionType.PUNISHMENT_MISSING, "The punishment does not exist")
 
+class MatchMissingException : ApiException(HttpStatusCode.NotFound, ApiExceptionType.MATCH_MISSING, "The match does not exist")
+
 class NoteMissingException :
     ApiException(HttpStatusCode.NotFound, ApiExceptionType.NOTE_MISSING, "The note does not exist")
 
@@ -98,6 +100,7 @@ enum class ApiExceptionType {
     TAG_ALREADY_PRESENT,
     TAG_NOT_PRESENT,
     MAP_MISSING,
+    MATCH_MISSING,
     PUNISHMENT_MISSING,
     NOTE_MISSING
 }

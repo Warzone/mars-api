@@ -38,6 +38,7 @@ import network.warzone.api.http.broadcast.broadcastRoutes
 import network.warzone.api.http.leaderboard.leaderboardRoutes
 import network.warzone.api.http.level.levelRoutes
 import network.warzone.api.http.map.mapRoutes
+import network.warzone.api.http.match.matchRoutes
 import network.warzone.api.http.perks.perkRoutes
 import network.warzone.api.http.punishment.punishmentRoutes
 import network.warzone.api.http.rank.rankRoutes
@@ -115,6 +116,7 @@ class Server {
 
         statusRoutes()
         playerRoutes()
+        matchRoutes()
         rankRoutes()
         tagRoutes()
         mapRoutes()
