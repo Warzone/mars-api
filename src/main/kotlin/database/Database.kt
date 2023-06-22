@@ -22,6 +22,7 @@ object Database {
     val matches: CoroutineCollection<Match>
     val deaths: CoroutineCollection<Death>
     val punishments: CoroutineCollection<Punishment>
+    val achievements: CoroutineCollection<Achievement>
 
     init {
         val client = KMongo.createClient(Config.mongoUrl).coroutine
@@ -34,6 +35,7 @@ object Database {
         matches = database.getCollection()
         deaths = database.getCollection()
         punishments = database.getCollection()
+        achievements = database.getCollection()
 
         runBlocking {
             // remove if indexes are problematic later...

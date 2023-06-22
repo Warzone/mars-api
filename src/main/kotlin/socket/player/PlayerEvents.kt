@@ -54,3 +54,6 @@ data class PlayerXPGainData(val playerId: String, val gain: Int, val reason: Str
 
 @Serializable
 data class DisconnectPlayerData(val playerId: String, val reason: String)
+
+@Serializable
+data class PlayerAchievementData(val player: SimplePlayer, val achievement: String)
