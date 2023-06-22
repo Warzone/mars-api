@@ -35,6 +35,7 @@ class SocketRouter(val server: ServerContext) {
     suspend fun route(event: EventType, data: JsonObject) {
         try {
             when (event) {
+                EventType.ACHIEVEMENT_EARN -> onAchievementComplete(Json.decodeFromJsonElement(data))
                 EventType.MATCH_LOAD -> onMatchLoad(Json.decodeFromJsonElement(data))
                 EventType.MATCH_START -> onMatchStart(Json.decodeFromJsonElement(data))
                 EventType.MATCH_END -> onMatchEnd(Json.decodeFromJsonElement(data))
@@ -459,6 +460,13 @@ class SocketRouter(val server: ServerContext) {
         }
 
         MatchCache.set(match._id, match)
+    }
+
+    private suspend fun onAchievementComplete(data: PlayerAchievementData) {
+        val player: Player = PlayerCache.get(data.player.name) ?: return
+        player.stats.achievements.add(data.achievement)
+        PlayerCache.set(player.name, player, true)
+
     }
 }
 
