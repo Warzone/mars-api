@@ -85,7 +85,6 @@ typealias GamemodeStats = PlayerStats
 
 @Serializable
 data class PlayerStats(
-    var test: Int = 999,
     var xp: Int = 0,
     var serverPlaytime: Long = 0,
     var gamePlaytime: Long = 0,
@@ -116,14 +115,12 @@ data class PlayerStats(
     val weaponDeaths: MutableMap<String, Int> = mutableMapOf(),
     val killstreaks: MutableMap<Int, Int> = mutableMapOf(),
     val killstreaksEnded: MutableMap<Int, Int> = mutableMapOf(),
-    val achievements: HashSet<String> = hashSetOf()
 ) {
     val level: Int
         get() = floor(((xp + XP_PER_LEVEL) / XP_PER_LEVEL).toDouble()).toInt()
 
     fun getScore(type: ScoreType): Int {
         return when (type) {
-            ScoreType.TEST -> test
             ScoreType.KILLS -> kills
             ScoreType.DEATHS -> deaths
             ScoreType.FIRST_BLOODS -> firstBloods
@@ -203,7 +200,3 @@ data class PlayerMessages(var staff: Int = 0, var global: Int = 0, var team: Int
     val total: Int
         get() = staff + global + team
 }
-
-@Serializable
-data class PlayerAchievement(val title: String)
-

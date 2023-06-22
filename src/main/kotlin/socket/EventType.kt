@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class EventType {
     // API-bound
-    ACHIEVEMENT_EARN,
     MATCH_LOAD,
     MATCH_START,
     MATCH_END,
