@@ -7,6 +7,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import network.warzone.api.database.Database
 import network.warzone.api.database.MatchCache
 import network.warzone.api.database.PlayerCache
+import network.warzone.api.database.Redis
 import network.warzone.api.database.models.*
 import network.warzone.api.socket.leaderboard.LeaderboardListener
 import network.warzone.api.socket.map.MapRecordListener
@@ -465,8 +466,8 @@ class SocketRouter(val server: ServerContext) {
     private suspend fun onAchievementComplete(data: PlayerAchievementData) {
         val player: Player = PlayerCache.get(data.player.name) ?: return
         player.stats.achievements.add(data.achievement)
+        // I think this line below is updating Redis.
         PlayerCache.set(player.name, player, true)
-
     }
 }
 

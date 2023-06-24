@@ -6,7 +6,9 @@ import network.warzone.api.database.Database
 import network.warzone.api.database.findById
 import org.litote.kmongo.coroutine.CoroutineCollection
 
-enum class AgentType
+enum class AgentType {
+    TOTAL_KILLS_AGENT
+}
 
 @Serializable
 sealed class AgentParams {

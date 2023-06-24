@@ -34,6 +34,7 @@ import io.ktor.websocket.*
 import network.warzone.api.database.Database
 import network.warzone.api.http.ApiException
 import network.warzone.api.http.InternalServerErrorException
+import network.warzone.api.http.achievements.achievementRoutes
 import network.warzone.api.http.broadcast.broadcastRoutes
 import network.warzone.api.http.leaderboard.leaderboardRoutes
 import network.warzone.api.http.level.levelRoutes
@@ -112,6 +113,7 @@ class Server {
 
         initSocketHandler()
 
+        achievementRoutes()
         statusRoutes()
         playerRoutes()
         matchRoutes()
