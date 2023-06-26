@@ -116,7 +116,7 @@ data class PlayerStats(
     val weaponDeaths: MutableMap<String, Int> = mutableMapOf(),
     val killstreaks: MutableMap<Int, Int> = mutableMapOf(),
     val killstreaksEnded: MutableMap<Int, Int> = mutableMapOf(),
-    val achievements: HashSet<String> = hashSetOf()
+    val achievements: MutableList<String> = mutableListOf()
 ) {
     val level: Int
         get() = floor(((xp + XP_PER_LEVEL) / XP_PER_LEVEL).toDouble()).toInt()

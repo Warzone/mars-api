@@ -29,6 +29,23 @@ fun Route.getAchievements() {
     }
 }
 
+fun Route.deleteAchievement() {
+    delete("/{id}") {
+        val id = call.parameters["id"]
+        if (id == null) {
+            call.respond(HttpStatusCode.BadRequest, "Missing or malformed id")
+            return@delete
+        }
+
+        val isDeleted = Achievement.deleteAchievement(id)
+        if (isDeleted) {
+            call.respond(HttpStatusCode.OK, "Achievement $id deleted successfully")
+        } else {
+            call.respond(HttpStatusCode.NotFound, "Achievement $id not found")
+        }
+    }
+}
+
 // TODO: Do this one later; it needs a different route
 fun Route.getCompletionStatus() {
 
@@ -39,6 +56,7 @@ fun Application.achievementRoutes() {
         route("/mc/achievements") {
             addAchievement()
             getAchievements()
+            deleteAchievement()
         }
     }
 }
