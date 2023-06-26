@@ -12,7 +12,7 @@ fun Route.addAchievement() {
     post {
         val newAchievementRequest = call.receive<AchievementCreateRequest>()
         val newAchievement = Achievement(
-            id = UUID.randomUUID().toString(),
+            _id = UUID.randomUUID().toString(),
             name = newAchievementRequest.name,
             description = newAchievementRequest.description,
             agent = newAchievementRequest.agent
@@ -25,6 +25,7 @@ fun Route.addAchievement() {
 fun Route.getAchievements() {
     get {
         val achievements = Achievement.getAchievements()
+
         call.respond(HttpStatusCode.OK, achievements)
     }
 }
@@ -44,11 +45,6 @@ fun Route.deleteAchievement() {
             call.respond(HttpStatusCode.NotFound, "Achievement $id not found")
         }
     }
-}
-
-// TODO: Do this one later; it needs a different route
-fun Route.getCompletionStatus() {
-
 }
 
 fun Application.achievementRoutes() {

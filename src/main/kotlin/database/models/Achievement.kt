@@ -1,26 +1,34 @@
 package network.warzone.api.database.models
 
+import com.mongodb.client.result.DeleteResult
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.Database
 import network.warzone.api.database.deleteById
 import network.warzone.api.database.findById
+import org.bson.BsonDocument
 import org.litote.kmongo.coroutine.CoroutineCollection
 
 enum class AgentType {
-    TOTAL_KILLS_AGENT
+    TOTAL_KILLS_AGENT,
+    KILL_STREAK_AGENT,
+    COMPOSITE_AGENT
 }
 
 @Serializable
 sealed class AgentParams {
     @Serializable
-    @SerialName("IntOnly")
-    data class IntOnly(val i: Int) : AgentParams()
+    @SerialName("TotalKillsAgentParams")
+    data class TotalKillsAgentParams(val targetKills: Int) : AgentParams()
 
     @Serializable
-    @SerialName("IntAndString")
-    data class IntAndString(val i: Int, val s: String) : AgentParams()
+    @SerialName("KillStreakAgentParams")
+    data class KillStreakAgentParams(val targetStreak: Int) : AgentParams()
+
+    @Serializable
+    @SerialName("CompositeAgentParams")
+    data class CompositeAgentParams(val agents: List<Agent>) : AgentParams()
 
     // add more classes as needed for each type of parameter set
 }
@@ -29,12 +37,12 @@ sealed class AgentParams {
 data class Agent(
     val type: AgentType,
     @Contextual
-    val params: AgentParams
+    val params: AgentParams? = null
 )
 
 @Serializable
 data class Achievement(
-    val id: String,
+    val _id: String,
     val name: String,
     val description: String,
     val agent: Agent
@@ -43,7 +51,7 @@ data class Achievement(
         suspend fun addAchievement(achievement: Achievement): String {
             val achievements: CoroutineCollection<Achievement> = Database.database.getCollection()
             achievements.insertOne(achievement)
-            return achievement.id
+            return achievement._id
         }
 
         suspend fun getAchievements(): List<Achievement> {
@@ -51,16 +59,19 @@ data class Achievement(
             return achievements.find().toList()
         }
 
-        //TODO: This currently does not work
         suspend fun deleteAchievement(achievementId: String): Boolean {
             val achievements: CoroutineCollection<Achievement> = Database.database.getCollection()
-            val deleteResult = achievements.deleteById(achievementId)
+            val deleteResult: DeleteResult
+            // TODO: Remove this branch in the final commit; it's just a debug branch
+            //  for me to quickly clear my achievements
+            if (achievementId == "*") {
+                deleteResult = achievements.deleteMany(BsonDocument())
+                println("${deleteResult.deletedCount} documents were deleted.")
+            }
+            else {
+                deleteResult = achievements.deleteById(achievementId)
+            }
             return deleteResult.wasAcknowledged() && deleteResult.deletedCount > 0
-        }
-
-        suspend fun getAchievementCompletions(playerId: String): List<Achievement> {
-            // This is a placeholder.
-            return emptyList()
         }
 
         suspend fun findById(achievementId: String): Achievement? {
