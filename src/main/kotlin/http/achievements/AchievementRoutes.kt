@@ -5,7 +5,12 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import network.warzone.api.database.Database
+import network.warzone.api.database.findByIdOrName
 import network.warzone.api.database.models.Achievement
+import network.warzone.api.http.AchievementMissingException
+import network.warzone.api.http.RankMissingException
+import network.warzone.api.http.ValidationException
 import java.util.*
 
 fun Route.addAchievement() {
@@ -27,6 +32,11 @@ fun Route.getAchievements() {
         val achievements = Achievement.getAchievements()
 
         call.respond(HttpStatusCode.OK, achievements)
+    }
+    get("/{achievementId}") {
+        val id = call.parameters["achievementId"] ?: throw ValidationException()
+        val achievement = Database.achievements.findByIdOrName(id) ?: throw AchievementMissingException()
+        call.respond(achievement)
     }
 }
 

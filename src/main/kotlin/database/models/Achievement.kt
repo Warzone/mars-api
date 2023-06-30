@@ -9,6 +9,7 @@ import network.warzone.api.database.deleteById
 import network.warzone.api.database.findById
 import org.bson.BsonDocument
 import org.litote.kmongo.coroutine.CoroutineCollection
+import java.util.*
 
 enum class AgentType {
     TOTAL_KILLS_AGENT,
@@ -42,6 +43,7 @@ data class Agent(
 
 @Serializable
 data class Achievement(
+    @Contextual
     val _id: String,
     val name: String,
     val description: String,
