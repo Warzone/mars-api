@@ -27,6 +27,7 @@ sealed class AgentParams {
     @SerialName("KillStreakAgentParams")
     data class KillStreakAgentParams(val targetStreak: Int) : AgentParams()
 
+    // TODO: This will be implemented later.
     @Serializable
     @SerialName("CompositeAgentParams")
     data class CompositeAgentParams(val agents: List<Agent>) : AgentParams()
@@ -38,12 +39,12 @@ sealed class AgentParams {
 data class Agent(
     val type: AgentType,
     @Contextual
+    @Serializable
     val params: AgentParams? = null
 )
 
 @Serializable
 data class Achievement(
-    @Contextual
     val _id: String,
     val name: String,
     val description: String,
@@ -57,7 +58,9 @@ data class Achievement(
         }
 
         suspend fun getAchievements(): List<Achievement> {
+            println("<!><!><!> GET ACHIEVEMENTS CALLED <!><!><!>")
             val achievements: CoroutineCollection<Achievement> = Database.database.getCollection()
+            println("<!><!><!> GET ACHIEVEMENTS FINISHING <!><!><!>")
             return achievements.find().toList()
         }
 
