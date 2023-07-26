@@ -14,6 +14,8 @@ import java.util.*
 enum class AgentType {
     TOTAL_KILLS_AGENT,
     KILL_STREAK_AGENT,
+    FIRE_DEATH_AGENT,
+    CAPTURE_NO_SPRINT_AGENT,
     COMPOSITE_AGENT
 }
 
@@ -26,6 +28,14 @@ sealed class AgentParams {
     @Serializable
     @SerialName("KillStreakAgentParams")
     data class KillStreakAgentParams(val targetStreak: Int) : AgentParams()
+
+    @Serializable
+    @SerialName("FireDeathAgentParams")
+    object FireDeathAgentParams : AgentParams()
+
+    @Serializable
+    @SerialName("CaptureNoSprintAgentParams")
+    object CaptureNoSprintAgentParams : AgentParams()
 
     // TODO: This will be implemented later.
     @Serializable
@@ -58,9 +68,7 @@ data class Achievement(
         }
 
         suspend fun getAchievements(): List<Achievement> {
-            println("<!><!><!> GET ACHIEVEMENTS CALLED <!><!><!>")
             val achievements: CoroutineCollection<Achievement> = Database.database.getCollection()
-            println("<!><!><!> GET ACHIEVEMENTS FINISHING <!><!><!>")
             return achievements.find().toList()
         }
 

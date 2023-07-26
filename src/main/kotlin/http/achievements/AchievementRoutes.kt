@@ -30,12 +30,6 @@ fun Route.addAchievement() {
 fun Route.getAchievements() {
     get {
         val achievements = Achievement.getAchievements()
-
-        // This successfully prints the achievements to the API console.
-        achievements.forEach { achievement ->
-            println("Achievement: ${achievement.name}, Description: ${achievement.description}")
-        }
-
         call.respond(HttpStatusCode.OK, achievements)
     }
     get("/{achievementId}") {
