@@ -9,6 +9,7 @@ import network.warzone.api.database.MatchCache
 import network.warzone.api.database.PlayerCache
 import network.warzone.api.database.Redis
 import network.warzone.api.database.models.*
+import network.warzone.api.socket.achievement.PlayerUpdateListener
 import network.warzone.api.socket.leaderboard.LeaderboardListener
 import network.warzone.api.socket.map.MapRecordListener
 import network.warzone.api.socket.match.MatchEndData
@@ -27,12 +28,12 @@ import org.litote.kmongo.replaceOne
 import redis.clients.jedis.params.SetParams
 import java.util.*
 
-val participantListeners =
-    listOf(ParticipantStatListener, ParticipantPartyListener, MapRecordListener, LeaderboardListener)
-val playerListeners =
-    listOf(PlayerStatListener, PlayerGamemodeStatListener, PlayerXPListener, PlayerRecordListener)
 
 class SocketRouter(val server: ServerContext) {
+    private val participantListeners =
+        listOf(ParticipantStatListener, ParticipantPartyListener, MapRecordListener, LeaderboardListener)
+    private val playerListeners =
+        listOf(PlayerStatListener, PlayerGamemodeStatListener, PlayerXPListener, PlayerRecordListener, PlayerUpdateListener(server))
     suspend fun route(event: EventType, data: JsonObject) {
         try {
             when (event) {
