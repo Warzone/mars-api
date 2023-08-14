@@ -11,6 +11,7 @@ import network.warzone.api.database.models.Achievement
 import network.warzone.api.http.AchievementMissingException
 import network.warzone.api.http.RankMissingException
 import network.warzone.api.http.ValidationException
+import network.warzone.api.util.capitalizeFirst
 import java.util.*
 
 fun Route.addAchievement() {
@@ -20,6 +21,7 @@ fun Route.addAchievement() {
             _id = UUID.randomUUID().toString(),
             name = newAchievementRequest.name,
             description = newAchievementRequest.description,
+            parent = newAchievementRequest.parent,
             agent = newAchievementRequest.agent
         )
         val resultId = Achievement.addAchievement(newAchievement)
