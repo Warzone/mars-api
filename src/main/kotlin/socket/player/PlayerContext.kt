@@ -5,6 +5,7 @@ import network.warzone.api.database.models.LevelGamemode
 import network.warzone.api.database.models.Match
 import network.warzone.api.database.models.Player
 import network.warzone.api.socket.EventType
+import network.warzone.api.socket.achievement.PlayerUpdateData
 import network.warzone.api.socket.leaderboard.XPLeaderboard
 import network.warzone.api.socket.participant.ParticipantContext
 import kotlin.math.max
@@ -52,8 +53,11 @@ data class PlayerContext(val profile: Player, val match: Match) {
 
         val usedMultiplier = xp == multiplied
 
+        val xpData = PlayerXPGainData(profile._id, xp, reason, notify, multiplier = if (usedMultiplier) multiplier else null)
+        //val levelData = PlayerLevelUpData(profile.simple, profile.stats.level)
         // Notify the MC server of the XP gain
-        match.server.call(EventType.PLAYER_XP_GAIN, PlayerXPGainData(profile._id, xp, reason, notify, multiplier = if (usedMultiplier) multiplier else null))
+        match.server.call(EventType.PLAYER_XP_GAIN, xpData)
+        //match.server.call(EventType.PLAYER_UPDATE, PlayerUpdateData.LevelUpUpdateData(levelData))
 
         // Update XP leaderboard score
         XPLeaderboard.increment(profile.idName, xp)

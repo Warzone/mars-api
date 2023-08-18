@@ -7,10 +7,7 @@ import network.warzone.api.database.models.Player
 import network.warzone.api.socket.EventType
 import network.warzone.api.socket.match.MatchEndData
 import network.warzone.api.socket.participant.PlayerMatchResult
-import network.warzone.api.socket.player.PlayerChatData
-import network.warzone.api.socket.player.PlayerContext
-import network.warzone.api.socket.player.PlayerDeathData
-import network.warzone.api.socket.player.PlayerListener
+import network.warzone.api.socket.player.*
 import network.warzone.api.socket.server.ServerContext
 
 @Serializable
@@ -45,6 +42,7 @@ sealed class PlayerUpdateData {
     @SerialName("ChatUpdateData")
     @Serializable
     data class ChatUpdateData(val data: PlayerChatData) : PlayerUpdateData()
+    @Serializable
     @SerialName("KillstreakUpdateData")
     data class KillstreakUpdateData(val amount: Int) : PlayerUpdateData()
     @Serializable
