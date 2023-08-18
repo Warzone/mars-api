@@ -86,7 +86,6 @@ enum class LeaderboardPeriod {
 }
 
 enum class ScoreType {
-    TEST,
     KILLS,
     DEATHS,
     FIRST_BLOODS,
@@ -116,7 +115,6 @@ enum class ScoreType {
 
     fun toLeaderboard(): Leaderboard {
         return when (this) {
-            TEST -> TestLeaderboard
             KILLS -> KillsLeaderboard
             DEATHS -> DeathsLeaderboard
             FIRST_BLOODS -> FirstBloodsLeaderboard
@@ -158,7 +156,6 @@ enum class ScoreType {
     }
 }
 
-object TestLeaderboard : Leaderboard(ScoreType.TEST)
 object KillsLeaderboard : Leaderboard(ScoreType.KILLS)
 object DeathsLeaderboard : Leaderboard(ScoreType.DEATHS)
 object FirstBloodsLeaderboard : Leaderboard(ScoreType.FIRST_BLOODS)

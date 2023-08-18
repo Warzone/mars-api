@@ -85,7 +85,6 @@ typealias GamemodeStats = PlayerStats
 
 @Serializable
 data class PlayerStats(
-    var test: Int = 999,
     var xp: Int = 0,
     var serverPlaytime: Long = 0,
     var gamePlaytime: Long = 0,
@@ -123,7 +122,6 @@ data class PlayerStats(
 
     fun getScore(type: ScoreType): Int {
         return when (type) {
-            ScoreType.TEST -> test
             ScoreType.KILLS -> kills
             ScoreType.DEATHS -> deaths
             ScoreType.FIRST_BLOODS -> firstBloods
