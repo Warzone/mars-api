@@ -319,6 +319,18 @@ sealed class AgentParams {
     @Serializable
     @SerialName("ControlPointCaptureAgentParams")
     data class ControlPointCaptureAgentParams(val captures: Int) : AgentParams()
+
+    @Serializable
+    @SerialName("TotalWinsAgentParams")
+    data class TotalWinsAgentParams(val wins: Int) : AgentParams()
+
+    @Serializable
+    @SerialName("TotalDeathsAgentParams")
+    data class TotalDeathsAgentParams(val deaths: Int) : AgentParams()
+
+    @Serializable
+    @SerialName("TotalLossesAgentParams")
+    data class TotalLossesAgentParams(val losses: Int) : AgentParams()
 }
 
 @Serializable
