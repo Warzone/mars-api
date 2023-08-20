@@ -20,7 +20,7 @@ fun Route.addAchievement() {
     post {
         protected(this) { _ ->
             validate<AchievementCreateRequest>(this) { data ->
-                val newAchievementRequest = call.receive<AchievementCreateRequest>()
+                val newAchievementRequest = data
                 val newAchievement = Achievement(
                     _id = UUID.randomUUID().toString(),
                     name = newAchievementRequest.name,
@@ -37,40 +37,30 @@ fun Route.addAchievement() {
 
 fun Route.getAchievements() {
     get {
-        protected(this) { _ ->
-            validate<AchievementCreateRequest>(this) { data ->
-                val achievements = Achievement.getAchievements()
-                call.respond(HttpStatusCode.OK, achievements)
-            }
-        }
+        val achievements = Achievement.getAchievements()
+        call.respond(HttpStatusCode.OK, achievements)
     }
     get("/{achievementId}") {
-        protected(this) { _ ->
-            validate<AchievementCreateRequest>(this) { data ->
-                val id = call.parameters["achievementId"] ?: throw ValidationException()
-                val achievement = Database.achievements.findByIdOrName(id) ?: throw AchievementMissingException()
-                call.respond(achievement)
-            }
-        }
+        val id = call.parameters["achievementId"] ?: throw ValidationException()
+        val achievement = Database.achievements.findByIdOrName(id) ?: throw AchievementMissingException()
+        call.respond(achievement)
     }
 }
 
 fun Route.deleteAchievement() {
     delete("/{id}") {
         protected(this) { _ ->
-            validate<AchievementCreateRequest>(this) { data ->
-                val id = call.parameters["id"]
-                if (id == null) {
-                    call.respond(HttpStatusCode.BadRequest, "Missing or malformed id")
-                    return@protected
-                }
+            val id = call.parameters["id"]
+            if (id == null) {
+                call.respond(HttpStatusCode.BadRequest, "Missing or malformed id")
+                return@protected
+            }
 
-                val isDeleted = Achievement.deleteAchievement(id)
-                if (isDeleted) {
-                    call.respond(HttpStatusCode.OK, "Achievement $id deleted successfully")
-                } else {
-                    call.respond(HttpStatusCode.NotFound, "Achievement $id not found")
-                }
+            val isDeleted = Achievement.deleteAchievement(id)
+            if (isDeleted) {
+                call.respond(HttpStatusCode.OK, "Achievement $id deleted successfully")
+            } else {
+                call.respond(HttpStatusCode.NotFound, "Achievement $id not found")
             }
         }
     }
