@@ -467,7 +467,6 @@ class SocketRouter(val server: ServerContext) {
     private suspend fun onAchievementComplete(data: PlayerAchievementData) {
         val player: Player = PlayerCache.get(data.player.name) ?: return
         player.stats.achievements.add(data.achievement)
-        // I think this line below is updating Redis.
         PlayerCache.set(player.name, player, true)
     }
 }
