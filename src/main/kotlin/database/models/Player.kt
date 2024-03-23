@@ -202,6 +202,3 @@ data class PlayerMessages(var staff: Int = 0, var global: Int = 0, var team: Int
         get() = staff + global + team
 }
 
-@Serializable
-data class PlayerAchievement(val title: String)
-

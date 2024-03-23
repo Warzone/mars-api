@@ -11,9 +11,3 @@ data class AchievementCreateRequest(
     val category: AchievementCategory? = null,
     val agent: Agent
 )
-
-@Serializable
-data class AchievementCompletionEvent(
-    val playerId: String,
-    val achievementId: String
-)
