@@ -9,23 +9,21 @@ import network.warzone.api.database.Database
 import network.warzone.api.database.findByIdOrName
 import network.warzone.api.database.models.Achievement
 import network.warzone.api.http.AchievementMissingException
-import network.warzone.api.http.RankMissingException
 import network.warzone.api.http.ValidationException
-import network.warzone.api.util.capitalizeFirst
 import network.warzone.api.util.protected
 import network.warzone.api.util.validate
 import java.util.*
 
-fun Route.addAchievement() {
+fun Route.manageAchievements() {
     post {
         protected(this) { _ ->
             validate<AchievementCreateRequest>(this) { data ->
-                val newAchievementRequest = data
+                val newAchievementRequest = call.receive<AchievementCreateRequest>()
                 val newAchievement = Achievement(
                     _id = UUID.randomUUID().toString(),
                     name = newAchievementRequest.name,
                     description = newAchievementRequest.description,
-                    parent = newAchievementRequest.parent,
+                    category = newAchievementRequest.category,
                     agent = newAchievementRequest.agent
                 )
                 val resultId = Achievement.addAchievement(newAchievement)
@@ -33,9 +31,6 @@ fun Route.addAchievement() {
             }
         }
     }
-}
-
-fun Route.getAchievements() {
     get {
         val achievements = Achievement.getAchievements()
         call.respond(HttpStatusCode.OK, achievements)
@@ -45,9 +40,6 @@ fun Route.getAchievements() {
         val achievement = Database.achievements.findByIdOrName(id) ?: throw AchievementMissingException()
         call.respond(achievement)
     }
-}
-
-fun Route.deleteAchievement() {
     delete("/{id}") {
         protected(this) { _ ->
             val id = call.parameters["id"]
@@ -69,9 +61,7 @@ fun Route.deleteAchievement() {
 fun Application.achievementRoutes() {
     routing {
         route("/mc/achievements") {
-            addAchievement()
-            getAchievements()
-            deleteAchievement()
+            manageAchievements()
         }
     }
 }

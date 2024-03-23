@@ -466,7 +466,7 @@ class SocketRouter(val server: ServerContext) {
 
     private suspend fun onAchievementComplete(data: PlayerAchievementData) {
         val player: Player = PlayerCache.get(data.player.name) ?: return
-        player.stats.achievements.add(data.achievement)
+        player.stats.achievements[data.achievement] = AchievementStatistic(completionTime=data.completionTime)
         PlayerCache.set(player.name, player, true)
     }
 }

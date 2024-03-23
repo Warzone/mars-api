@@ -59,4 +59,4 @@ data class PlayerLevelUpData(val player: SimplePlayer, val level: Int)
 data class DisconnectPlayerData(val playerId: String, val reason: String)
 
 @Serializable
-data class PlayerAchievementData(val player: SimplePlayer, val achievement: String)
+data class PlayerAchievementData(val player: SimplePlayer, val achievement: String, val completionTime: Long)
