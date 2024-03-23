@@ -33,7 +33,7 @@ class SocketRouter(val server: ServerContext) {
     private val participantListeners =
         listOf(ParticipantStatListener, ParticipantPartyListener, MapRecordListener, LeaderboardListener)
     private val playerListeners =
-        listOf(PlayerStatListener, PlayerGamemodeStatListener, PlayerXPListener, PlayerRecordListener, PlayerUpdateListener(server))
+        listOf(PlayerStatListener, PlayerGamemodeStatListener, PlayerXPListener, PlayerRecordListener, PlayerUpdateListener())
     suspend fun route(event: EventType, data: JsonObject) {
         try {
             when (event) {

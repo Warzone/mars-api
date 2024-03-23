@@ -81,39 +81,39 @@ data class PlayerUpdate(
     val reason: PlayerUpdateReason
 )
 
-class PlayerUpdateListener(private val server: ServerContext) : PlayerListener<PlayerContext>() {
+class PlayerUpdateListener : PlayerListener<PlayerContext>() {
     override suspend fun onKill(context: PlayerContext, data: PlayerDeathData, firstBlood: Boolean): PlayerContext {
-        reply(context.profile, PlayerUpdateData.KillUpdateData(data, firstBlood), PlayerUpdateReason.KILL)
+        context.update(context.profile, PlayerUpdateData.KillUpdateData(data, firstBlood), PlayerUpdateReason.KILL)
         return super.onKill(context, data, firstBlood)
     }
 
     override suspend fun onDeath(context: PlayerContext, data: PlayerDeathData, firstBlood: Boolean): PlayerContext {
-        reply(context.profile, PlayerUpdateData.KillUpdateData(data, firstBlood), PlayerUpdateReason.DEATH)
+        context.update(context.profile, PlayerUpdateData.KillUpdateData(data, firstBlood), PlayerUpdateReason.DEATH)
         return super.onDeath(context, data, firstBlood)
     }
 
     override suspend fun onChat(context: PlayerContext, data: PlayerChatData): PlayerContext {
-        reply(context.profile, PlayerUpdateData.ChatUpdateData(data), PlayerUpdateReason.CHAT)
+        context.update(context.profile, PlayerUpdateData.ChatUpdateData(data), PlayerUpdateReason.CHAT)
         return super.onChat(context, data)
     }
 
     override suspend fun onKillstreak(context: PlayerContext, amount: Int): PlayerContext {
-        reply(context.profile, PlayerUpdateData.KillstreakUpdateData(amount), PlayerUpdateReason.KILLSTREAK)
+        context.update(context.profile, PlayerUpdateData.KillstreakUpdateData(amount), PlayerUpdateReason.KILLSTREAK)
         return super.onKillstreak(context, amount)
     }
 
     override suspend fun onKillstreakEnd(context: PlayerContext, amount: Int): PlayerContext {
-        reply(context.profile, PlayerUpdateData.KillstreakUpdateData(amount), PlayerUpdateReason.KILLSTREAK_END)
+        context.update(context.profile, PlayerUpdateData.KillstreakUpdateData(amount), PlayerUpdateReason.KILLSTREAK_END)
         return super.onKillstreakEnd(context, amount)
     }
 
     override suspend fun onPartyJoin(context: PlayerContext, partyName: String): PlayerContext {
-        reply(context.profile, PlayerUpdateData.PartyUpdateData(partyName), PlayerUpdateReason.PARTY_JOIN)
+        context.update(context.profile, PlayerUpdateData.PartyUpdateData(partyName), PlayerUpdateReason.PARTY_JOIN)
         return super.onPartyJoin(context, partyName)
     }
 
     override suspend fun onPartyLeave(context: PlayerContext): PlayerContext {
-        reply(context.profile, PlayerUpdateData.NoArgs, PlayerUpdateReason.PARTY_LEAVE)
+        context.update(context.profile, PlayerUpdateData.NoArgs, PlayerUpdateReason.PARTY_LEAVE)
         return super.onPartyLeave(context)
     }
 
@@ -123,7 +123,7 @@ class PlayerUpdateListener(private val server: ServerContext) : PlayerListener<P
         bigStats: MatchEndData.BigStats,
         result: PlayerMatchResult
     ): PlayerContext {
-        reply(context.profile, PlayerUpdateData.MatchEndUpdateData(data), PlayerUpdateReason.MATCH_END)
+        context.update(context.profile, PlayerUpdateData.MatchEndUpdateData(data), PlayerUpdateReason.MATCH_END)
         return super.onMatchEnd(context, data, bigStats, result)
     }
 
@@ -132,7 +132,7 @@ class PlayerUpdateListener(private val server: ServerContext) : PlayerListener<P
         destroyable: DestroyableGoal,
         blockCount: Int
     ): PlayerContext {
-        reply(context.profile, PlayerUpdateData.DestroyableDamageUpdateData(blockCount), PlayerUpdateReason.DESTROYABLE_DAMAGE)
+        context.update(context.profile, PlayerUpdateData.DestroyableDamageUpdateData(blockCount), PlayerUpdateReason.DESTROYABLE_DAMAGE)
         return super.onDestroyableDamage(context, destroyable, blockCount)
     }
 
@@ -141,61 +141,57 @@ class PlayerUpdateListener(private val server: ServerContext) : PlayerListener<P
         percentage: Float,
         blockCount: Int
     ): PlayerContext {
-        reply(context.profile, PlayerUpdateData.DestroyableDestroyUpdateData(percentage, blockCount), PlayerUpdateReason.DESTROYABLE_DESTROY)
+        context.update(context.profile, PlayerUpdateData.DestroyableDestroyUpdateData(percentage, blockCount), PlayerUpdateReason.DESTROYABLE_DESTROY)
         return super.onDestroyableDestroy(context, percentage, blockCount)
     }
 
     override suspend fun onCoreLeak(context: PlayerContext, percentage: Float, blockCount: Int): PlayerContext {
-        reply(context.profile, PlayerUpdateData.CoreLeakUpdateData(percentage, blockCount), PlayerUpdateReason.CORE_LEAK)
+        context.update(context.profile, PlayerUpdateData.CoreLeakUpdateData(percentage, blockCount), PlayerUpdateReason.CORE_LEAK)
         return super.onCoreLeak(context, percentage, blockCount)
     }
 
     override suspend fun onFlagPlace(context: PlayerContext, heldTime: Long): PlayerContext {
-        reply(context.profile, PlayerUpdateData.MonumentPlaceUpdateData(heldTime), PlayerUpdateReason.FLAG_PLACE)
+        context.update(context.profile, PlayerUpdateData.MonumentPlaceUpdateData(heldTime), PlayerUpdateReason.FLAG_PLACE)
         return super.onFlagPlace(context, heldTime)
     }
 
     override suspend fun onFlagDrop(context: PlayerContext, heldTime: Long): PlayerContext {
-        reply(context.profile, PlayerUpdateData.MonumentDropUpdateData(heldTime), PlayerUpdateReason.FLAG_DROP)
+        context.update(context.profile, PlayerUpdateData.MonumentDropUpdateData(heldTime), PlayerUpdateReason.FLAG_DROP)
         return super.onFlagDrop(context, heldTime)
     }
 
     override suspend fun onFlagPickup(context: PlayerContext): PlayerContext {
-        reply(context.profile, PlayerUpdateData.NoArgs, PlayerUpdateReason.FLAG_PICKUP)
+        context.update(context.profile, PlayerUpdateData.NoArgs, PlayerUpdateReason.FLAG_PICKUP)
         return super.onFlagPickup(context)
     }
 
     override suspend fun onFlagDefend(context: PlayerContext): PlayerContext {
-        reply(context.profile, PlayerUpdateData.NoArgs, PlayerUpdateReason.FLAG_DEFEND)
+        context.update(context.profile, PlayerUpdateData.NoArgs, PlayerUpdateReason.FLAG_DEFEND)
         return super.onFlagDefend(context)
     }
 
     override suspend fun onWoolPlace(context: PlayerContext, heldTime: Long): PlayerContext {
-        reply(context.profile, PlayerUpdateData.MonumentPlaceUpdateData(heldTime), PlayerUpdateReason.WOOL_PLACE)
+        context.update(context.profile, PlayerUpdateData.MonumentPlaceUpdateData(heldTime), PlayerUpdateReason.WOOL_PLACE)
         return super.onWoolPlace(context, heldTime)
     }
 
     override suspend fun onWoolPickup(context: PlayerContext): PlayerContext {
-        reply(context.profile, PlayerUpdateData.NoArgs, PlayerUpdateReason.WOOL_PICKUP)
+        context.update(context.profile, PlayerUpdateData.NoArgs, PlayerUpdateReason.WOOL_PICKUP)
         return super.onWoolPickup(context)
     }
 
     override suspend fun onWoolDrop(context: PlayerContext, heldTime: Long): PlayerContext {
-        reply(context.profile, PlayerUpdateData.MonumentDropUpdateData(heldTime), PlayerUpdateReason.WOOL_DROP)
+        context.update(context.profile, PlayerUpdateData.MonumentDropUpdateData(heldTime), PlayerUpdateReason.WOOL_DROP)
         return super.onWoolDrop(context, heldTime)
     }
 
     override suspend fun onWoolDefend(context: PlayerContext): PlayerContext {
-        reply(context.profile, PlayerUpdateData.NoArgs, PlayerUpdateReason.WOOL_DEFEND)
+        context.update(context.profile, PlayerUpdateData.NoArgs, PlayerUpdateReason.WOOL_DEFEND)
         return super.onWoolDefend(context)
     }
 
     override suspend fun onControlPointCapture(context: PlayerContext, contributors: Int): PlayerContext {
-        reply(context.profile, PlayerUpdateData.ControlPointCaptureUpdateData(contributors), PlayerUpdateReason.CONTROL_POINT_CAPTURE)
+        context.update(context.profile, PlayerUpdateData.ControlPointCaptureUpdateData(contributors), PlayerUpdateReason.CONTROL_POINT_CAPTURE)
         return super.onControlPointCapture(context, contributors)
-    }
-
-    private suspend fun reply(player: Player, data: PlayerUpdateData, reason: PlayerUpdateReason) {
-        this.server.call(EventType.PLAYER_UPDATE, PlayerUpdate(player, data, reason))
     }
 }
