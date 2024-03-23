@@ -1,17 +1,18 @@
 package network.warzone.api.database.models
 
-import com.mongodb.client.model.Projections
 import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.UpdateResult
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import network.warzone.api.database.*
+import network.warzone.api.database.Database
+import network.warzone.api.database.PlayerCache
+import network.warzone.api.database.deleteById
+import network.warzone.api.database.findById
 import org.bson.BsonDocument
 import org.bson.Document
 import org.litote.kmongo.*
 import org.litote.kmongo.coroutine.CoroutineCollection
-import org.litote.kmongo.coroutine.CoroutineFindPublisher
 
 enum class RecordType {
     LONGEST_SESSION,

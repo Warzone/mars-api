@@ -7,7 +7,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import network.warzone.api.database.Database
 import network.warzone.api.database.MatchCache
 import network.warzone.api.database.PlayerCache
-import network.warzone.api.database.Redis
 import network.warzone.api.database.models.*
 import network.warzone.api.socket.achievement.PlayerUpdateListener
 import network.warzone.api.socket.leaderboard.LeaderboardListener

@@ -4,11 +4,12 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import network.warzone.api.database.models.DestroyableGoal
 import network.warzone.api.database.models.Player
-import network.warzone.api.socket.EventType
 import network.warzone.api.socket.match.MatchEndData
 import network.warzone.api.socket.participant.PlayerMatchResult
-import network.warzone.api.socket.player.*
-import network.warzone.api.socket.server.ServerContext
+import network.warzone.api.socket.player.PlayerChatData
+import network.warzone.api.socket.player.PlayerContext
+import network.warzone.api.socket.player.PlayerDeathData
+import network.warzone.api.socket.player.PlayerListener
 
 @Serializable
 enum class PlayerUpdateReason {
