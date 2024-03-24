@@ -5,6 +5,9 @@ import network.warzone.api.database.models.LevelGamemode
 import network.warzone.api.database.models.Match
 import network.warzone.api.database.models.Player
 import network.warzone.api.socket.EventType
+import network.warzone.api.socket.achievement.PlayerUpdate
+import network.warzone.api.socket.achievement.PlayerUpdateData
+import network.warzone.api.socket.achievement.PlayerUpdateReason
 import network.warzone.api.socket.leaderboard.XPLeaderboard
 import network.warzone.api.socket.participant.ParticipantContext
 import kotlin.math.max
@@ -59,5 +62,9 @@ data class PlayerContext(val profile: Player, val match: Match) {
         XPLeaderboard.increment(profile.idName, xp)
 
         return this
+    }
+
+    suspend fun update(player: Player, data: PlayerUpdateData, reason: PlayerUpdateReason) {
+        match.server.call(EventType.PLAYER_UPDATE, PlayerUpdate(player, data, reason))
     }
 }

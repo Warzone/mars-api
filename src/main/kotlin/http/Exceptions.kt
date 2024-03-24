@@ -84,6 +84,9 @@ class UnauthorizedException : ApiException(
     "API credentials are missing or invalid"
 )
 
+class AchievementMissingException :
+    ApiException(HttpStatusCode.NotFound, ApiExceptionType.ACHIEVEMENT_MISSING, "The achievement does not exist")
+
 enum class ApiExceptionType {
     INTERNAL_SERVER_ERROR,
     UNAUTHORIZED_EXCEPTION,
@@ -102,5 +105,6 @@ enum class ApiExceptionType {
     MAP_MISSING,
     MATCH_MISSING,
     PUNISHMENT_MISSING,
-    NOTE_MISSING
+    NOTE_MISSING,
+    ACHIEVEMENT_MISSING
 }

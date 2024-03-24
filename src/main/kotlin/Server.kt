@@ -34,6 +34,7 @@ import io.ktor.websocket.*
 import network.warzone.api.database.Database
 import network.warzone.api.http.ApiException
 import network.warzone.api.http.InternalServerErrorException
+import network.warzone.api.http.achievements.achievementRoutes
 import network.warzone.api.http.broadcast.broadcastRoutes
 import network.warzone.api.http.leaderboard.leaderboardRoutes
 import network.warzone.api.http.level.levelRoutes
@@ -48,8 +49,6 @@ import network.warzone.api.http.status.statusRoutes
 import network.warzone.api.http.tag.tagRoutes
 import network.warzone.api.socket.initSocketHandler
 import java.util.*
-
-//import com.koriit.kotlin
 
 fun main() {
     embeddedServer(Netty, host = Config.listenHost, port = Config.listenPort) {
@@ -114,6 +113,7 @@ class Server {
 
         initSocketHandler()
 
+        achievementRoutes()
         statusRoutes()
         playerRoutes()
         matchRoutes()

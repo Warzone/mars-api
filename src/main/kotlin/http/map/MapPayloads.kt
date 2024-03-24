@@ -1,7 +1,6 @@
 package network.warzone.api.http.map
 
 import kotlinx.serialization.Serializable
-import network.warzone.api.database.models.Level
 import network.warzone.api.database.models.LevelContributor
 import network.warzone.api.database.models.LevelGamemode
 

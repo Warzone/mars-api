@@ -4,9 +4,6 @@ import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import kotlin.random.Random
-import kotlin.random.nextInt
-import kotlin.text.get
 
 fun Route.status() {
     get() {

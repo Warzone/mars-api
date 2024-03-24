@@ -22,7 +22,7 @@ data class Player(
     var activeTagId: String? = null,
     val stats: PlayerStats,
     val gamemodeStats: HashMap<LevelGamemode, GamemodeStats>,
-    var activeJoinSoundId: String? = null
+    var activeJoinSoundId: String? = null,
 ) {
     suspend fun getActiveSession(): Session? {
         return Database.sessions.findOne(Session::endedAt eq null, Session::player / SimplePlayer::id eq _id)
@@ -115,6 +115,7 @@ data class PlayerStats(
     val weaponDeaths: MutableMap<String, Int> = mutableMapOf(),
     val killstreaks: MutableMap<Int, Int> = mutableMapOf(),
     val killstreaksEnded: MutableMap<Int, Int> = mutableMapOf(),
+    val achievements: MutableMap<String, AchievementStatistic> = mutableMapOf()
 ) {
     val level: Int
         get() = floor(((xp + XP_PER_LEVEL) / XP_PER_LEVEL).toDouble()).toInt()
@@ -200,3 +201,4 @@ data class PlayerMessages(var staff: Int = 0, var global: Int = 0, var team: Int
     val total: Int
         get() = staff + global + team
 }
+

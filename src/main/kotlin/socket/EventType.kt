@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class EventType {
     // API-bound
+    ACHIEVEMENT_EARN,
     MATCH_LOAD,
     MATCH_START,
     MATCH_END,
@@ -33,5 +34,6 @@ enum class EventType {
     PLAYER_XP_GAIN,
     FORCE_MATCH_END,
     MESSAGE,
-    DISCONNECT_PLAYER
+    DISCONNECT_PLAYER,
+    PLAYER_UPDATE
 }
