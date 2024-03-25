@@ -38,6 +38,7 @@ data class LevelContributor(val uuid: String, var contribution: String? = null)
 enum class LevelGamemode(val fancy: String) {
     ATTACK_DEFEND("Attack/Defend"),
     ARCADE("Arcade"),
+    BEDWARS("Bedwars"),
     BLITZ("Blitz"),
     BLITZ_RAGE("Blitz: Rage"),
     CAPTURE_THE_FLAG("Capture the Flag"),
