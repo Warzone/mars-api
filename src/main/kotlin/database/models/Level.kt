@@ -38,9 +38,10 @@ data class LevelContributor(val uuid: String, var contribution: String? = null)
 enum class LevelGamemode(val fancy: String) {
     ATTACK_DEFEND("Attack/Defend"),
     ARCADE("Arcade"),
-    BEDWARS("Bedwars"),
+    BEDWARS("Bed Wars"),
     BLITZ("Blitz"),
     BLITZ_RAGE("Blitz: Rage"),
+    BRIDGE("Bridge"),
     CAPTURE_THE_FLAG("Capture the Flag"),
     CONTROL_THE_POINT("Control the Point"),
     CAPTURE_THE_WOOL("Capture the Wool"),
@@ -48,11 +49,15 @@ enum class LevelGamemode(val fancy: String) {
     DESTROY_THE_MONUMENT("Destroy the Monument"),
     FREE_FOR_ALL("Free For All"),
     FLAG_FOOTBALL("Flag Football"),
+    INFECTION("Infection"),
     KING_OF_THE_HILL("King of the Hill"),
     KING_OF_THE_FLAG("King of the Flag"),
     MIXED("Mixed"),
+    PAYLOAD("Payload"),
     RAGE("Rage"),
     RACE_FOR_WOOL("Race for Wool"),
     SCOREBOX("Scorebox"),
+    SKYWARS("Skywars"),
+    SURVIVAL_GAMES("Survival Games"),
     DEATHMATCH("Deathmatch");
 }
